@@ -7,11 +7,11 @@ export async function GET() {
     const filePath = path.join(process.cwd(), "public", `${experienceLetterName}`);
 
     try {
-        const fileBuffer = fs.readFileSync(filePath);
-        const response = new NextResponse(fileBuffer, {
+        const fileBuffer = await fs.promises.readFile(filePath);
+        const response = new NextResponse(new Uint8Array(fileBuffer), {
             headers: {
                 "Content-Type": "application/pdf",
-                "Content-Disposition": `attachment; filename="${experienceLetterName}");"`,
+                "Content-Disposition": `attachment; filename="${experienceLetterName}"`,
             },
         })
 

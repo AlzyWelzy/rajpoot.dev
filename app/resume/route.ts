@@ -9,7 +9,7 @@ export async function GET() {
     try {
         const fileBuffer = await fs.promises.readFile(filePath);
 
-        return new NextResponse(fileBuffer, {
+        return new NextResponse(new Uint8Array(fileBuffer), {
             headers: {
                 "Content-Type": "application/pdf",
                 "Content-Disposition": `attachment; filename="${resumeName}"`,
