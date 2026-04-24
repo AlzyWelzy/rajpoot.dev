@@ -56,7 +56,7 @@ export default function Contact() {
           maxLength={500}
           autoComplete="email"
           placeholder="Your email"
-          className="h-14 px-4 rounded-lg borderBlack dark:bg-white dark:bg-opacity-80 dark:focus:bg-opacity-100 transition-all dark:outline-none"
+          className="h-14 px-4 rounded-lg borderBlack dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
         />
         <label htmlFor="message" className="sr-only">
           Your message
@@ -67,7 +67,7 @@ export default function Contact() {
           required
           maxLength={5000}
           placeholder="Your message"
-          className="h-52 my-3 rounded-lg borderBlack p-4 dark:bg-white dark:bg-opacity-80 dark:focus:bg-opacity-100 transition-all dark:outline-none"
+          className="h-52 my-3 rounded-lg borderBlack p-4 dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
         />
         <SubmitBtn />
       </form>
