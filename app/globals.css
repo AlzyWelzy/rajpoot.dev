@@ -1,15 +1,54 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-html {
-  --line-color: #e5e7eb;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand: #0f172a;
+  --color-brand-foreground: #f8fafc;
+
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-gradient-conic: conic-gradient(
+    from 180deg at 50% 50%,
+    var(--tw-gradient-stops)
+  );
 }
 
-html.dark {
-  --line-color: rgba(255, 255, 255, 0.2);
+@layer base {
+  :root {
+    --line-color: #e5e7eb;
+    color-scheme: light;
+  }
+
+  html.dark {
+    --line-color: rgba(255, 255, 255, 0.2);
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-.borderBlack {
+@utility borderBlack {
   @apply border border-black/10;
 }

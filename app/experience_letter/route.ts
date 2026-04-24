@@ -1,24 +1,24 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
-import { experienceLetterName } from '@/lib/data';
+
+import { experienceLetterName } from "@/lib/data";
+
+export const dynamic = "force-static";
 
 export async function GET() {
-    const filePath = path.join(process.cwd(), "public", `${experienceLetterName}`);
+  const filePath = path.join(process.cwd(), "public", experienceLetterName);
 
-    try {
-        const fileBuffer = fs.readFileSync(filePath);
-        const response = new NextResponse(fileBuffer, {
-            headers: {
-                "Content-Type": "application/pdf",
-                "Content-Disposition": `attachment; filename="${experienceLetterName}");"`,
-            },
-        })
-
-        return response;
-    } catch (error) {
-        return NextResponse.error();
-    }
-
-
+  try {
+    const fileBuffer = await fs.readFile(filePath);
+    return new NextResponse(new Uint8Array(fileBuffer), {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${experienceLetterName}"`,
+        "Cache-Control": "public, max-age=3600, s-maxage=86400",
+      },
+    });
+  } catch {
+    return new NextResponse("Experience letter not found", { status: 404 });
+  }
 }

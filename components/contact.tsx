@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
+import { motion } from "motion/react";
+import toast from "react-hot-toast";
+
 import SectionHeading from "./section-heading";
-import { motion } from "framer-motion";
+import SubmitBtn from "./submit-btn";
 import { useSectionInView } from "@/lib/hooks";
 import { sendEmail } from "@/actions/sendEmail";
-import SubmitBtn from "./submit-btn";
-import toast from "react-hot-toast";
 import { emailId } from "@/lib/data";
 
 export default function Contact() {
@@ -16,26 +17,19 @@ export default function Contact() {
     <motion.section
       id="contact"
       ref={ref}
-      className="mb-20 sm:mb-28 w-[min(100%,38rem)] text-center"
-      initial={{
-        opacity: 0,
-      }}
-      whileInView={{
-        opacity: 1,
-      }}
-      transition={{
-        duration: 1,
-      }}
-      viewport={{
-        once: true,
-      }}
+      aria-label="Contact"
+      className="mb-20 sm:mb-28 w-[min(100%,38rem)] text-center scroll-mt-28"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      viewport={{ once: true }}
     >
       <SectionHeading>Contact me</SectionHeading>
 
       <p className="text-gray-700 -mt-6 dark:text-white/80">
         Please contact me directly at{" "}
-        <a className="underline" href={"mailto:"+emailId}>
-          {emailId}{" "}
+        <a className="underline" href={`mailto:${emailId}`}>
+          {emailId}
         </a>{" "}
         or through this form.
       </p>
@@ -43,30 +37,37 @@ export default function Contact() {
       <form
         className="mt-10 flex flex-col dark:text-black"
         action={async (formData) => {
-          const { data, error } = await sendEmail(formData);
-
+          const { error } = await sendEmail(formData);
           if (error) {
             toast.error(error);
             return;
           }
-
           toast.success("Email sent successfully!");
         }}
       >
+        <label htmlFor="senderEmail" className="sr-only">
+          Your email
+        </label>
         <input
-          className="h-14 px-4 rounded-lg borderBlack dark:bg-white dark:bg-opacity-80 dark:focus:bg-opacity-100 transition-all dark:outline-none"
+          id="senderEmail"
           name="senderEmail"
           type="email"
           required
           maxLength={500}
+          autoComplete="email"
           placeholder="Your email"
+          className="h-14 px-4 rounded-lg borderBlack dark:bg-white dark:bg-opacity-80 dark:focus:bg-opacity-100 transition-all dark:outline-none"
         />
+        <label htmlFor="message" className="sr-only">
+          Your message
+        </label>
         <textarea
-          className="h-52 my-3 rounded-lg borderBlack p-4 dark:bg-white dark:bg-opacity-80 dark:focus:bg-opacity-100 transition-all dark:outline-none"
+          id="message"
           name="message"
-          placeholder="Your message"
           required
           maxLength={5000}
+          placeholder="Your message"
+          className="h-52 my-3 rounded-lg borderBlack p-4 dark:bg-white dark:bg-opacity-80 dark:focus:bg-opacity-100 transition-all dark:outline-none"
         />
         <SubmitBtn />
       </form>

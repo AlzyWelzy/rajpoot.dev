@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { BsArrowRight, BsLinkedin } from "react-icons/bs";
 import { HiDownload } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
+
+import profileImage from "@/public/profile.jpg";
 import { useSectionInView } from "@/lib/hooks";
 import { useActiveSectionContext } from "@/context/active-section-context";
-import profileImage from "@/public/profile.jpg";
 
 export default function Intro() {
   const { ref } = useSectionInView("Home", 0.5);
@@ -19,6 +19,7 @@ export default function Intro() {
     <section
       ref={ref}
       id="home"
+      aria-label="Introduction"
       className="mb-28 max-w-[50rem] text-center sm:mb-0 scroll-mt-[100rem]"
     >
       <div className="flex items-center justify-center">
@@ -26,15 +27,15 @@ export default function Intro() {
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              type: "tween",
-              duration: 0.2,
-            }}
+            transition={{ type: "tween", duration: 0.2 }}
           >
             <Image
               src={profileImage}
-              alt="Manvendra Rajpoot portrait"
-              priority={true}
+              alt="Manvendra Rajpoot — Full Stack Developer"
+              priority
+              fetchPriority="high"
+              placeholder="blur"
+              sizes="96px"
               className="h-24 w-24 rounded-full object-cover border-[0.35rem] border-white shadow-xl"
             />
           </motion.div>
@@ -49,6 +50,7 @@ export default function Intro() {
               delay: 0.1,
               duration: 0.7,
             }}
+            aria-hidden="true"
           >
             👋
           </motion.span>
@@ -60,13 +62,13 @@ export default function Intro() {
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <span className="font-bold">Hello, I'm Manvendra.</span> I'm a{" "}
+        <span className="font-bold">Hello, I&apos;m Manvendra.</span> I&apos;m a{" "}
         <span className="font-bold">full-stack developer</span>. Passionate
         about{" "}
         <span className="italic">
           building{" "}
           <span className="underline" style={{ whiteSpace: "nowrap" }}>
-            sites & apps.
+            sites &amp; apps.
           </span>
         </span>
       </motion.h1>
@@ -75,49 +77,56 @@ export default function Intro() {
         className="flex flex-col sm:flex-row items-center justify-center gap-2 px-4 text-lg font-medium"
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{
-          delay: 0.1,
-        }}
+        transition={{ delay: 0.1 }}
       >
         <Link
           href="#contact"
-          className="group bg-gray-900 text-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus:scale-110 hover:scale-110 hover:bg-gray-950 active:scale-105 transition"
+          className="group bg-gray-900 text-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 hover:scale-110 hover:bg-gray-950 active:scale-105 transition"
           onClick={() => {
             setActiveSection("Contact");
             setTimeOfLastClick(Date.now());
           }}
         >
           Contact me here{" "}
-          <BsArrowRight className="opacity-70 group-hover:translate-x-1 transition" />
+          <BsArrowRight
+            aria-hidden="true"
+            className="opacity-70 group-hover:translate-x-1 transition"
+          />
         </Link>
 
         <a
-          aria-label="Download CV"
-          className="group bg-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus:scale-110 hover:scale-110 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10"
+          aria-label="Download Manvendra Rajpoot's resume (PDF)"
+          className="group bg-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 hover:scale-110 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10"
           href="/resume"
           target="_blank"
+          rel="noopener"
           download
         >
           Download CV{" "}
-          <HiDownload className="opacity-60 group-hover:translate-y-1 transition" />
+          <HiDownload
+            aria-hidden="true"
+            className="opacity-60 group-hover:translate-y-1 transition"
+          />
         </a>
 
         <a
-          aria-label="LinkedIn Profile"
-          className="bg-white p-4 text-gray-700 hover:text-gray-950 flex items-center gap-2 rounded-full focus:scale-[1.15] hover:scale-[1.15] active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
+          aria-label="LinkedIn profile"
+          className="bg-white p-4 text-gray-700 hover:text-gray-950 flex items-center gap-2 rounded-full focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 hover:scale-[1.15] active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
           href="/linkedin"
           target="_blank"
+          rel="noopener"
         >
-          <BsLinkedin />
+          <BsLinkedin aria-hidden="true" />
         </a>
 
         <a
-          aria-label="Github Profile"
-          className="bg-white p-4 text-gray-700 flex items-center gap-2 text-[1.35rem] rounded-full focus:scale-[1.15] hover:scale-[1.15] hover:text-gray-950 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
+          aria-label="GitHub profile"
+          className="bg-white p-4 text-gray-700 flex items-center gap-2 text-[1.35rem] rounded-full focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 hover:scale-[1.15] hover:text-gray-950 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
           href="/github"
           target="_blank"
+          rel="noopener"
         >
-          <FaGithubSquare />
+          <FaGithubSquare aria-hidden="true" />
         </a>
       </motion.div>
     </section>

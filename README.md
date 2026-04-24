@@ -1,27 +1,51 @@
-# Manvendra Rajpoot's Portfolio
+# Manvendra Rajpoot — Portfolio
 
-Welcome to my portfolio website, where you can explore my work and learn more about me. This website is built using a combination of technologies to provide a seamless user experience.
+Personal portfolio of **Manvendra Rajpoot**, a Full Stack Developer. Built with a modern, SEO‑first Next.js stack.
 
-## Technologies Used
+Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 
-- **React & Next.js**: Leveraging the power of React and Next.js for a fast and efficient web application.
+## Stack
 
-- **TypeScript**: Ensuring type safety and enhanced development experience.
+- **Next.js 16** (App Router, Server Actions, Metadata API, OG image generation)
+- **React 19**
+- **TypeScript 5.9** (strict, `noUncheckedIndexedAccess`)
+- **Tailwind CSS v4** with CSS‑first `@theme` config and dark mode variants
+- **Motion** (the Framer Motion successor) for animations
+- **React Email + Resend** for the contact form
+- **Edge-rendered OG images** (`app/opengraph-image.tsx`)
 
-- **Tailwind CSS**: Utilizing a utility-first CSS framework to style the website with ease.
+## SEO features
 
-- **Framer Motion**: Adding delightful animations and interactions to enhance user engagement.
+- Centralized site config (`lib/seo.ts`)
+- Full `Metadata` + `Viewport` objects (OG, Twitter, canonical, robots, theme color)
+- JSON‑LD structured data (`Person`, `WebSite`, `ProfilePage`)
+- Dynamic `app/sitemap.ts` and `app/robots.ts`
+- Web App Manifest via `app/manifest.ts`
+- Dynamic Open Graph image (1200×630)
+- Preconfigured security headers (HSTS, referrer policy, permissions policy, etc.)
+- Accessibility: skip link, landmarks, aria labels, focus styles, `prefers-reduced-motion`
 
-- **React Email & Resend**: Implementing email functionality for a smooth communication process.
+## Local development
 
-- **Vercel Hosting**: The website is hosted on Vercel, ensuring high performance and reliability.
+```bash
+pnpm install
+pnpm dev
+```
 
-## Explore My Work
+Build locally:
 
-Visit my portfolio website to check out the projects I've worked on, learn more about my experience, and get in touch with me.
+```bash
+pnpm build
+pnpm start
+```
+
+## Environment variables
+
+| Key | Purpose |
+| --- | --- |
+| `RESEND_API_KEY` | Sending messages from the contact form via Resend |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | (Optional) Google Search Console verification token |
 
 ## Contact
 
-If you have any questions or want to collaborate on a project, feel free to reach out to me at [manvendra@rajpoot.dev](mailto:manvendra@rajpoot.dev).
-
-Thank you for visiting my portfolio website!
+[manvendra@rajpoot.dev](mailto:manvendra@rajpoot.dev)
