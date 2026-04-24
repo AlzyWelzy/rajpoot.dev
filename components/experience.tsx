@@ -32,7 +32,7 @@ const iconStyle: React.CSSProperties = {
 };
 
 export default function Experience() {
-  const { ref } = useSectionInView("Experience");
+  const { ref } = useSectionInView("Experience", 0.1);
 
   return (
     <section
