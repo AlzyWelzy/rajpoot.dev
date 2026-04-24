@@ -1,27 +1,45 @@
-# Manvendra Rajpoot's Portfolio
+# Manvendra Rajpoot's Portfolio — Plain HTML/CSS/JS
 
-Welcome to my portfolio website, where you can explore my work and learn more about me. This website is built using a combination of technologies to provide a seamless user experience.
+A dependency-free version of my portfolio website, rebuilt with only plain
+HTML, CSS, and vanilla JavaScript. No framework, no build step — just open
+`index.html` in a browser (or serve the folder statically).
 
 ## Technologies Used
 
-- **React & Next.js**: Leveraging the power of React and Next.js for a fast and efficient web application.
+- **HTML5** — semantic markup for all sections.
+- **CSS3** — custom properties for theming, flex/grid layout, keyframe
+  animations, and responsive media queries.
+- **Vanilla JavaScript** — renders project/skill/experience lists,
+  dark-mode toggle with `localStorage`, active-section tracking with
+  `IntersectionObserver`, scroll-reveal animations, and the contact form
+  (which opens the user's email client via `mailto:`).
 
-- **TypeScript**: Ensuring type safety and enhanced development experience.
+## Running locally
 
-- **Tailwind CSS**: Utilizing a utility-first CSS framework to style the website with ease.
+No build step or install required. Either:
 
-- **Framer Motion**: Adding delightful animations and interactions to enhance user engagement.
+- Open `index.html` directly in your browser, or
+- Serve the folder with any static server, e.g.:
 
-- **React Email & Resend**: Implementing email functionality for a smooth communication process.
+  ```bash
+  python3 -m http.server 8000
+  # then visit http://localhost:8000
+  ```
 
-- **Vercel Hosting**: The website is hosted on Vercel, ensuring high performance and reliability.
+## Project structure
 
-## Explore My Work
-
-Visit my portfolio website to check out the projects I've worked on, learn more about my experience, and get in touch with me.
+```
+.
+├── index.html        # Page markup and section structure
+├── styles.css        # All styles, including the light/dark theme
+├── script.js         # Content data and interactivity
+└── public/           # Images, resume, cover letter, and experience letter
+```
 
 ## Contact
 
-If you have any questions or want to collaborate on a project, feel free to reach out to me at [manvendra@rajpoot.dev](mailto:manvendra@rajpoot.dev).
+If you have any questions or want to collaborate on a project, feel free to
+reach out at
+[manvendra@rajpoot.dev](mailto:manvendra@rajpoot.dev).
 
-Thank you for visiting my portfolio website!
+Thank you for visiting!
