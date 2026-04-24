@@ -1,49 +1,107 @@
-import Header from "@/components/header";
-import "./globals.css";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import ActiveSectionContextProvider from "@/context/active-section-context";
+import { Toaster } from "react-hot-toast";
+
+import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ThemeSwitch from "@/components/theme-switch";
+import JsonLd from "@/components/json-ld";
+import ActiveSectionContextProvider from "@/context/active-section-context";
 import ThemeContextProvider from "@/context/theme-context";
-import { Toaster } from "react-hot-toast";
-import type { Metadata } from "next";
+import { siteConfig } from "@/lib/seo";
 
-const inter = Inter({ subsets: ["latin"] });
+import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
-  title: "Manvendra Rajpoot | Personal Portfolio",
-  description:
-    "Innovative Full Stack Developer with a Proven Track Record in Building Scalable Web Applications.",
-  keywords: [
-    "Manvendra Rajpoot",
-    "Portfolio",
-    "Developer",
-    "Full-stack",
-    "alzywelzy",
-    "Alzy Welzy",
-    "welzyalzy",
-    "Welzy Alzy",
-    "manvendra",
-    "rajpoot",
-    "rajpoot.dev",
-    "www.rajpoot.dev",
-  ],
-  authors: {
-    name: "Manvendra Rajpoot",
-    url: "https://www.rajpoot.dev",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: `${siteConfig.name} — ${siteConfig.jobTitle}`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  applicationName: `${siteConfig.name} Portfolio`,
+  keywords: [...siteConfig.keywords],
+  authors: [{ name: siteConfig.name, url: siteConfig.url }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "technology",
+  alternates: {
+    canonical: "/",
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: siteConfig.locale,
+    url: siteConfig.url,
+    siteName: `${siteConfig.name} — Portfolio`,
+    title: `${siteConfig.name} — ${siteConfig.jobTitle}`,
+    description: siteConfig.description,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} — ${siteConfig.jobTitle}`,
+      },
+    ],
   },
   twitter: {
-    title: "Manvendra Rajpoot | Personal Portfolio",
-    creator: "@AlzyWelzy",
-    site: "@AlzyWelzy",
-    description:
-      "Innovative Full Stack Developer with a Proven Track Record in Building Scalable Web Applications.",
+    card: "summary_large_image",
+    site: siteConfig.twitter,
+    creator: siteConfig.twitter,
+    title: `${siteConfig.name} — ${siteConfig.jobTitle}`,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/profile.jpg",
+  },
+  manifest: "/manifest.webmanifest",
+  verification: {
+    // Replace with real tokens when available.
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
 };
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fbe2e3" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1020" },
+  ],
+};
+
+const themeInitScript = `
+(function() {
+  try {
+    var stored = localStorage.getItem('theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = stored || (prefersDark ? 'dark' : 'light');
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    document.documentElement.style.colorScheme = theme;
+  } catch (_) {}
+})();
+`.trim();
 
 export default function RootLayout({
   children,
@@ -51,19 +109,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="!scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <JsonLd />
+      </head>
       <body
-        className={`${inter.className} bg-gray-50 text-gray-950 relative pt-28 sm:pt-36 dark:bg-gray-900 dark:text-gray-50 dark:text-opacity-90`}
+        className={`${inter.className} relative pt-28 bg-gray-50 text-gray-950 sm:pt-36 dark:bg-gray-900 dark:text-gray-50/90`}
       >
-        <div className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#946263]"></div>
-        <div className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#676394]"></div>
+        <div
+          aria-hidden="true"
+          className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#946263]"
+        />
+        <div
+          aria-hidden="true"
+          className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#676394]"
+        />
 
         <ThemeContextProvider>
           <ActiveSectionContextProvider>
+            <a
+              href="#home"
+              className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[1000] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:text-gray-900 focus:shadow dark:focus:bg-gray-900 dark:focus:text-white"
+            >
+              Skip to content
+            </a>
             <Header />
             {children}
             <Footer />
-
             <Toaster position="top-right" />
             <ThemeSwitch />
           </ActiveSectionContextProvider>
