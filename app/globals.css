@@ -17,11 +17,23 @@
   :root {
     --line-color: #e5e7eb;
     color-scheme: light;
+
+    --timeline-bg: #f3f4f6;
+    --timeline-arrow: #9ca3af;
+    --timeline-icon-bg: #ffffff;
+    --timeline-text: #111827;
+    --timeline-muted: #4b5563;
   }
 
   html.dark {
     --line-color: rgba(255, 255, 255, 0.2);
     color-scheme: dark;
+
+    --timeline-bg: rgba(255, 255, 255, 0.05);
+    --timeline-arrow: rgba(255, 255, 255, 0.5);
+    --timeline-icon-bg: rgba(255, 255, 255, 0.15);
+    --timeline-text: rgba(255, 255, 255, 0.9);
+    --timeline-muted: rgba(255, 255, 255, 0.7);
   }
 
   html {
