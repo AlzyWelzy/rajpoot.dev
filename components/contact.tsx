@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import toast from "react-hot-toast";
 
 import SectionHeading from "./section-heading";
@@ -14,7 +14,7 @@ export default function Contact() {
   const { ref } = useSectionInView("Contact");
 
   return (
-    <motion.section
+    <m.section
       id="contact"
       ref={ref}
       aria-label="Contact"
@@ -71,6 +71,6 @@ export default function Contact() {
         />
         <SubmitBtn />
       </form>
-    </motion.section>
+    </m.section>
   );
 }

@@ -3,6 +3,11 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  // Tree-shake large barrel packages so only the icons/animations actually
+  // used ship to the client, shrinking the JS bundle.
+  experimental: {
+    optimizePackageImports: ["react-icons", "motion"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [

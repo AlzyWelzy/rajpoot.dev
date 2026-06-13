@@ -10,7 +10,7 @@ import { siteConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: {
-    absolute: `${siteConfig.name} — ${siteConfig.jobTitle} | Portfolio`,
+    absolute: `${siteConfig.name} — Backend Developer (AI & Cloud) | Portfolio`,
   },
   description: siteConfig.description,
   alternates: { canonical: "/" },
@@ -20,7 +20,8 @@ export default function Home() {
   return (
     <main
       id="main"
-      className="flex flex-col items-center px-4"
+      tabIndex={-1}
+      className="flex flex-col items-center px-4 outline-none"
     >
       <Intro />
       <SectionDivider />

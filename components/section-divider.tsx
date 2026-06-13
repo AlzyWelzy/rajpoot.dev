@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 
 export default function SectionDivider() {
   return (
-    <motion.div
+    <m.div
       aria-hidden="true"
       className="bg-gray-200 my-24 h-16 w-1 rounded-full hidden sm:block dark:bg-gray-200/20"
       initial={{ opacity: 0, y: 100 }}

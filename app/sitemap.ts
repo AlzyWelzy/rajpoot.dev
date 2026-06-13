@@ -1,26 +1,18 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/seo";
-import { links } from "@/lib/data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  const entries: MetadataRoute.Sitemap = [
+  // Single-page site: the homepage is the only canonical, indexable URL.
+  // In-page sections (#about, #projects, …) are fragments of this same page,
+  // so they are intentionally not listed as separate entries.
+  return [
     {
       url: siteConfig.url,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 1,
     },
-    ...links
-      .filter((link) => link.hash !== "#home")
-      .map((link) => ({
-        url: `${siteConfig.url}/${link.hash}`,
-        lastModified: now,
-        changeFrequency: "monthly" as const,
-        priority: 0.7,
-      })),
   ];
-
-  return entries;
 }

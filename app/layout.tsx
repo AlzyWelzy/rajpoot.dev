@@ -6,6 +6,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ThemeSwitch from "@/components/theme-switch";
 import JsonLd from "@/components/json-ld";
+import MotionProvider from "@/components/motion-provider";
 import ActiveSectionContextProvider from "@/context/active-section-context";
 import ThemeContextProvider from "@/context/theme-context";
 import { siteConfig } from "@/lib/seo";
@@ -70,14 +71,13 @@ export const metadata: Metadata = {
     images: [siteConfig.ogImage],
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/profile.jpg",
+    // favicon.ico is still added automatically via its file convention.
+    // Declaring `icons` here overrides the auto-merge for the other rels, so we
+    // list the scalable SVG icon and the generated PNG apple-touch-icon.
+    icon: { url: "/icon.svg", type: "image/svg+xml" },
+    apple: { url: "/apple-icon", sizes: "180x180", type: "image/png" },
   },
   manifest: "/manifest.webmanifest",
-  verification: {
-    // Replace with real tokens when available.
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
-  },
 };
 
 export const viewport: Viewport = {
@@ -128,17 +128,19 @@ export default function RootLayout({
 
         <ThemeContextProvider>
           <ActiveSectionContextProvider>
-            <a
-              href="#home"
-              className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[1000] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:text-gray-900 focus:shadow dark:focus:bg-gray-900 dark:focus:text-white"
-            >
-              Skip to content
-            </a>
-            <Header />
-            {children}
-            <Footer />
-            <Toaster position="top-right" />
-            <ThemeSwitch />
+            <MotionProvider>
+              <a
+                href="#main"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[1000] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:text-gray-900 focus:shadow dark:focus:bg-gray-900 dark:focus:text-white"
+              >
+                Skip to content
+              </a>
+              <Header />
+              {children}
+              <Footer />
+              <Toaster position="top-right" />
+              <ThemeSwitch />
+            </MotionProvider>
           </ActiveSectionContextProvider>
         </ThemeContextProvider>
       </body>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 import { BsArrowRight, BsLinkedin } from "react-icons/bs";
 import { HiDownload } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -24,23 +24,23 @@ export default function Intro() {
     >
       <div className="flex items-center justify-center">
         <div className="relative">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "tween", duration: 0.2 }}
           >
             <Image
               src={profileImage}
-              alt="Manvendra Rajpoot — Full Stack Developer"
+              alt="Manvendra Rajpoot — Backend Developer"
               priority
               fetchPriority="high"
               placeholder="blur"
               sizes="96px"
               className="h-24 w-24 rounded-full object-cover border-[0.35rem] border-white shadow-xl"
             />
-          </motion.div>
+          </m.div>
 
-          <motion.span
+          <m.span
             className="absolute bottom-0 right-0 text-4xl"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -53,27 +53,26 @@ export default function Intro() {
             aria-hidden="true"
           >
             👋
-          </motion.span>
+          </m.span>
         </div>
       </div>
 
-      <motion.h1
+      <m.h1
         className="mb-10 mt-4 px-4 text-2xl font-medium !leading-[1.5] sm:text-4xl"
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <span className="font-bold">Hello, I&apos;m Manvendra.</span> I&apos;m a{" "}
-        <span className="font-bold">full-stack developer</span>. Passionate
-        about{" "}
+        <span className="font-bold">backend developer</span> specializing in{" "}
         <span className="italic">
-          building{" "}
+          AI automation &amp;{" "}
           <span className="underline" style={{ whiteSpace: "nowrap" }}>
-            sites &amp; apps.
+            cloud engineering.
           </span>
         </span>
-      </motion.h1>
+      </m.h1>
 
-      <motion.div
+      <m.div
         className="flex flex-col sm:flex-row items-center justify-center gap-2 px-4 text-lg font-medium"
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
@@ -128,7 +127,7 @@ export default function Intro() {
         >
           <FaGithubSquare aria-hidden="true" />
         </a>
-      </motion.div>
+      </m.div>
     </section>
   );
 }

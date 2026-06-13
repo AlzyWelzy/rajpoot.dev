@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "motion/react";
+import { m, useScroll, useTransform } from "motion/react";
 
 import { projectsData } from "@/lib/data";
 
@@ -24,7 +24,7 @@ export default function Project({
   const opacityProgress = useTransform(scrollYProgress, [0, 1], [0.6, 1]);
 
   return (
-    <motion.article
+    <m.article
       ref={ref}
       style={{ scale: scaleProgress, opacity: opacityProgress }}
       className="group mb-3 sm:mb-8 last:mb-0"
@@ -77,6 +77,6 @@ export default function Project({
           />
         </section>
       </a>
-    </motion.article>
+    </m.article>
   );
 }

@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/lib/seo";
 
-export const runtime = "edge";
 export const alt = `${siteConfig.name} — ${siteConfig.jobTitle}`;
 export const contentType = "image/png";
 export const size = { width: 1200, height: 630 };
@@ -55,12 +54,11 @@ export default function OpengraphImage() {
           <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1.05 }}>
             {siteConfig.name}
           </div>
-          <div style={{ fontSize: 40, opacity: 0.9 }}>
-            {siteConfig.jobTitle}
+          <div style={{ fontSize: 34, opacity: 0.9 }}>
+            {siteConfig.roleline}
           </div>
-          <div style={{ fontSize: 28, opacity: 0.7, maxWidth: 900 }}>
-            Building scalable web apps with Next.js, React, TypeScript, Django
-            & Node.js.
+          <div style={{ fontSize: 28, opacity: 0.7, maxWidth: 940 }}>
+            Building scalable, secure, AI-powered systems & robust APIs.
           </div>
         </div>
 
@@ -73,7 +71,7 @@ export default function OpengraphImage() {
             opacity: 0.85,
           }}
         >
-          {["Next.js", "React", "TypeScript", "Django", "PostgreSQL", "AWS"].map(
+          {siteConfig.ogTags.map(
             (tag) => (
               <div
                 key={tag}
