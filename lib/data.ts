@@ -2,7 +2,6 @@ import React from "react";
 import type { StaticImageData } from "next/image";
 import { LuGraduationCap, LuCode } from "react-icons/lu";
 import articify from "@/public/articify.png";
-import cloudtechtiq from "@/public/cloudtechtiq.png";
 import rosterly from "@/public/rosterly.png";
 
 export const links = [
@@ -66,9 +65,9 @@ export const projectsData: ProjectType[] = [
     description:
       "Built from scratch: the backend for a multi-tenant SaaS portal — secure MFA authentication and access control, AI-powered support features, real-time notifications, and automated background jobs, all shipped through CI/CD pipelines.",
     tags: ["Python", "Django", "DRF", "PostgreSQL", "Docker", "CI/CD"],
+    logo: "/cloudtechtiq-logo.svg",
     liveUrl: "https://cloudtechtiq.com/",
-    githubUrl: "https://github.com/Cloudtechtiq-raj/portal-backend",
-    imageUrl: cloudtechtiq,
+    // githubUrl: "https://github.com/Cloudtechtiq-raj/portal-backend",
   },
   {
     title: "Rosterly (Radixlink)",

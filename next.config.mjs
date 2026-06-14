@@ -46,8 +46,13 @@ const nextConfig = {
       "upgrade-insecure-requests",
     ].join("; ");
 
+    // CSP only in production. Next's dev server + React dev mode require
+    // eval() (HMR, callstack reconstruction) which this policy intentionally
+    // forbids; `next start` and Vercel run production React, which never evals.
+    const isProd = process.env.NODE_ENV === "production";
+
     const securityHeaders = [
-      { key: "Content-Security-Policy", value: csp },
+      ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
       { key: "X-DNS-Prefetch-Control", value: "on" },
       { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
       { key: "X-Content-Type-Options", value: "nosniff" },
