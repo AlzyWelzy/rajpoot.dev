@@ -1,8 +1,6 @@
 import React from "react";
 import type { StaticImageData } from "next/image";
 import { LuGraduationCap, LuCode } from "react-icons/lu";
-import articify from "@/public/articify.png";
-import rosterly from "@/public/rosterly.png";
 
 export const links = [
   { name: "Home", hash: "#home" },
@@ -74,8 +72,8 @@ export const projectsData: ProjectType[] = [
     description:
       "Contributed to the core development of Rosterly.io — building and refining backend features, authentication, and integrations to improve the overall product and user experience.",
     tags: ["Django", "Python", "PostgreSQL", "React", "Stripe"],
+    logo: "/rosterly-logo.svg",
     liveUrl: "https://rosterly.io/",
-    imageUrl: rosterly,
   },
   {
     title: "Namecheap Python SDK",
@@ -91,8 +89,8 @@ export const projectsData: ProjectType[] = [
     description:
       "An open-source, AI-powered web app that automatically summarizes articles — streamlining the reading experience with a fast, modern frontend.",
     tags: ["React", "Redux", "Vite", "Tailwind", "TypeScript"],
+    logo: "/articify-logo.svg",
     liveUrl: "https://articify.rajpoot.dev/",
-    imageUrl: articify,
   },
 ];
 
