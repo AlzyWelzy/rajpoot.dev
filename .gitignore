@@ -5,6 +5,11 @@
 /.pnp
 .pnp.js
 
+# pnpm: this single-package repo has no workspace. pnpm 10/11 may recreate a
+# settings-only pnpm-workspace.yaml, which Vercel's pnpm 9 rejects ("packages
+# field missing or empty"), so keep it out of the committed tree.
+pnpm-workspace.yaml
+
 # testing
 /coverage
 
