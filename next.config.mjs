@@ -25,7 +25,29 @@ const nextConfig = {
     ];
   },
   async headers() {
+    // Static CSP (no nonce, so the app stays fully prerendered). 'unsafe-inline'
+    // is required because Next injects inline hydration/theme scripts and motion
+    // sets inline styles; the value still comes from restricting *sources*
+    // (no external scripts beyond self + Vercel Analytics) plus object/base/frame
+    // hardening. The Vercel hosts cover Analytics + Speed Insights.
+    const csp = [
+      "default-src 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "frame-ancestors 'self'",
+      "form-action 'self'",
+      "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https://images.unsplash.com",
+      "font-src 'self' data:",
+      "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+      "frame-src 'self'",
+      "manifest-src 'self'",
+      "upgrade-insecure-requests",
+    ].join("; ");
+
     const securityHeaders = [
+      { key: "Content-Security-Policy", value: csp },
       { key: "X-DNS-Prefetch-Control", value: "on" },
       { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
       { key: "X-Content-Type-Options", value: "nosniff" },

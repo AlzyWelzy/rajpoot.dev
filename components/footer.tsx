@@ -8,7 +8,7 @@ export default function Footer() {
   return (
     <footer
       role="contentinfo"
-      className="px-4 pb-10 text-center text-gray-500 dark:text-white/60"
+      className="px-4 pb-10 text-center text-gray-600 dark:text-white/70"
     >
       <p className="mb-2 block text-xs">
         <span className="font-semibold">

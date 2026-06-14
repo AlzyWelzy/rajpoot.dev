@@ -1,5 +1,6 @@
 "use client";
 
+import { useActionState, useState } from "react";
 import { m } from "motion/react";
 import toast from "react-hot-toast";
 
@@ -9,8 +10,29 @@ import { useSectionInView } from "@/lib/hooks";
 import { sendEmail } from "@/actions/sendEmail";
 import { emailId } from "@/lib/data";
 
+type FormState = { error?: string; success?: boolean } | null;
+
 export default function Contact() {
   const { ref } = useSectionInView("Contact");
+  // Controlled so a failed submit keeps what the user typed (React 19 resets
+  // uncontrolled form actions), and we clear them only on success.
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const [state, formAction] = useActionState<FormState, FormData>(
+    async (_prev, formData) => {
+      const { error } = await sendEmail(formData);
+      if (error) {
+        toast.error(error);
+        return { error };
+      }
+      toast.success("Email sent successfully!");
+      setEmail("");
+      setMessage("");
+      return { success: true };
+    },
+    null,
+  );
 
   return (
     <m.section
@@ -33,17 +55,7 @@ export default function Contact() {
         or through this form.
       </p>
 
-      <form
-        className="mt-10 flex flex-col dark:text-black"
-        action={async (formData) => {
-          const { error } = await sendEmail(formData);
-          if (error) {
-            toast.error(error);
-            return;
-          }
-          toast.success("Email sent successfully!");
-        }}
-      >
+      <form className="mt-10 flex flex-col dark:text-black" action={formAction}>
         {/* Honeypot: hidden from real users; spam bots fill it and get
             silently dropped server-side. A non-semantic name + ignore hints
             keep browsers/password managers from autofilling it (which would
@@ -69,6 +81,8 @@ export default function Contact() {
           maxLength={500}
           autoComplete="email"
           placeholder="Your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           className="h-14 px-4 rounded-lg borderBlack dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
         />
         <label htmlFor="message" className="sr-only">
@@ -80,9 +94,20 @@ export default function Contact() {
           required
           maxLength={5000}
           placeholder="Your message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
           className="h-52 my-3 rounded-lg borderBlack p-4 dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
         />
         <SubmitBtn />
+
+        {state?.error && (
+          <p
+            role="alert"
+            className="mt-3 text-sm text-red-600 dark:text-red-400"
+          >
+            {state.error}
+          </p>
+        )}
       </form>
     </m.section>
   );

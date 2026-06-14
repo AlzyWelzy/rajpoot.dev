@@ -1,4 +1,5 @@
 import React from "react";
+import type { StaticImageData } from "next/image";
 import { LuGraduationCap, LuCode } from "react-icons/lu";
 import articify from "@/public/articify.png";
 import cloudtechtiq from "@/public/cloudtechtiq.png";
@@ -48,13 +49,23 @@ export const experiencesData = [
   },
 ] as const;
 
-export const projectsData = [
+export type ProjectType = {
+  title: string;
+  description: string;
+  tags: readonly string[];
+  imageUrl?: StaticImageData;
+  liveUrl?: string;
+  githubUrl?: string;
+};
+
+export const projectsData: ProjectType[] = [
   {
     title: "Multi-Tenant SaaS Platform (CloudTechTiq)",
     description:
-      "Designed and built core backend services for a multi-tenant SaaS platform — secure MFA authentication, AI-powered support features, real-time notifications, and automated background jobs, deployed through CI/CD pipelines.",
+      "Built from scratch: the backend for a multi-tenant SaaS portal — secure MFA authentication and access control, AI-powered support features, real-time notifications, and automated background jobs, all shipped through CI/CD pipelines.",
     tags: ["Python", "Django", "DRF", "PostgreSQL", "Docker", "CI/CD"],
-    project_link: "https://cloudtechtiq.com/",
+    liveUrl: "https://cloudtechtiq.com/",
+    githubUrl: "https://github.com/Cloudtechtiq-raj/portal-backend",
     imageUrl: cloudtechtiq,
   },
   {
@@ -62,18 +73,26 @@ export const projectsData = [
     description:
       "Contributed to the core development of Rosterly.io — building and refining backend features, authentication, and integrations to improve the overall product and user experience.",
     tags: ["Django", "Python", "PostgreSQL", "React", "Stripe"],
-    project_link: "https://rosterly.io/",
+    liveUrl: "https://rosterly.io/",
     imageUrl: rosterly,
+  },
+  {
+    title: "Namecheap Python SDK",
+    description:
+      "An open-source Python SDK that wraps the Namecheap API behind a clean, typed interface for managing domains and DNS programmatically. Published to PyPI as namecheap-sdk.",
+    tags: ["Python", "SDK", "REST API", "PyPI", "Open Source"],
+    liveUrl: "https://pypi.org/project/namecheap-sdk/",
+    githubUrl: "https://github.com/AlzyWelzy/namecheap-wrapper",
   },
   {
     title: "Articify",
     description:
-      "Built an open-source, AI-powered web app that automatically summarizes articles — streamlining the reading experience with a fast, modern frontend.",
+      "An open-source, AI-powered web app that automatically summarizes articles — streamlining the reading experience with a fast, modern frontend.",
     tags: ["React", "Redux", "Vite", "Tailwind", "TypeScript"],
+    liveUrl: "https://articify.rajpoot.dev/",
     imageUrl: articify,
-    project_link: "https://articify.rajpoot.dev/",
   },
-] as const;
+];
 
 export const skillsData = [
   "Python",
