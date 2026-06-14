@@ -54,6 +54,8 @@ export type ProjectType = {
   description: string;
   tags: readonly string[];
   imageUrl?: StaticImageData;
+  /** Path to a centered logo (public/) for projects without a screenshot. */
+  logo?: string;
   liveUrl?: string;
   githubUrl?: string;
 };
@@ -81,6 +83,7 @@ export const projectsData: ProjectType[] = [
     description:
       "An open-source Python SDK that wraps the Namecheap API behind a clean, typed interface for managing domains and DNS programmatically. Published to PyPI as namecheap-sdk.",
     tags: ["Python", "SDK", "REST API", "PyPI", "Open Source"],
+    logo: "/namecheap-sdk-logo.svg",
     liveUrl: "https://pypi.org/project/namecheap-sdk/",
     githubUrl: "https://github.com/AlzyWelzy/namecheap-wrapper",
   },
