@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { m } from "motion/react";
 import toast from "react-hot-toast";
 
@@ -45,6 +44,20 @@ export default function Contact() {
           toast.success("Email sent successfully!");
         }}
       >
+        {/* Honeypot: hidden from real users; spam bots fill it and get
+            silently dropped server-side. A non-semantic name + ignore hints
+            keep browsers/password managers from autofilling it (which would
+            wrongly drop a legitimate message). */}
+        <input
+          type="text"
+          name="contact_reason_hp"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          data-1p-ignore="true"
+          data-lpignore="true"
+          className="absolute left-[-9999px] h-0 w-0 overflow-hidden"
+        />
         <label htmlFor="senderEmail" className="sr-only">
           Your email
         </label>

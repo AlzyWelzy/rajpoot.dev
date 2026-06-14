@@ -12,6 +12,13 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const sendEmail = async (formData: FormData) => {
   const senderEmail = formData.get("senderEmail");
   const message = formData.get("message");
+  const honeypot = formData.get("contact_reason_hp");
+
+  // Spam bots fill the hidden honeypot field. Pretend success without sending
+  // so we don't tip them off.
+  if (typeof honeypot === "string" && honeypot.trim() !== "") {
+    return { data: { id: "skipped" } };
+  }
 
   if (!validateString(senderEmail, 500)) {
     return { error: "Invalid sender email" };
