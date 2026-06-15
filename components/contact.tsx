@@ -83,6 +83,8 @@ export default function Contact() {
           placeholder="Your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          aria-invalid={state?.error ? true : undefined}
+          aria-describedby={state?.error ? "contact-error" : undefined}
           className="h-14 px-4 rounded-lg borderBlack dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
         />
         <label htmlFor="message" className="sr-only">
@@ -96,12 +98,15 @@ export default function Contact() {
           placeholder="Your message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          aria-invalid={state?.error ? true : undefined}
+          aria-describedby={state?.error ? "contact-error" : undefined}
           className="h-52 my-3 rounded-lg borderBlack p-4 dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
         />
         <SubmitBtn />
 
         {state?.error && (
           <p
+            id="contact-error"
             role="alert"
             className="mt-3 text-sm text-red-600 dark:text-red-400"
           >

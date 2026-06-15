@@ -95,7 +95,7 @@ export default function Project({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Open ${title} (opens in a new tab)`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white outline-none transition hover:bg-gray-950 focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 dark:bg-white/15 dark:hover:bg-white/25"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white outline-none transition hover:bg-gray-950 focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:bg-white/15 dark:hover:bg-white/25"
               >
                 <LuExternalLink aria-hidden="true" /> Live
               </a>
@@ -106,7 +106,7 @@ export default function Project({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`View ${title} source code on GitHub (opens in a new tab)`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-gray-800 outline-none transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+                className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-gray-800 outline-none transition hover:bg-black/5 focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
               >
                 <LuGithub aria-hidden="true" /> Code
               </a>

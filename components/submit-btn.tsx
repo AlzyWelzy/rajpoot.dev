@@ -13,7 +13,7 @@ export default function SubmitBtn() {
       disabled={pending}
       aria-label={pending ? "Sending message…" : "Send message"}
       aria-busy={pending}
-      className="group flex items-center justify-center gap-2 h-[3rem] w-[8rem] bg-gray-900 text-white rounded-full outline-none transition-all focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
+      className="group flex items-center justify-center gap-2 h-[3rem] w-[8rem] bg-gray-900 text-white rounded-full outline-none transition-all focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-white focus-visible:ring-offset-2 hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
     >
       {pending ? (
         <div

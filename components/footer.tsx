@@ -18,18 +18,18 @@ export default function Footer() {
       </p>
 
       <nav aria-label="Social" className="mb-3 flex justify-center gap-4 text-xs">
-        <Link href="/github" className="underline-offset-4 hover:underline">
+        <Link href="/github" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
           GitHub
         </Link>
-        <Link href="/linkedin" className="underline-offset-4 hover:underline">
+        <Link href="/linkedin" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
           LinkedIn
         </Link>
-        <Link href="/twitter" className="underline-offset-4 hover:underline">
+        <Link href="/twitter" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
           Twitter
         </Link>
         <a
           href={`mailto:${siteConfig.email}`}
-          className="underline-offset-4 hover:underline"
+          className="inline-block px-2 py-2 underline-offset-4 hover:underline"
         >
           Email
         </a>

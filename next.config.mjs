@@ -10,9 +10,6 @@ const nextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
-    remotePatterns: [
-      { protocol: "https", hostname: "images.unsplash.com" },
-    ],
   },
   async redirects() {
     return [
@@ -38,7 +35,7 @@ const nextConfig = {
       "form-action 'self'",
       "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https://images.unsplash.com",
+      "img-src 'self' data:",
       "font-src 'self' data:",
       "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
       "frame-src 'self'",

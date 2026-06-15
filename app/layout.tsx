@@ -80,6 +80,17 @@ export const metadata: Metadata = {
     apple: { url: "/apple-icon", sizes: "180x180", type: "image/png" },
   },
   manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: siteConfig.shortName,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+    date: false,
+    address: false,
+    email: false,
+  },
 };
 
 export const viewport: Viewport = {
