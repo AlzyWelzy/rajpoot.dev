@@ -1,10 +1,32 @@
 import { siteConfig } from "@/lib/seo";
-import { skillsData } from "@/lib/data";
+import { skillsData, projectsData } from "@/lib/data";
 
 const personId = `${siteConfig.url}/#person`;
 const websiteId = `${siteConfig.url}/#website`;
+const profileId = `${siteConfig.url}/#profilepage`;
+
+const KNOWN_LANGS = ["Python", "TypeScript", "JavaScript"];
 
 export default function JsonLd() {
+  // Each project as a structured node, authored by the Person, so search
+  // engines can associate the portfolio's work with its owner.
+  const projectNodes = projectsData.map((p, i) => {
+    const id = `${siteConfig.url}/#project-${i + 1}`;
+    const isCode = Boolean(p.githubUrl);
+    const lang = p.tags.find((t) => KNOWN_LANGS.includes(t));
+    return {
+      "@type": isCode ? "SoftwareSourceCode" : "CreativeWork",
+      "@id": id,
+      name: p.title,
+      description: p.description,
+      author: { "@id": personId },
+      keywords: p.tags.join(", "),
+      ...(p.liveUrl ? { url: p.liveUrl } : {}),
+      ...(p.githubUrl ? { codeRepository: p.githubUrl } : {}),
+      ...(isCode && lang ? { programmingLanguage: lang } : {}),
+    };
+  });
+
   // Single @graph so every node can reference the canonical Person via @id —
   // this is what lets ProfilePage.mainEntity, WebSite.about, etc. resolve.
   const graph = {
@@ -22,6 +44,14 @@ export default function JsonLd() {
         email: `mailto:${siteConfig.email}`,
         knowsAbout: skillsData as unknown as string[],
         knowsLanguage: ["English", "Hindi"],
+        hasOccupation: {
+          "@type": "Occupation",
+          name: "Backend Developer",
+          occupationalCategory: "15-1252",
+          description:
+            "Builds scalable, secure backend systems, AI automation, robust APIs, and cloud infrastructure.",
+          skills: (skillsData as unknown as string[]).join(", "),
+        },
         worksFor: {
           "@type": "Organization",
           name: "CloudTechTiq",
@@ -55,7 +85,7 @@ export default function JsonLd() {
       },
       {
         "@type": "ProfilePage",
-        "@id": `${siteConfig.url}/#profilepage`,
+        "@id": profileId,
         url: siteConfig.url,
         name: `${siteConfig.name} — ${siteConfig.jobTitle}`,
         description: siteConfig.description,
@@ -63,7 +93,9 @@ export default function JsonLd() {
         isPartOf: { "@id": websiteId },
         mainEntity: { "@id": personId },
         about: { "@id": personId },
+        hasPart: projectNodes.map((p) => ({ "@id": p["@id"] })),
       },
+      ...projectNodes,
     ],
   };
 
