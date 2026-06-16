@@ -24,6 +24,8 @@ export const siteConfig = {
   twitterUrl: "https://x.com/AlzyWelzy",
   github: "https://github.com/AlzyWelzy",
   linkedin: "https://linkedin.com/in/AlzyWelzy",
+  // Blog lives on its own subdomain.
+  blog: "https://blog.rajpoot.dev",
   // Bump this on meaningful content changes. Drives sitemap `lastmod` and
   // JSON-LD `dateModified` from a single source rather than build time, so the
   // freshness signal reflects real updates, not redeploys.

@@ -44,7 +44,9 @@ pnpm start
 | Key | Purpose |
 | --- | --- |
 | `RESEND_API_KEY` | Sending messages from the contact form via Resend |
-| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | (Optional) Google Search Console verification token |
+| `RESEND_FROM` | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
+| `UPSTASH_REDIS_REST_URL` | (Optional) Upstash Redis URL — enables IP rate limiting on the contact form |
+| `UPSTASH_REDIS_REST_TOKEN` | (Optional) Upstash Redis token — required alongside the URL for rate limiting |
 
 ## Contact
 

@@ -75,6 +75,7 @@ export default function JsonLd() {
           siteConfig.github,
           siteConfig.linkedin,
           siteConfig.twitterUrl,
+          siteConfig.blog,
         ],
       },
       {

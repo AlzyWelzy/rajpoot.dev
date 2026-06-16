@@ -17,7 +17,15 @@ export default function Footer() {
         Thanks for stopping by.
       </p>
 
-      <nav aria-label="Social" className="mb-3 flex justify-center gap-4 text-xs">
+      <nav aria-label="Links" className="mb-3 flex flex-wrap justify-center gap-4 text-xs">
+        <a
+          href={siteConfig.blog}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-2 py-2 underline-offset-4 hover:underline"
+        >
+          Blog
+        </a>
         <Link href="/github" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
           GitHub
         </Link>

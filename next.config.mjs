@@ -17,6 +17,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // The blog lives on its own subdomain; send /blog and any sub-path there.
+      { source: "/blog", destination: "https://blog.rajpoot.dev", permanent: true },
+      { source: "/blog/:path*", destination: "https://blog.rajpoot.dev/:path*", permanent: true },
       { source: "/linkedin", destination: "https://linkedin.com/in/AlzyWelzy", permanent: true },
       { source: "/github", destination: "https://github.com/AlzyWelzy", permanent: true },
       { source: "/twitter", destination: "https://x.com/AlzyWelzy", permanent: true },
