@@ -21,7 +21,7 @@ export default function Header() {
         animate={{ y: 0, x: "-50%", opacity: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 22 }}
       >
-        <ul className="flex min-h-13 flex-wrap items-center justify-center gap-x-1 gap-y-0.5 px-2 py-1.5 text-[0.85rem] font-medium sm:h-14 sm:min-h-[initial] sm:flex-nowrap sm:gap-1 sm:px-2 sm:py-0 sm:text-[0.9rem]">
+        <ul className="flex min-h-13 flex-wrap items-center justify-center gap-x-1 gap-y-0.5 px-2 py-1.5 text-[0.85rem] font-medium sm:h-13 sm:min-h-[initial] sm:flex-nowrap sm:gap-0.5 sm:px-1.5 sm:py-0 sm:text-[0.9rem]">
           {links.map((link, i) => (
             <m.li
               className="flex items-center justify-center relative"
@@ -37,9 +37,9 @@ export default function Header() {
             >
               <Link
                 className={clsx(
-                  "flex w-full items-center justify-center rounded-full px-2.5 py-2 text-gray-600 hover:text-gray-950 transition sm:px-4 sm:py-2.5 dark:text-gray-300 dark:hover:text-white",
+                  "flex w-full items-center justify-center rounded-full px-2.5 py-2 text-gray-600 hover:text-gray-950 transition sm:px-3.5 sm:py-2 dark:text-gray-300 dark:hover:text-white",
                   {
-                    "text-gray-950 dark:text-white":
+                    "text-gray-950 dark:text-teal-100":
                       activeSection === link.name,
                   },
                 )}
@@ -54,7 +54,7 @@ export default function Header() {
 
                 {link.name === activeSection && (
                   <m.span
-                    className="rounded-full absolute inset-0 -z-10 bg-gray-100 dark:bg-white/10"
+                    className="rounded-full absolute inset-0 -z-10 bg-gray-100 ring-1 ring-inset ring-black/5 dark:bg-teal-400/10 dark:ring-teal-300/20"
                     layoutId="activeSection"
                     transition={{
                       type: "spring",
