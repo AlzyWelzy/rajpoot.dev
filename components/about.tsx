@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { m } from "motion/react";
 
 import SectionHeading from "./section-heading";
@@ -13,8 +14,9 @@ export default function About() {
     <m.section
       ref={ref}
       id="about"
+      tabIndex={-1}
       aria-label="About Manvendra Rajpoot"
-      className="mb-28 max-w-[45rem] text-center leading-8 sm:mb-40 scroll-mt-28"
+      className="mb-28 max-w-[45rem] text-center leading-8 outline-none sm:mb-40 scroll-mt-28"
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.175 }}
@@ -25,7 +27,7 @@ export default function About() {
         I&apos;m a <span className="font-medium">backend developer</span> who
         enjoys building systems that are{" "}
         <span className="font-medium">scalable, secure, and quietly reliable</span>.
-        Over the past two years at{" "}
+        Across my roles at{" "}
         <span className="font-medium">CloudTechTiq</span> and{" "}
         <span className="font-medium">Radixlink</span>, I&apos;ve designed and
         shipped multi-tenant SaaS platforms, central authentication systems with
@@ -57,8 +59,13 @@ export default function About() {
         Jain University after completing my BCA at Bundelkhand University, and I
         never stop <span className="underline">learning</span> — a new framework,
         a cloud service, or a better way to architect a backend. I&apos;m open to{" "}
-        <span className="font-medium">backend and full-stack roles</span> where I
-        can build things that scale.
+        <Link
+          href="#contact"
+          className="font-medium underline underline-offset-2 hover:text-gray-950 dark:hover:text-white"
+        >
+          backend and full-stack roles
+        </Link>{" "}
+        where I can build things that scale.
       </p>
     </m.section>
   );

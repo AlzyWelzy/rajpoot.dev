@@ -1,5 +1,4 @@
 import React from "react";
-import type { StaticImageData } from "next/image";
 import { LuGraduationCap, LuCode } from "react-icons/lu";
 
 export const links = [
@@ -50,10 +49,12 @@ export type ProjectType = {
   title: string;
   description: string;
   tags: readonly string[];
-  imageUrl?: StaticImageData;
-  /** Path to a centered logo (public/) for projects without a screenshot. */
+  /** Path to a centered logo (public/) shown on the project card. */
   logo?: string;
   liveUrl?: string;
+  /** Label for the live link (defaults to "Live"); use "Company site" etc.
+   *  when the URL is a marketing page rather than the app itself. */
+  liveLabel?: string;
   githubUrl?: string;
 };
 
@@ -64,8 +65,9 @@ export const projectsData: ProjectType[] = [
       "Built from scratch: the backend for a multi-tenant SaaS portal — secure MFA authentication and access control, AI-powered support features, real-time notifications, and automated background jobs, all shipped through CI/CD pipelines.",
     tags: ["Python", "Django", "DRF", "PostgreSQL", "Docker", "CI/CD"],
     logo: "/cloudtechtiq-logo.svg",
-    liveUrl: "https://cloudtechtiq.com/",
-    // githubUrl: "https://github.com/Cloudtechtiq-raj/portal-backend",
+    // Marketing site, not the SaaS portal itself — labelled accordingly.
+    liveUrl: "https://console.cloudtechtiq.com/",
+    liveLabel: "Live",
   },
   {
     title: "Rosterly (Radixlink)",
@@ -76,21 +78,13 @@ export const projectsData: ProjectType[] = [
     liveUrl: "https://rosterly.io/",
   },
   {
-    title: "Namecheap Python SDK",
+    title: "Namecheap Python Wrapper",
     description:
       "An open-source Python SDK that wraps the Namecheap API behind a clean, typed interface for managing domains and DNS programmatically. Published to PyPI as namecheap-sdk.",
     tags: ["Python", "SDK", "REST API", "PyPI", "Open Source"],
     logo: "/namecheap-sdk-logo.svg",
-    liveUrl: "https://pypi.org/project/namecheap-sdk/",
+    liveUrl: "https://pypi.org/project/namecheap-wrapper/",
     githubUrl: "https://github.com/AlzyWelzy/namecheap-wrapper",
-  },
-  {
-    title: "Articify",
-    description:
-      "An open-source, AI-powered web app that automatically summarizes articles — streamlining the reading experience with a fast, modern frontend.",
-    tags: ["React", "Redux", "Vite", "Tailwind", "TypeScript"],
-    logo: "/articify-logo.svg",
-    liveUrl: "https://articify.rajpoot.dev/",
   },
 ];
 

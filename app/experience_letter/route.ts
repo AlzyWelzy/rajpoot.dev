@@ -15,7 +15,11 @@ export async function GET() {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${experienceLetterName}"`,
-        "Cache-Control": "public, max-age=3600, s-maxage=86400",
+        // Immutable build asset that only changes on redeploy.
+        "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
+        // Keep the standalone PDF out of search results so it doesn't compete
+        // with the homepage (robots.txt can't cover direct fetches).
+        "X-Robots-Tag": "noindex",
       },
     });
   } catch {

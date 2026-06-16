@@ -9,6 +9,12 @@ export const validateString = (
   return true;
 };
 
+// Pragmatic single-pass email check: a non-empty local part, an "@", a domain
+// with at least one dot, and no whitespace. The form input already uses
+// type="email"; this guards direct POSTs to the server action.
+export const isValidEmail = (value: string): boolean =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
 export const getErrorMessage = (error: unknown): string => {
   let message: string;
 

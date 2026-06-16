@@ -1,6 +1,6 @@
 # Manvendra Rajpoot — Portfolio
 
-Personal portfolio of **Manvendra Rajpoot**, a Full Stack Developer. Built with a modern, SEO‑first Next.js stack.
+Personal portfolio of **Manvendra Rajpoot**, a Backend Developer. Built with a modern, SEO‑first Next.js stack.
 
 Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 
@@ -8,7 +8,7 @@ Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 
 - **Next.js 16** (App Router, Server Actions, Metadata API, OG image generation)
 - **React 19**
-- **TypeScript 5.9** (strict, `noUncheckedIndexedAccess`)
+- **TypeScript 6** (strict, `noUncheckedIndexedAccess`)
 - **Tailwind CSS v4** with CSS‑first `@theme` config and dark mode variants
 - **Motion** (the Framer Motion successor) for animations
 - **React Email + Resend** for the contact form
@@ -44,7 +44,9 @@ pnpm start
 | Key | Purpose |
 | --- | --- |
 | `RESEND_API_KEY` | Sending messages from the contact form via Resend |
-| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | (Optional) Google Search Console verification token |
+| `RESEND_FROM` | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
+| `UPSTASH_REDIS_REST_URL` | (Optional) Upstash Redis URL — enables IP rate limiting on the contact form |
+| `UPSTASH_REDIS_REST_TOKEN` | (Optional) Upstash Redis token — required alongside the URL for rate limiting |
 
 ## Contact
 

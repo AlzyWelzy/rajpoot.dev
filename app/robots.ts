@@ -7,10 +7,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/"],
       },
     ],
     sitemap: `${siteConfig.url}/sitemap.xml`,
-    host: siteConfig.url,
+    // The host directive expects a bare hostname, not a full URL.
+    host: new URL(siteConfig.url).host,
   };
 }

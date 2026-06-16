@@ -42,7 +42,7 @@ export default function ExperienceTimeline() {
             icon={item.icon}
             iconStyle={iconStyle}
           >
-            <h3 className="font-semibold capitalize text-[color:var(--timeline-text)]">
+            <h3 className="font-semibold text-[color:var(--timeline-text)]">
               {item.title}
             </h3>
             <p className="font-normal !mt-0 text-[color:var(--timeline-text)]">

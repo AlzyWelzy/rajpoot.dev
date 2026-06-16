@@ -3,6 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  // Keep these server-only packages external instead of bundling them. resend
+  // pulls in @react-email/render -> html-to-text, whose ESM sub-deps (leac,
+  // peberminta) Turbopack fails to resolve when bundled, breaking the build.
+  serverExternalPackages: ["resend", "@react-email/render", "html-to-text"],
   // Tree-shake large barrel packages so only the icons/animations actually
   // used ship to the client, shrinking the JS bundle.
   experimental: {
@@ -13,9 +17,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // The blog lives on its own subdomain; send /blog and any sub-path there.
+      { source: "/blog", destination: "https://blog.rajpoot.dev", permanent: true },
+      { source: "/blog/:path*", destination: "https://blog.rajpoot.dev/:path*", permanent: true },
       { source: "/linkedin", destination: "https://linkedin.com/in/AlzyWelzy", permanent: true },
       { source: "/github", destination: "https://github.com/AlzyWelzy", permanent: true },
-      { source: "/twitter", destination: "https://twitter.com/AlzyWelzy", permanent: true },
+      { source: "/twitter", destination: "https://x.com/AlzyWelzy", permanent: true },
       { source: "/instagram", destination: "https://www.instagram.com/alzywelzyy/", permanent: true },
       { source: "/facebook", destination: "https://www.facebook.com/AlzyWelzyy", permanent: true },
       { source: "/esyconnect", destination: "https://esyconnect.com/candidate/alzywelzy/", permanent: true },

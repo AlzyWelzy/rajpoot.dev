@@ -12,12 +12,20 @@ export default function Footer() {
     >
       <p className="mb-2 block text-xs">
         <span className="font-semibold">
-          Explore my work in web development.
+          Building scalable, secure backends and AI-powered systems.
         </span>{" "}
-        Each project reflects my skills and passion. Thanks for visiting!
+        Thanks for stopping by.
       </p>
 
-      <nav aria-label="Social" className="mb-3 flex justify-center gap-4 text-xs">
+      <nav aria-label="Links" className="mb-3 flex flex-wrap justify-center gap-4 text-xs">
+        <a
+          href={siteConfig.blog}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-2 py-2 underline-offset-4 hover:underline"
+        >
+          Blog
+        </a>
         <Link href="/github" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
           GitHub
         </Link>
@@ -25,7 +33,7 @@ export default function Footer() {
           LinkedIn
         </Link>
         <Link href="/twitter" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
-          Twitter
+          X
         </Link>
         <a
           href={`mailto:${siteConfig.email}`}

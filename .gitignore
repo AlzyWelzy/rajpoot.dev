@@ -13,6 +13,14 @@ pnpm-workspace.yaml
 # testing
 /coverage
 
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# lighthouse ci
+/.lighthouseci/
+
 # next.js
 /.next/
 /out/
