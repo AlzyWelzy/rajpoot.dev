@@ -8,11 +8,13 @@ import { skillsData } from "@/lib/data";
 import { useSectionInView } from "@/lib/hooks";
 
 const fadeInAnimationVariants = {
-  initial: { opacity: 0, y: 100 },
+  initial: { opacity: 0, y: 24 },
   animate: (index: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: 0.05 * index },
+    // Cap the stagger so the last of 32 chips doesn't wait over a second — the
+    // section settles in ~0.3s instead of heaving in.
+    transition: { delay: 0.04 * Math.min(index, 8) },
   }),
 };
 
@@ -25,7 +27,7 @@ export default function Skills() {
       ref={ref}
       tabIndex={-1}
       aria-label="Skills"
-      className="mb-28 max-w-[53rem] scroll-mt-28 text-center outline-none sm:mb-40"
+      className="mb-28 max-w-212 scroll-mt-28 text-center outline-none sm:mb-40"
     >
       <SectionHeading>My skills</SectionHeading>
       <ul className="flex flex-wrap justify-center gap-2 text-lg text-gray-800">

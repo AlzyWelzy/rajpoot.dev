@@ -11,7 +11,7 @@ import { useSectionInView } from "@/lib/hooks";
 const ExperienceTimeline = dynamic(() => import("./experience-timeline"));
 
 export default function Experience() {
-  const { ref } = useSectionInView("Experience", 0.1);
+  const { ref } = useSectionInView("Experience");
 
   return (
     <section

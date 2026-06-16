@@ -13,15 +13,18 @@ export default function SubmitBtn() {
       disabled={pending}
       aria-label={pending ? "Sending message…" : "Send message"}
       aria-busy={pending}
-      className="group flex items-center justify-center gap-2 h-[3rem] w-[8rem] bg-gray-900 text-white rounded-full outline-none transition-all focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
+      className="group flex items-center justify-center gap-2 h-12 w-32 bg-gray-900 text-white rounded-full outline-none transition-all focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
     >
       {pending ? (
-        // The button already conveys pending state via aria-busy + aria-label;
-        // the spinner is purely decorative.
-        <div
-          aria-hidden="true"
-          className="h-5 w-5 animate-spin rounded-full border-b-2 border-white"
-        />
+        // aria-busy + aria-label already announce the state to AT; the visible
+        // "Sending" + spinner keep the button from looking emptied out.
+        <>
+          <span
+            aria-hidden="true"
+            className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"
+          />
+          Sending
+        </>
       ) : (
         <>
           Send{" "}

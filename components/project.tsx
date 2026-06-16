@@ -18,8 +18,11 @@ export default function Project({
     <m.article
       // One-shot reveal on enter (cheap, runs once) instead of a per-card
       // scroll tracker — no continuous scroll listeners / layout reads.
+      // whileHover lifts the card via motion (not a CSS class) so it doesn't
+      // fight the inline transform motion already manages.
       initial={{ opacity: 0, scale: 0.92 }}
       whileInView={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -4 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.4 }}
       className="group mb-6 overflow-hidden rounded-2xl border border-black/5 bg-gray-100 shadow-sm transition last:mb-0 hover:shadow-md dark:border-white/10 dark:bg-white/4"
@@ -78,7 +81,7 @@ export default function Project({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Open ${title} — ${liveLabel} (opens in a new tab)`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white outline-none transition hover:bg-gray-950 focus-ring dark:bg-white/15 dark:hover:bg-white/25"
+                className="inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white outline-none transition hover:scale-105 hover:bg-gray-950 active:scale-100 focus-ring dark:bg-white/15 dark:hover:bg-white/25"
               >
                 <LuExternalLink aria-hidden="true" /> {liveLabel}
               </a>
@@ -89,7 +92,7 @@ export default function Project({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`View ${title} source code on GitHub (opens in a new tab)`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-gray-800 outline-none transition hover:bg-black/5 focus-ring dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+                className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-gray-800 outline-none transition hover:scale-105 hover:bg-black/5 active:scale-100 focus-ring dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
               >
                 <LuGithub aria-hidden="true" /> Code
               </a>

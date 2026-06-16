@@ -14,30 +14,32 @@ export default function Header() {
 
   return (
     <header className="z-[999] relative" role="banner">
-      <m.div
-        className="fixed top-0 left-1/2 h-[4.5rem] w-full rounded-none border border-white/40 bg-white/80 shadow-lg shadow-black/[0.03] backdrop-blur-[0.5rem] sm:top-6 sm:h-[3.25rem] sm:w-[36rem] sm:rounded-full dark:bg-gray-950/75 dark:border-black/40"
+      <m.nav
+        aria-label="Primary"
+        className="fixed top-4 left-1/2 flex w-[min(100%-1.5rem,24rem)] items-center justify-center rounded-3xl border border-white/50 bg-white/85 shadow-lg shadow-black/5 backdrop-blur-md sm:top-6 sm:w-xl sm:rounded-full dark:border-white/10 dark:bg-gray-900/85 dark:shadow-black/20"
         initial={{ y: -100, x: "-50%", opacity: 0 }}
         animate={{ y: 0, x: "-50%", opacity: 1 }}
-        aria-hidden="true"
-      />
-
-      <nav
-        aria-label="Primary"
-        className="flex fixed top-[0.15rem] left-1/2 h-12 -translate-x-1/2 py-2 sm:top-[1.7rem] sm:h-[initial] sm:py-0"
+        transition={{ type: "spring", stiffness: 200, damping: 22 }}
       >
-        <ul className="flex w-[22rem] flex-wrap items-center justify-center gap-y-1 text-[0.9rem] font-medium text-gray-600 sm:w-[initial] sm:flex-nowrap sm:gap-5">
-          {links.map((link) => (
+        <ul className="flex min-h-13 flex-wrap items-center justify-center gap-x-1 gap-y-0.5 px-2 py-1.5 text-[0.85rem] font-medium sm:h-14 sm:min-h-[initial] sm:flex-nowrap sm:gap-1 sm:px-2 sm:py-0 sm:text-[0.9rem]">
+          {links.map((link, i) => (
             <m.li
-              className="h-3/4 flex items-center justify-center relative"
+              className="flex items-center justify-center relative"
               key={link.hash}
               initial={{ y: -100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 24,
+                delay: 0.15 + i * 0.05,
+              }}
             >
               <Link
                 className={clsx(
-                  "flex w-full items-center justify-center px-3 py-3 hover:text-gray-950 transition dark:text-gray-400 dark:hover:text-gray-300",
+                  "flex w-full items-center justify-center rounded-full px-2.5 py-2 text-gray-600 hover:text-gray-950 transition sm:px-4 sm:py-2.5 dark:text-gray-300 dark:hover:text-white",
                   {
-                    "text-gray-950 dark:text-gray-200":
+                    "text-gray-950 dark:text-white":
                       activeSection === link.name,
                   },
                 )}
@@ -52,7 +54,7 @@ export default function Header() {
 
                 {link.name === activeSection && (
                   <m.span
-                    className="bg-gray-100 rounded-full absolute inset-0 -z-10 dark:bg-gray-800"
+                    className="rounded-full absolute inset-0 -z-10 bg-gray-100 dark:bg-white/10"
                     layoutId="activeSection"
                     transition={{
                       type: "spring",
@@ -65,7 +67,7 @@ export default function Header() {
             </m.li>
           ))}
         </ul>
-      </nav>
+      </m.nav>
     </header>
   );
 }

@@ -7,6 +7,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ThemeSwitch from "@/components/theme-switch";
+import ScrollToTop from "@/components/scroll-to-top";
+import ReadingProgress from "@/components/reading-progress";
 import JsonLd from "@/components/json-ld";
 import MotionProvider from "@/components/motion-provider";
 import ActiveSectionContextProvider from "@/context/active-section-context";
@@ -132,11 +134,11 @@ export default function RootLayout({
       >
         <div
           aria-hidden="true"
-          className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-3xl sm:w-[68.75rem] dark:bg-[#946263]"
+          className="theme-surface bg-[#fbe2e3] absolute -top-24 -z-10 right-44 h-125 w-125 rounded-full blur-3xl sm:w-275 dark:bg-[#946263]"
         />
         <div
           aria-hidden="true"
-          className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-3xl sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#676394]"
+          className="theme-surface bg-[#dbd7fb] absolute -top-4 -z-10 -left-140 h-125 w-200 rounded-full blur-3xl sm:w-275 md:-left-132 lg:-left-112 xl:-left-60 2xl:-left-20 dark:bg-[#676394]"
         />
 
         <ThemeContextProvider>
@@ -148,11 +150,13 @@ export default function RootLayout({
               >
                 Skip to content
               </a>
+              <ReadingProgress />
               <Header />
               {children}
               <Footer />
               <Toaster position="top-right" />
               <ThemeSwitch />
+              <ScrollToTop />
             </MotionProvider>
           </ActiveSectionContextProvider>
         </ThemeContextProvider>

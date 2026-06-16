@@ -8,9 +8,7 @@ import { projectsData } from "@/lib/data";
 import { useSectionInView } from "@/lib/hooks";
 
 export default function Projects() {
-  // Lower threshold: the taller banner cards make the section much taller than
-  // the viewport, so a high ratio can never be intersecting.
-  const { ref } = useSectionInView("Projects", 0.2);
+  const { ref } = useSectionInView("Projects");
 
   return (
     <section
