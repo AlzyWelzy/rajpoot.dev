@@ -16,7 +16,7 @@ export default function Header() {
     <header className="z-[999] relative" role="banner">
       <m.nav
         aria-label="Primary"
-        className="fixed top-4 left-1/2 flex w-[min(100%-1.5rem,24rem)] items-center justify-center rounded-3xl border border-white/50 bg-white/85 shadow-lg shadow-black/5 backdrop-blur-md sm:top-6 sm:w-xl sm:rounded-full dark:border-white/10 dark:bg-gray-900/85 dark:shadow-black/20"
+        className="fixed top-4 left-1/2 flex w-[min(100%-1.5rem,24rem)] items-center justify-center rounded-3xl border border-white/50 bg-white/85 shadow-lg shadow-black/5 backdrop-blur-md sm:top-6 sm:w-xl sm:rounded-full dark:border-white/10 dark:bg-slate-900/85 dark:shadow-black/30"
         initial={{ y: -100, x: "-50%", opacity: 0 }}
         animate={{ y: 0, x: "-50%", opacity: 1 }}
         transition={{ type: "spring", stiffness: 200, damping: 22 }}
@@ -39,7 +39,7 @@ export default function Header() {
                 className={clsx(
                   "flex w-full items-center justify-center rounded-full px-2.5 py-2 text-gray-600 hover:text-gray-950 transition sm:px-3.5 sm:py-2 dark:text-gray-300 dark:hover:text-white",
                   {
-                    "text-gray-950 dark:text-teal-100":
+                    "text-gray-950 dark:text-white":
                       activeSection === link.name,
                   },
                 )}
@@ -54,7 +54,7 @@ export default function Header() {
 
                 {link.name === activeSection && (
                   <m.span
-                    className="rounded-full absolute inset-0 -z-10 bg-gray-100 ring-1 ring-inset ring-black/5 dark:bg-teal-400/10 dark:ring-teal-300/20"
+                    className="rounded-full absolute inset-0 -z-10 bg-gray-100 ring-1 ring-inset ring-black/5 dark:bg-slate-700/60 dark:ring-white/10"
                     layoutId="activeSection"
                     transition={{
                       type: "spring",
