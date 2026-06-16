@@ -16,8 +16,9 @@ export default function Projects() {
     <section
       ref={ref}
       id="projects"
+      tabIndex={-1}
       aria-label="Projects"
-      className="mb-28 w-full max-w-2xl scroll-mt-28"
+      className="mb-28 w-full max-w-2xl scroll-mt-28 outline-none"
     >
       <SectionHeading>My projects</SectionHeading>
       <div>

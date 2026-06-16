@@ -1,6 +1,6 @@
 # Manvendra Rajpoot — Portfolio
 
-Personal portfolio of **Manvendra Rajpoot**, a Full Stack Developer. Built with a modern, SEO‑first Next.js stack.
+Personal portfolio of **Manvendra Rajpoot**, a Backend Developer. Built with a modern, SEO‑first Next.js stack.
 
 Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 
@@ -8,7 +8,7 @@ Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 
 - **Next.js 16** (App Router, Server Actions, Metadata API, OG image generation)
 - **React 19**
-- **TypeScript 5.9** (strict, `noUncheckedIndexedAccess`)
+- **TypeScript 6** (strict, `noUncheckedIndexedAccess`)
 - **Tailwind CSS v4** with CSS‑first `@theme` config and dark mode variants
 - **Motion** (the Framer Motion successor) for animations
 - **React Email + Resend** for the contact form

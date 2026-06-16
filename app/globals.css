@@ -64,3 +64,9 @@
 @utility borderBlack {
   @apply border border-black/10;
 }
+
+/* Shared keyboard focus ring — one place to tune instead of repeating the
+   full ring/offset/dark-variant string on every interactive element. */
+@utility focus-ring {
+  @apply focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 dark:focus-visible:ring-white;
+}

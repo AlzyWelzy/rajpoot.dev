@@ -38,8 +38,9 @@ export default function Contact() {
     <m.section
       id="contact"
       ref={ref}
+      tabIndex={-1}
       aria-label="Contact"
-      className="mb-20 sm:mb-28 w-[min(100%,38rem)] text-center scroll-mt-28"
+      className="mb-20 sm:mb-28 w-[min(100%,38rem)] text-center outline-none scroll-mt-28"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 1 }}
@@ -48,11 +49,12 @@ export default function Contact() {
       <SectionHeading>Contact me</SectionHeading>
 
       <p className="text-gray-700 -mt-6 dark:text-white/80">
-        Please contact me directly at{" "}
+        Have a role, a project, or just want to say hi? Drop me a line below, or
+        email me directly at{" "}
         <a className="underline" href={`mailto:${emailId}`}>
           {emailId}
-        </a>{" "}
-        or through this form.
+        </a>
+        .
       </p>
 
       <form className="mt-10 flex flex-col dark:text-black" action={formAction}>

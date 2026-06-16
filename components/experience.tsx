@@ -17,8 +17,9 @@ export default function Experience() {
     <section
       id="experience"
       ref={ref}
+      tabIndex={-1}
       aria-label="Experience and education"
-      className="scroll-mt-28 mb-28 sm:mb-40"
+      className="scroll-mt-28 mb-28 outline-none sm:mb-40"
     >
       <SectionHeading>My experience</SectionHeading>
       <ExperienceTimeline />

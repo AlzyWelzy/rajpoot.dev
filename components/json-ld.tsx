@@ -8,6 +8,9 @@ const profileId = `${siteConfig.url}/#profilepage`;
 const KNOWN_LANGS = ["Python", "TypeScript", "JavaScript"];
 
 export default function JsonLd() {
+  // Spread to drop the readonly tuple type without an `as unknown` escape hatch.
+  const skills = [...skillsData];
+
   // Each project as a structured node, authored by the Person, so search
   // engines can associate the portfolio's work with its owner.
   const projectNodes = projectsData.map((p, i) => {
@@ -42,7 +45,7 @@ export default function JsonLd() {
         jobTitle: siteConfig.jobTitle,
         description: siteConfig.description,
         email: `mailto:${siteConfig.email}`,
-        knowsAbout: skillsData as unknown as string[],
+        knowsAbout: skills,
         knowsLanguage: ["English", "Hindi"],
         hasOccupation: {
           "@type": "Occupation",
@@ -50,7 +53,7 @@ export default function JsonLd() {
           occupationalCategory: "15-1252",
           description:
             "Builds scalable, secure backend systems, AI automation, robust APIs, and cloud infrastructure.",
-          skills: (skillsData as unknown as string[]).join(", "),
+          skills: skills.join(", "),
         },
         worksFor: {
           "@type": "Organization",
@@ -71,7 +74,7 @@ export default function JsonLd() {
         sameAs: [
           siteConfig.github,
           siteConfig.linkedin,
-          "https://twitter.com/AlzyWelzy",
+          siteConfig.twitterUrl,
         ],
       },
       {
@@ -89,6 +92,8 @@ export default function JsonLd() {
         url: siteConfig.url,
         name: `${siteConfig.name} — ${siteConfig.jobTitle}`,
         description: siteConfig.description,
+        // Content-derived (not render-time) so it conveys real freshness.
+        dateModified: siteConfig.lastUpdated,
         inLanguage: siteConfig.language,
         isPartOf: { "@id": websiteId },
         mainEntity: { "@id": personId },

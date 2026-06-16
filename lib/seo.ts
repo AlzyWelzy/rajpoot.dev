@@ -19,37 +19,31 @@ export const siteConfig = {
     country: "India",
     countryCode: "IN",
   },
+  // OG card uses the spec field name "twitter"; the profile URL is on x.com.
   twitter: "@AlzyWelzy",
+  twitterUrl: "https://x.com/AlzyWelzy",
   github: "https://github.com/AlzyWelzy",
   linkedin: "https://linkedin.com/in/AlzyWelzy",
+  // Bump this on meaningful content changes. Drives sitemap `lastmod` and
+  // JSON-LD `dateModified` from a single source rather than build time, so the
+  // freshness signal reflects real updates, not redeploys.
+  lastUpdated: "2026-06-16",
   // Highlighted stack used in the OG image card.
   ogTags: ["Python", "Django", "FastAPI", "PostgreSQL", "Docker", "Kubernetes"],
+  // A concise, distinct set. The keywords meta is not a ranking signal for
+  // Google, so permuted name/role variants only add payload.
   keywords: [
     "Manvendra Rajpoot",
-    "Manvendra Rajpoot Portfolio",
-    "Manvendra Rajpoot Backend Developer",
     "Backend Developer",
-    "Backend Developer Portfolio",
     "Python Developer",
     "Django Developer",
-    "Django REST Framework Developer",
     "FastAPI Developer",
     "API Developer",
     "AI Automation Developer",
     "Cloud Engineer",
     "DevOps Engineer",
-    "Docker",
-    "Kubernetes",
-    "PostgreSQL",
-    "Microservices Developer",
     "SaaS Developer",
-    "Full Stack Developer",
-    "Next.js Developer",
-    "React Developer",
-    "TypeScript Developer",
     "Software Developer India",
-    "alzywelzy",
-    "Alzy Welzy",
     "rajpoot.dev",
   ],
 } as const;
