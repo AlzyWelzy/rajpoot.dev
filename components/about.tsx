@@ -16,9 +16,10 @@ export default function About() {
       id="about"
       tabIndex={-1}
       aria-label="About Manvendra Rajpoot"
-      className="mb-28 max-w-[45rem] text-center leading-8 outline-none sm:mb-40 scroll-mt-28"
+      className="mb-28 max-w-180 text-center leading-8 outline-none sm:mb-40 scroll-mt-28"
       initial={{ opacity: 0, y: 100 }}
-      animate={{ opacity: 1, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
       transition={{ delay: 0.175 }}
     >
       <SectionHeading>About me</SectionHeading>

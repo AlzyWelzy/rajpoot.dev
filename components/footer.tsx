@@ -22,22 +22,22 @@ export default function Footer() {
           href={siteConfig.blog}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block px-2 py-2 underline-offset-4 hover:underline"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline"
         >
           Blog
         </a>
-        <Link href="/github" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
+        <Link href="/github" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline">
           GitHub
         </Link>
-        <Link href="/linkedin" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
+        <Link href="/linkedin" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline">
           LinkedIn
         </Link>
-        <Link href="/twitter" className="inline-block px-2 py-2 underline-offset-4 hover:underline">
+        <Link href="/twitter" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline">
           X
         </Link>
         <a
           href={`mailto:${siteConfig.email}`}
-          className="inline-block px-2 py-2 underline-offset-4 hover:underline"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline"
         >
           Email
         </a>

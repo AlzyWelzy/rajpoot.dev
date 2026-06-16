@@ -87,7 +87,7 @@ export default function Contact() {
           onChange={(e) => setEmail(e.target.value)}
           aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? "contact-error" : undefined}
-          className="h-14 px-4 rounded-lg borderBlack dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
+          className="h-14 px-4 rounded-lg borderBlack outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
         />
         <label htmlFor="message" className="sr-only">
           Your message
@@ -100,9 +100,15 @@ export default function Contact() {
           placeholder="Your message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => {
+            // Cmd/Ctrl+Enter submits; plain Enter stays a newline.
+            if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+              e.currentTarget.form?.requestSubmit();
+            }
+          }}
           aria-invalid={state?.error ? true : undefined}
           aria-describedby={state?.error ? "contact-error" : undefined}
-          className="h-52 my-3 rounded-lg borderBlack p-4 dark:bg-white/80 dark:focus:bg-white transition-all dark:outline-none"
+          className="h-52 my-3 resize-y rounded-lg borderBlack p-4 outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
         />
         <SubmitBtn />
 
