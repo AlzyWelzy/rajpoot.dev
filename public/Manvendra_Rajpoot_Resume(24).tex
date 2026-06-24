@@ -1,0 +1,178 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — RESUME
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Resume.tex
+%  Compiling with plain pdflatex falls back to Helvetica.
+%
+%  FONT: Carlito = Google's metric-identical clone of Calibri.
+%  Same widths, same look, legally embeddable. If you compile on
+%  a machine with real Calibri installed, you can change
+%  \setmainfont{Carlito} to \setmainfont{Calibri}.
+%
+%  HOW TO EDIT:
+%   - Job:      \entry{Role}{Company}{Dates} + itemize block
+%   - Project:  \project{Name}{display-url}{full-url} + itemize
+%   - Skills:   \item \textbf{Label:} items
+%   - Escaping: \& for "&", \% for "%", -- for date dashes
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{0.99}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+% ---------- section style: bold + full-width rule (as in sample) ----------
+\titleformat{\section}
+  {\bfseries\large}{}{0pt}
+  {}
+  [\vspace{-6pt}{\color{rulecolor}\rule{\textwidth}{0.4pt}}]
+\titlespacing*{\section}{0pt}{3pt}{2.4pt}
+\definecolor{rulecolor}{HTML}{999999}
+
+% ---------- tight bullets ----------
+\setlist[itemize]{label=\textbullet, leftmargin=0.2in,
+                  itemsep=1.6pt, parsep=0pt, topsep=1.8pt,
+                  before=\RaggedRight}
+
+% ---------- reusable macros ----------
+% \entry{Role}{Company}{Dates} : three-column bold row
+\newcommand{\entry}[3]{%
+  \vspace{4.5pt}\noindent\textbf{#1}\hfill\textbf{#2}\hfill{\color{subtlegray}#3}\par\vspace{2pt}}
+
+% \project{Name}{display-url}{full-url}
+\newcommand{\project}[3]{%
+  \vspace{4pt}\noindent\textbf{#1}\hfill
+  {\small\color{subtlegray}\href{#3}{\texttt{#2}}}\par\vspace{2pt}}
+
+%==============================================================
+\begin{document}
+
+% ---------- header: full-width table, columns take natural width ----------
+% tabular* with \extracolsep{\fill}: side blocks hug the margins, the
+% stretch glue absorbs all slack, so nothing is squeezed.
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://rajpoot.dev/linkedin}{linkedin.com/in/manvendra}
+  \end{tabular}
+\end{tabular*}
+\vspace{1pt}
+
+% ---------- experience ----------
+\section{Experience}
+
+\entry{Backend Developer}{CloudTechTiq}{Nov 2024 -- Present}
+\begin{itemize}
+  \item Architected a multi-tenant hosting and billing/ERP SaaS on \textbf{Django
+        REST Framework} spanning 25+ apps and 230+ ViewSets under a unified
+        \texttt{/api/} namespace.
+  \item Designed a dual-gateway payment system (\textbf{Razorpay} +
+        \textbf{Stripe}) with HMAC-SHA256 webhook idempotency to prevent duplicate
+        charges, coordinating payment, invoicing, provisioning, and double-entry
+        ledger reconciliation, plus Indian GST e-invoicing (EINV-2.1) through the
+        NIC gateway with IRN generation and signed QR codes.
+  \item Secured the platform with RS512 \textbf{JWT} auth (kid-keyed JWKS,
+        refresh-token rotation over HTTPOnly cookies), a 2FA flow over email OTP
+        and RFC-6238 TOTP, and a 43-permission department-scoped RBAC.
+  \item Shipped real-time notifications over a \textbf{Django Channels} 4 + Redis
+        WebSocket server with JWT-authenticated async consumers, backed by a
+        24-task \textbf{Celery} system (late-ack, worker-lost requeue).
+  \item Eliminated N+1 queries via Prefetch/OuterRef/Exists across a dual
+        async/sync database layer (asyncpg + psycopg) on SQLAlchemy 2.0 with
+        connection pooling and keyset cursor pagination.
+  \item Built a service-provisioning engine that tracks each order through its
+        lifecycle across seven service types, automating bare-metal setup over an
+        HPE iLO Redfish wrapper and Celery-driven IP allocation.
+  \item Set up end-to-end observability with \textbf{OpenTelemetry} tracing and a
+        Prometheus/Grafana/Loki/Tempo stack, so failures across services could be
+        traced to a single request.
+  \item Built and open-sourced a type-safe Namecheap SSL/domain SDK
+        (\textbf{httpx}, \textbf{Pydantic v2}, mypy-strict), published to PyPI ---
+        \href{https://github.com/alzywelzy/namecheap-wrapper}{github.com/alzywelzy/namecheap-wrapper}.
+  \item Containerized and shipped the platform through multi-stage Docker images
+        and a GitHub Actions pipeline publishing to GHCR.
+\end{itemize}
+
+\entry{Backend Developer}{Radixlink}{Jun 2023 -- Sep 2024}
+\begin{itemize}
+  \item Built Rosterly, a multi-tenant workforce/payroll SaaS (\textbf{Django} 4.2
+        + \textbf{FastAPI}, 16 apps, 237 REST endpoints) with schema-per-tenant
+        isolation via \textbf{django-tenants}.
+  \item Developed the timesheet \texttt{->} payroll \texttt{->} invoicing
+        lifecycle with atomic multi-assignment timesheet processing and automated
+        payroll reconciliation on approval, eliminating N+1s on large payroll runs.
+  \item Integrated \textbf{Plaid} bank-account aggregation with transaction sync
+        and duplicate filtering across all tenant schemas, scheduled via
+        \textbf{Celery} Beat.
+  \item Modeled polymorphic assignments (C2C/FTE/T\&M) with date-range conflict
+        detection and a temporal pay-rate system with effective-date ranges and
+        overlap validation.
+  \item Generated multi-format financial reporting (PDF/Excel/CSV) with WeasyPrint
+        and Pandas, plus transaction-protected sequential PDF invoice numbering.
+\end{itemize}
+
+% ---------- education ----------
+\section{Education}
+\entry{Bachelor of Computer Applications (BCA)}{Bundelkhand University}{Jul 2021 -- Jun 2024}
+\begin{itemize}
+  \item Built an AI-powered news summarizer in Python as a final-year academic
+        project, using the OpenAI API to condense full-length articles into short,
+        readable digests.
+\end{itemize}
+
+% ---------- skills ----------
+\section{Technical Skills}
+\begin{itemize}
+  \item \textbf{Languages:} Python, SQL, TypeScript, JavaScript, Bash
+  \item \textbf{Backend:} Django, Django REST Framework, FastAPI, Celery,
+        SQLAlchemy, Pydantic, asyncio, WebSockets, SSE, REST, GraphQL
+  \item \textbf{Data \& Infra:} PostgreSQL, Redis, MongoDB, MySQL, Alembic,
+        RabbitMQ; AWS (EC2, S3, RDS, Lambda), Azure, Apache CloudStack, Docker,
+        Kubernetes, GitHub Actions, GHCR, Gunicorn, NGINX, Linux
+  \item \textbf{Security \& Payments:} OAuth2/OpenID, JWT, RBAC, MFA, 2FA/TOTP,
+        HMAC, Stripe, Razorpay, Plaid
+  \item \textbf{AI, Observability \& Testing:} OpenAI API, LangChain;
+        OpenTelemetry, Prometheus,
+        Grafana, Sentry, pytest, TDD, Unit/Integration/E2E, CI/CD, Agile/Scrum
+\end{itemize}
+
+\end{document}
