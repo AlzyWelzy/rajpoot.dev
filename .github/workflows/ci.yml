@@ -5,6 +5,16 @@ on:
     branches: [main]
   pull_request:
 
+# Minimal default token scope; only what the jobs actually need.
+permissions:
+  contents: read
+
+# Supersede in-progress runs for the same branch/PR so pushes don't queue
+# three heavy jobs against stale commits.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
