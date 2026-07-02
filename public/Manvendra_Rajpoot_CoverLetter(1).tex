@@ -1,0 +1,131 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — COVER LETTER (company-agnostic)
+%
+%  COMPILER: LuaLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> LuaLaTeX
+%    - Local:    lualatex Manvendra_Rajpoot_CoverLetter.tex
+%  Compiling with plain pdflatex falls back to Helvetica.
+%
+%  FONT: Carlito = Google's metric-identical clone of Calibri.
+%  Identical preamble to the resume so the two documents match.
+%
+%  This version is generic: no company name, no role source, no
+%  bracketed placeholders. Send as-is. It fills a full A4 page,
+%  with the only whitespace being the 0.5in margin on all sides.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via LuaLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use LuaLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.32}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+% ---------- body paragraph spacing ----------
+\setlength{\parskip}{11pt}
+
+% only ONE role variable — edit if the title differs, otherwise leave it
+\newcommand{\RoleTitle}{Backend Developer}
+
+\begin{document}
+
+% ---------- header: identical to the resume ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{2pt}
+{\color{rulecolor}\rule{\textwidth}{0.4pt}}
+
+\vspace{22pt}
+
+Dear Hiring Manager,
+
+% ---------- body ----------
+I am writing to apply for the \RoleTitle{} role on your team. I build and own
+backend systems where correctness is not optional: platforms that move money,
+provision infrastructure, enforce access, and stay observable when they are under
+load. Across two roles I have taken these systems from architecture to production,
+and the work below is the kind I want to keep doing at greater scale.
+
+Most recently, at CloudTechTiq, I architected a multi-tenant hosting and billing
+platform on Django REST Framework spanning more than 25 apps and 230 ViewSets under a
+single unified API. The part I am most confident about is the money path. I designed a
+dual-gateway payment system across Razorpay and Stripe with HMAC-SHA256 webhook
+idempotency to stop duplicate charges, wired end-to-end through invoicing,
+provisioning, and double-entry ledger reconciliation, plus Indian GST e-invoicing
+against the NIC gateway with IRN generation and signed QR codes. Billing is
+unforgiving work where a single silent error compounds into real financial damage, and
+I have shipped it correctly in production.
+
+The platform also required the full supporting system that a serious product depends
+on, and I built it. That includes RS512 JWT authentication with kid-keyed JWKS and
+refresh-token rotation over HTTPOnly cookies, a two-factor flow over email OTP and TOTP,
+and a 43-permission department-scoped role-based access system. On top of that I shipped
+real-time notifications over a Django Channels and Redis WebSocket server with
+JWT-authenticated async consumers, backed by a 24-task Celery system with late
+acknowledgement and worker-lost requeue. I care about performance under scale as much as
+correctness, so I eliminated N+1 queries across a dual async and sync database layer, and
+I set up end-to-end observability with OpenTelemetry tracing across a Prometheus,
+Grafana, Loki, and Tempo stack so that a failure anywhere traces back to a single
+request. I ship this work through multi-stage Docker builds and a GitHub Actions pipeline
+rather than leaving it on my machine, and I open-sourced a type-safe Namecheap SSL and
+domain SDK to PyPI along the way.
+
+Earlier, at Radixlink, I built Rosterly, a multi-tenant workforce and payroll SaaS on
+Django and FastAPI with schema-per-tenant isolation via django-tenants. I owned the full
+timesheet-to-payroll-to-invoicing lifecycle, including atomic multi-assignment timesheet
+processing, automated payroll reconciliation on approval, Plaid bank-account aggregation
+with transaction sync and duplicate filtering, and multi-format financial reporting in
+PDF, Excel, and CSV. Across both roles the throughline is the same: I take ownership of
+complex, correctness-critical backend systems and make them reliable, observable, and
+maintainable.
+
+I would welcome the opportunity to discuss how my experience can contribute to your
+team, and I am happy to walk through any of the systems above in more technical detail.
+Thank you for your time and consideration.
+
+\vspace{\stretch{0.5}}
+
+Sincerely,\\[6pt]
+Manvendra Rajpoot
+
+\end{document}
