@@ -24,6 +24,8 @@ export const siteConfig = {
   twitterUrl: "https://x.com/AlzyWelzy",
   github: "https://github.com/AlzyWelzy",
   linkedin: "https://linkedin.com/in/AlzyWelzy",
+  instagram: "https://www.instagram.com/alzywelzyy/",
+  facebook: "https://www.facebook.com/AlzyWelzyy",
   // Blog lives on its own subdomain.
   blog: "https://blog.rajpoot.dev",
   // Bump this on meaningful content changes. Drives sitemap `lastmod` and

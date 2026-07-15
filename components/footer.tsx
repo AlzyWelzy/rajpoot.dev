@@ -1,7 +1,29 @@
 import React from "react";
-import Link from "next/link";
+import {
+  BsEnvelope,
+  BsFacebook,
+  BsGithub,
+  BsInstagram,
+  BsLinkedin,
+  BsRssFill,
+  BsTwitterX,
+} from "react-icons/bs";
 
 import { siteConfig } from "@/lib/seo";
+
+// Social entries point at the internal redirect routes (next.config.mjs), so
+// the destination URLs stay defined in one place.
+const socialLinks = [
+  { label: "GitHub", href: "/github", Icon: BsGithub },
+  { label: "LinkedIn", href: "/linkedin", Icon: BsLinkedin },
+  { label: "X (Twitter)", href: "/twitter", Icon: BsTwitterX },
+  { label: "Instagram", href: "/instagram", Icon: BsInstagram },
+  { label: "Facebook", href: "/facebook", Icon: BsFacebook },
+  { label: "Blog", href: siteConfig.blog, Icon: BsRssFill },
+] as const;
+
+const iconLinkClasses =
+  "flex min-h-11 min-w-11 items-center justify-center rounded-full focus-ring transition hover:scale-115 hover:text-gray-950 active:scale-105 dark:hover:text-white";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -17,29 +39,30 @@ export default function Footer() {
         Thanks for stopping by.
       </p>
 
-      <nav aria-label="Links" className="mb-3 flex flex-wrap justify-center gap-4 text-xs">
+      <nav
+        aria-label="Social links"
+        className="mb-3 flex flex-wrap items-center justify-center gap-1 text-lg"
+      >
+        {socialLinks.map(({ label, href, Icon }) => (
+          <a
+            key={label}
+            aria-label={label}
+            title={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={iconLinkClasses}
+          >
+            <Icon aria-hidden="true" />
+          </a>
+        ))}
         <a
-          href={siteConfig.blog}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline"
-        >
-          Blog
-        </a>
-        <Link href="/github" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline">
-          GitHub
-        </Link>
-        <Link href="/linkedin" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline">
-          LinkedIn
-        </Link>
-        <Link href="/twitter" className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline">
-          X
-        </Link>
-        <a
+          aria-label="Email"
+          title="Email"
           href={`mailto:${siteConfig.email}`}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 underline-offset-4 hover:underline"
+          className={iconLinkClasses}
         >
-          Email
+          <BsEnvelope aria-hidden="true" />
         </a>
       </nav>
 
