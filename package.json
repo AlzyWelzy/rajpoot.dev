@@ -55,7 +55,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.10",
     "husky": "^9.1.7",
-    "jsdom": "^27.4.0",
+    "jsdom": "^29.1.1",
     "lint-staged": "^17.0.8",
     "postcss": "^8.5.19",
     "prettier": "^3.9.5",
