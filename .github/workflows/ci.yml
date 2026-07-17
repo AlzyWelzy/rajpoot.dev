@@ -23,6 +23,9 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level high
+
       - name: Check formatting
         run: pnpm format:check
 
@@ -53,8 +56,25 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
       - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium webkit
+
+      # Browsers restored from cache still need the OS packages.
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium webkit
 
       - name: Run E2E tests
         run: pnpm test:e2e

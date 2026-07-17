@@ -54,7 +54,9 @@ pnpm test:coverage # ...with a coverage report in coverage/
 pnpm test:e2e      # Playwright (Chromium, WebKit, mobile) against the prod build
 ```
 
-Lighthouse CI also runs desktop and mobile audits against the production build. A husky pre-commit hook runs lint-staged (ESLint + Prettier on staged files).
+Lighthouse CI also runs desktop and mobile audits against the production build, with enforced resource budgets (script/total transfer size). A husky pre-commit hook runs lint-staged (ESLint + Prettier on staged files). CodeQL and `pnpm audit` scan for vulnerabilities, and coverage thresholds are enforced in `vitest.config.ts`.
+
+Visual regression baselines (`e2e/*-snapshots/`) are Linux-only and compared in CI; to regenerate them run the Playwright Docker image as described in `e2e/visual.spec.ts`.
 
 ## Documents
 

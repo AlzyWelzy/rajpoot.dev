@@ -9,6 +9,16 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? "github" : "list",
+  // Visual baselines are committed for Linux (CI) only; local dev machines
+  // (darwin) run the visual specs without comparing screenshots.
+  ignoreSnapshots: !process.env.CI,
+  expect: {
+    toHaveScreenshot: {
+      // Tolerate anti-aliasing noise, not layout/theme changes.
+      maxDiffPixelRatio: 0.02,
+      animations: "disabled",
+    },
+  },
   use: {
     baseURL,
     trace: "on-first-retry",

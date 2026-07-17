@@ -16,3 +16,4 @@ next-env.d.ts
 public/
 latex/
 *.pdf
+.pnpm-store/
