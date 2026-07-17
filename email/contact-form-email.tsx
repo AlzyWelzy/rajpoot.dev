@@ -1,3 +1,5 @@
+// react-email v6 unified all components into the main package;
+// @react-email/components is deprecated.
 import {
   Html,
   Body,
@@ -9,7 +11,7 @@ import {
   Section,
   Tailwind,
   Text,
-} from "@react-email/components";
+} from "react-email";
 
 type ContactFormEmailProps = {
   message: string;
