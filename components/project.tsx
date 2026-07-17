@@ -3,7 +3,7 @@
 import { m } from "motion/react";
 import { LuGithub, LuExternalLink, LuCode } from "react-icons/lu";
 
-import type { ProjectType } from "@/lib/data";
+import type { ProjectType } from "@/lib/types";
 
 export default function Project({
   title,
@@ -37,6 +37,8 @@ export default function Project({
               alt={`${title} logo`}
               width={120}
               height={120}
+              loading="lazy"
+              decoding="async"
               className="h-28 w-28 drop-shadow-xl transition duration-500 group-hover:scale-110"
             />
           </div>

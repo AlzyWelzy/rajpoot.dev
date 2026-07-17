@@ -1,6 +1,8 @@
 import React from "react";
 import { LuGraduationCap, LuCode } from "react-icons/lu";
 
+import type { ProjectType } from "./types";
+
 export const links = [
   { name: "Home", hash: "#home" },
   { name: "About", hash: "#about" },
@@ -45,19 +47,6 @@ export const experiencesData = [
   },
 ] as const;
 
-export type ProjectType = {
-  title: string;
-  description: string;
-  tags: readonly string[];
-  /** Path to a centered logo (public/) shown on the project card. */
-  logo?: string;
-  liveUrl?: string;
-  /** Label for the live link (defaults to "Live"); use "Company site" etc.
-   *  when the URL is a marketing page rather than the app itself. */
-  liveLabel?: string;
-  githubUrl?: string;
-};
-
 export const projectsData: ProjectType[] = [
   {
     title: "Multi-Tenant SaaS Platform (CloudTechTiq)",
@@ -65,9 +54,7 @@ export const projectsData: ProjectType[] = [
       "Built from scratch: the backend for a multi-tenant SaaS portal — secure MFA authentication and access control, AI-powered support features, real-time notifications, and automated background jobs, all shipped through CI/CD pipelines.",
     tags: ["Python", "Django", "DRF", "PostgreSQL", "Docker", "CI/CD"],
     logo: "/cloudtechtiq-logo.svg",
-    // Marketing site, not the SaaS portal itself — labelled accordingly.
     liveUrl: "https://console.cloudtechtiq.com/",
-    liveLabel: "Live",
   },
   {
     title: "Rosterly (Radixlink)",
@@ -125,6 +112,11 @@ export const skillsData = [
 
 export const emailId = "manvendra@rajpoot.dev" as const;
 export const websiteUrl = "rajpoot.dev" as const;
+
+// Contact-form field limits, shared by the client inputs (maxLength) and the
+// server action's validation so the two can never drift apart.
+export const EMAIL_MAX_LENGTH = 500;
+export const MESSAGE_MAX_LENGTH = 5000;
 
 export const documentsName = {
   cover_letter: "Manvendra_Rajpoot_Cover_Letter.pdf",

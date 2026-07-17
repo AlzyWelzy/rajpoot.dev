@@ -18,14 +18,46 @@ const nextConfig = {
   async redirects() {
     return [
       // The blog lives on its own subdomain; send /blog and any sub-path there.
-      { source: "/blog", destination: "https://blog.rajpoot.dev", permanent: true },
-      { source: "/blog/:path*", destination: "https://blog.rajpoot.dev/:path*", permanent: true },
-      { source: "/linkedin", destination: "https://linkedin.com/in/AlzyWelzy", permanent: true },
-      { source: "/github", destination: "https://github.com/AlzyWelzy", permanent: true },
-      { source: "/twitter", destination: "https://x.com/AlzyWelzy", permanent: true },
-      { source: "/instagram", destination: "https://www.instagram.com/alzywelzyy/", permanent: true },
-      { source: "/facebook", destination: "https://www.facebook.com/AlzyWelzyy", permanent: true },
-      { source: "/esyconnect", destination: "https://esyconnect.com/candidate/alzywelzy/", permanent: true },
+      {
+        source: "/blog",
+        destination: "https://blog.rajpoot.dev",
+        permanent: true,
+      },
+      {
+        source: "/blog/:path*",
+        destination: "https://blog.rajpoot.dev/:path*",
+        permanent: true,
+      },
+      {
+        source: "/linkedin",
+        destination: "https://linkedin.com/in/AlzyWelzy",
+        permanent: true,
+      },
+      {
+        source: "/github",
+        destination: "https://github.com/AlzyWelzy",
+        permanent: true,
+      },
+      {
+        source: "/twitter",
+        destination: "https://x.com/AlzyWelzy",
+        permanent: true,
+      },
+      {
+        source: "/instagram",
+        destination: "https://www.instagram.com/alzywelzyy/",
+        permanent: true,
+      },
+      {
+        source: "/facebook",
+        destination: "https://www.facebook.com/AlzyWelzyy",
+        permanent: true,
+      },
+      {
+        source: "/esyconnect",
+        destination: "https://esyconnect.com/candidate/alzywelzy/",
+        permanent: true,
+      },
     ];
   },
   async headers() {
@@ -47,7 +79,10 @@ const nextConfig = {
       "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
       "frame-src 'self'",
       "manifest-src 'self'",
-      "upgrade-insecure-requests",
+      // Dropped for E2E builds: WebKit (unlike Chromium) applies the upgrade
+      // to localhost too, turning every asset request into https://localhost
+      // and breaking the whole page under Playwright's plain-http server.
+      ...(process.env.E2E_TESTING === "1" ? [] : ["upgrade-insecure-requests"]),
     ].join("; ");
 
     // CSP only in production. Next's dev server + React dev mode require
@@ -58,11 +93,22 @@ const nextConfig = {
     const securityHeaders = [
       ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
       { key: "X-DNS-Prefetch-Control", value: "on" },
-      { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+      {
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
+      },
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "X-Frame-Options", value: "SAMEORIGIN" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=()",
+      },
+      // Origin isolation, defense-in-depth alongside the CSP: no cross-origin
+      // window handles to this page, and its resources can't be embedded
+      // cross-origin (nothing here is meant for third-party embedding).
+      { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+      { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
     ];
     return [{ source: "/:path*", headers: securityHeaders }];
   },

@@ -57,13 +57,13 @@ export default function JsonLd() {
         },
         worksFor: {
           "@type": "Organization",
-          name: "CloudTechTiq",
-          url: "https://cloudtechtiq.com/",
+          name: siteConfig.employer.name,
+          url: siteConfig.employer.url,
         },
-        alumniOf: [
-          { "@type": "CollegeOrUniversity", name: "Jain University" },
-          { "@type": "CollegeOrUniversity", name: "Bundelkhand University" },
-        ],
+        alumniOf: siteConfig.education.map((name) => ({
+          "@type": "CollegeOrUniversity",
+          name,
+        })),
         address: {
           "@type": "PostalAddress",
           addressLocality: siteConfig.location.city,

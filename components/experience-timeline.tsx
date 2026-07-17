@@ -1,59 +1,46 @@
-"use client";
-
-import React from "react";
-import {
-  VerticalTimeline,
-  VerticalTimelineElement,
-} from "react-vertical-timeline-component";
-import "react-vertical-timeline-component/style.min.css";
-
 import { experiencesData } from "@/lib/data";
 
-const contentStyle: React.CSSProperties = {
-  background: "var(--timeline-bg)",
-  color: "var(--timeline-text)",
-  boxShadow: "none",
-  border: "1px solid rgba(0, 0, 0, 0.05)",
-  textAlign: "left",
-  padding: "1.3rem 2rem",
-};
-
-const contentArrowStyle: React.CSSProperties = {
-  borderRight: "0.4rem solid var(--timeline-arrow)",
-};
-
-const iconStyle: React.CSSProperties = {
-  background: "var(--timeline-icon-bg)",
-  color: "var(--timeline-text)",
-  fontSize: "1.5rem",
-  boxShadow: "none",
-};
-
+/**
+ * Hand-rolled vertical timeline (replaces react-vertical-timeline-component):
+ * a center line with alternating cards on desktop, a left rail with stacked
+ * cards on mobile. Static markup — no scroll listeners, no extra CSS bundle —
+ * themed via the --timeline-* variables in globals.css.
+ */
 export default function ExperienceTimeline() {
   return (
-    <VerticalTimeline lineColor="">
-      {experiencesData.map((item) => (
-        <React.Fragment key={item.title}>
-          <VerticalTimelineElement
-            visible
-            contentStyle={contentStyle}
-            contentArrowStyle={contentArrowStyle}
-            date={item.date}
-            icon={item.icon}
-            iconStyle={iconStyle}
+    <ol className="relative mx-auto mt-12 max-w-185">
+      <div
+        aria-hidden="true"
+        className="absolute left-5 top-0 h-full w-px bg-[color:var(--timeline-arrow)] opacity-40 sm:left-1/2 sm:-translate-x-1/2"
+      />
+      {experiencesData.map((item, index) => (
+        <li key={item.title} className="relative mb-10 pl-14 last:mb-0 sm:pl-0">
+          <span
+            aria-hidden="true"
+            className="absolute left-5 top-3 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full text-[1.35rem] ring-1 ring-black/5 bg-[color:var(--timeline-icon-bg)] text-[color:var(--timeline-text)] sm:left-1/2"
+          >
+            {item.icon}
+          </span>
+          <article
+            className={`rounded-lg border border-black/5 bg-[color:var(--timeline-bg)] px-8 py-5 text-left sm:w-[calc(50%-3.25rem)] ${
+              index % 2 === 0 ? "sm:mr-auto" : "sm:ml-auto"
+            }`}
           >
             <h3 className="font-semibold text-[color:var(--timeline-text)]">
               {item.title}
             </h3>
-            <p className="font-normal !mt-0 text-[color:var(--timeline-text)]">
+            <p className="mt-0 font-normal text-[color:var(--timeline-text)]">
               {item.location}
             </p>
-            <p className="!mt-1 !font-normal text-[color:var(--timeline-muted)]">
+            <p className="mt-1 font-normal text-[color:var(--timeline-muted)]">
               {item.description}
             </p>
-          </VerticalTimelineElement>
-        </React.Fragment>
+            <p className="mt-3 text-sm font-medium uppercase tracking-wide text-[color:var(--timeline-muted)]">
+              {item.date}
+            </p>
+          </article>
+        </li>
       ))}
-    </VerticalTimeline>
+    </ol>
   );
 }

@@ -28,6 +28,13 @@ export const siteConfig = {
   facebook: "https://www.facebook.com/AlzyWelzyy",
   // Blog lives on its own subdomain.
   blog: "https://blog.rajpoot.dev",
+  // Current employer + education — single source for JSON-LD structured data
+  // so it can't drift from the experience timeline's prose.
+  employer: {
+    name: "CloudTechTiq",
+    url: "https://cloudtechtiq.com/",
+  },
+  education: ["Jain University", "Bundelkhand University"],
   // Bump this on meaningful content changes. Drives sitemap `lastmod` and
   // JSON-LD `dateModified` from a single source rather than build time, so the
   // freshness signal reflects real updates, not redeploys.

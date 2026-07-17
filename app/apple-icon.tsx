@@ -8,36 +8,34 @@ export const contentType = "image/png";
 
 export default function AppleIcon() {
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background:
+          "radial-gradient(120% 120% at 30% 18%, #2e1c6b 0%, #1a1148 38%, #080913 100%)",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100%",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background:
-            "radial-gradient(120% 120% at 30% 18%, #2e1c6b 0%, #1a1148 38%, #080913 100%)",
+          fontSize: 128,
+          fontWeight: 800,
+          letterSpacing: -8,
+          fontFamily: "system-ui, sans-serif",
+          backgroundImage:
+            "linear-gradient(135deg, #2dd4ef 0%, #6366f1 52%, #e879f9 100%)",
+          backgroundClip: "text",
+          WebkitBackgroundClip: "text",
+          color: "transparent",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            fontSize: 128,
-            fontWeight: 800,
-            letterSpacing: -8,
-            fontFamily: "system-ui, sans-serif",
-            backgroundImage:
-              "linear-gradient(135deg, #2dd4ef 0%, #6366f1 52%, #e879f9 100%)",
-            backgroundClip: "text",
-            WebkitBackgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          M
-        </div>
+        M
       </div>
-    ),
+    </div>,
     { ...size },
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { m } from "motion/react";
 
 import SectionHeading from "./section-heading";

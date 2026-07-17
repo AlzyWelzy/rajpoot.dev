@@ -1,0 +1,18 @@
+# build outputs & caches
+.next/
+out/
+build/
+coverage/
+playwright-report/
+test-results/
+.lighthouseci/
+.vercel/
+
+# generated
+pnpm-lock.yaml
+next-env.d.ts
+
+# assets & documents (not source)
+public/
+latex/
+*.pdf
