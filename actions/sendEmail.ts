@@ -10,7 +10,15 @@ import { validateString, isValidEmail, getErrorMessage } from "@/lib/utils";
 import ContactFormEmail from "@/email/contact-form-email";
 import { emailId, EMAIL_MAX_LENGTH, MESSAGE_MAX_LENGTH } from "@/lib/data";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Created lazily inside the action's try/catch: the Resend constructor throws
+// when RESEND_API_KEY is missing, and at module scope that would crash the
+// whole server action (opaque 500) instead of returning the friendly error.
+let resendClient: Resend | undefined;
+
+function getResend(): Resend {
+  resendClient ??= new Resend(process.env.RESEND_API_KEY);
+  return resendClient;
+}
 
 // Sender shown on the delivered email. Set RESEND_FROM to an address on a
 // domain verified in Resend (e.g. "Contact Form <contact@rajpoot.dev>") for
@@ -108,7 +116,10 @@ export const sendEmail = async (formData: FormData) => {
         error: "Too many messages. Please try again in a few minutes.",
       };
     }
-  } else if (process.env.NODE_ENV === "production") {
+  } else if (
+    process.env.NODE_ENV === "production" &&
+    process.env.E2E_TESTING !== "1"
+  ) {
     if (!warnedNoRatelimit) {
       warnedNoRatelimit = true;
       console.warn(
@@ -122,8 +133,16 @@ export const sendEmail = async (formData: FormData) => {
     }
   }
 
+  // E2E builds (E2E_TESTING=1, set by playwright.config.ts) stop here: the
+  // whole client → server-action → validation path runs for real, but no
+  // email is sent and the per-instance fallback limit above is bypassed so
+  // repeated test submissions can't throttle each other.
+  if (process.env.E2E_TESTING === "1") {
+    return { data: { id: "e2e-skipped" } };
+  }
+
   try {
-    const data = await resend.emails.send({
+    const data = await getResend().emails.send({
       from: fromAddress,
       to: emailId,
       subject: "Message from contact form",

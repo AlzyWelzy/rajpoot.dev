@@ -9,6 +9,16 @@ const documents = [
   },
 ];
 
+test.describe("well-known routes", () => {
+  test("/.well-known/security.txt is served", async ({ request }) => {
+    const res = await request.get("/.well-known/security.txt");
+    expect(res.status()).toBe(200);
+    const body = await res.text();
+    expect(body).toContain("Contact: mailto:manvendra@rajpoot.dev");
+    expect(body).toContain("Expires:");
+  });
+});
+
 test.describe("document routes", () => {
   for (const { path, filename } of documents) {
     test(`${path} serves the PDF as a noindex download`, async ({
