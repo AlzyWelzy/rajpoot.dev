@@ -6,7 +6,12 @@ const nextConfig = {
   // Keep these server-only packages external instead of bundling them. resend
   // pulls in @react-email/render -> html-to-text, whose ESM sub-deps (leac,
   // peberminta) Turbopack fails to resolve when bundled, breaking the build.
-  serverExternalPackages: ["resend", "@react-email/render", "html-to-text"],
+  serverExternalPackages: [
+    "resend",
+    "react-email",
+    "@react-email/render",
+    "html-to-text",
+  ],
   // Tree-shake large barrel packages so only the icons/animations actually
   // used ship to the client, shrinking the JS bundle.
   experimental: {
