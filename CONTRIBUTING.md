@@ -1,4 +1,3 @@
-
 # Contributing Guidelines
 
 Welcome to the project! We appreciate your interest and contributions.
@@ -11,15 +10,15 @@ Welcome to the project! We appreciate your interest and contributions.
 
 3. **Contribute Code**: If you want to contribute code, please follow these steps:
 
-    a. Fork the repository.
+   a. Fork the repository.
 
-    b. Create a new branch for your feature or bug fix.
+   b. Create a new branch for your feature or bug fix.
 
-    c. Make your changes and commit them with a clear message.
+   c. Make your changes and commit them with a clear message.
 
-    d. Push your changes to your fork.
+   d. Push your changes to your fork.
 
-    e. Submit a pull request.
+   e. Submit a pull request.
 
 4. **Documentation**: Help improve the project's documentation. This includes adding new documentation, updating existing documentation, and fixing typos.
 
@@ -32,5 +31,3 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 ## Licensing
 
 By contributing, you agree that your contributions will be licensed under the [GNU Affero General Public License v3.0](LICENSE). Please see the [LICENSE](LICENSE) file for more details.
-
-

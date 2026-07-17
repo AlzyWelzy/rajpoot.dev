@@ -10,10 +10,11 @@ import { FaGithubSquare } from "react-icons/fa";
 import profileImage from "@/public/profile.jpg";
 import { useSectionInView } from "@/lib/hooks";
 import { useActiveSectionContext } from "@/context/active-section-context";
+import { siteConfig } from "@/lib/seo";
 
 export default function Intro() {
   const { ref } = useSectionInView("Home");
-  const { setActiveSection, setTimeOfLastClick } = useActiveSectionContext();
+  const { setActiveSection, beginNavigation } = useActiveSectionContext();
 
   return (
     <section
@@ -32,7 +33,7 @@ export default function Intro() {
           >
             <Image
               src={profileImage}
-              alt="Manvendra Rajpoot — Backend Developer"
+              alt={`${siteConfig.name} — ${siteConfig.jobTitle}`}
               priority
               fetchPriority="high"
               placeholder="blur"
@@ -59,11 +60,15 @@ export default function Intro() {
       </div>
 
       <h1 className="mb-10 mt-4 px-4 text-2xl font-medium leading-normal! sm:text-4xl">
-        <span className="font-bold">Hello, I&apos;m Manvendra.</span> I&apos;m a{" "}
-        <span className="font-bold">backend developer</span> specializing in{" "}
+        <span className="font-bold">
+          Hello, I&apos;m {siteConfig.shortName}.
+        </span>{" "}
+        I&apos;m a{" "}
+        <span className="font-bold">{siteConfig.jobTitle.toLowerCase()}</span>{" "}
+        specializing in{" "}
         <span className="italic">
           AI automation &amp;{" "}
-          <span className="underline" style={{ whiteSpace: "nowrap" }}>
+          <span className="underline whitespace-nowrap">
             cloud engineering.
           </span>
         </span>
@@ -75,7 +80,7 @@ export default function Intro() {
           className="group bg-gray-900 text-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 transition"
           onClick={() => {
             setActiveSection("Contact");
-            setTimeOfLastClick(Date.now());
+            beginNavigation();
           }}
         >
           Get in touch{" "}

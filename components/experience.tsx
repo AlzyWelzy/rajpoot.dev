@@ -1,14 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
 import SectionHeading from "./section-heading";
+import ExperienceTimeline from "./experience-timeline";
 import { useSectionInView } from "@/lib/hooks";
-
-// Code-split the heavy timeline library + its CSS into a separate chunk.
-// ssr stays true (the default), so the experience content is still
-// server-rendered and indexable.
-const ExperienceTimeline = dynamic(() => import("./experience-timeline"));
 
 export default function Experience() {
   const { ref } = useSectionInView("Experience");

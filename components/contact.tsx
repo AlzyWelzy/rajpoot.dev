@@ -8,7 +8,7 @@ import SectionHeading from "./section-heading";
 import SubmitBtn from "./submit-btn";
 import { useSectionInView } from "@/lib/hooks";
 import { sendEmail } from "@/actions/sendEmail";
-import { emailId } from "@/lib/data";
+import { emailId, EMAIL_MAX_LENGTH, MESSAGE_MAX_LENGTH } from "@/lib/data";
 
 type FormState = { error?: string; success?: boolean } | null;
 
@@ -80,7 +80,7 @@ export default function Contact() {
           name="senderEmail"
           type="email"
           required
-          maxLength={500}
+          maxLength={EMAIL_MAX_LENGTH}
           autoComplete="email"
           placeholder="Your email"
           value={email}
@@ -96,7 +96,7 @@ export default function Contact() {
           id="message"
           name="message"
           required
-          maxLength={5000}
+          maxLength={MESSAGE_MAX_LENGTH}
           placeholder="Your message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}

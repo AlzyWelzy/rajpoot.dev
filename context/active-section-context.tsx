@@ -18,10 +18,10 @@ type ActiveSectionContextProviderProps = {
 type ActiveSectionContextType = {
   activeSection: SectionName;
   setActiveSection: React.Dispatch<React.SetStateAction<SectionName>>;
-  timeOfLastClick: number;
-  setTimeOfLastClick: React.Dispatch<React.SetStateAction<number>>;
-  /** True while a nav-click smooth-scroll is in flight; the scroll-spy pauses
-   *  so the active pill doesn't stutter through every passed section. */
+  /** Call on a nav click: suppresses the scroll-spy until the smooth scroll
+   *  settles so the active pill doesn't stutter through passed sections. */
+  beginNavigation: () => void;
+  /** True while a nav-click smooth-scroll is in flight. */
   isNavigating: () => boolean;
 };
 
@@ -32,20 +32,13 @@ export default function ActiveSectionContextProvider({
   children,
 }: ActiveSectionContextProviderProps) {
   const [activeSection, setActiveSection] = useState<SectionName>("Home");
-  // Kept for the existing click handlers' API; the suppression itself is driven
-  // by the navigating ref below so it can end precisely on `scrollend`.
-  const [timeOfLastClick, setTimeOfLastClickState] = useState(0);
 
   const navigatingRef = useRef(false);
   const fallbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isNavigating = useCallback(() => navigatingRef.current, []);
 
-  const setTimeOfLastClick = useCallback<
-    React.Dispatch<React.SetStateAction<number>>
-  >((value) => {
-    setTimeOfLastClickState(value);
-    // A click happened → begin suppressing the spy until the scroll settles.
+  const beginNavigation = useCallback(() => {
     navigatingRef.current = true;
     if (fallbackTimer.current) clearTimeout(fallbackTimer.current);
     // Fallback for browsers without `scrollend` (Safari): cap the suppression.
@@ -73,11 +66,10 @@ export default function ActiveSectionContextProvider({
     () => ({
       activeSection,
       setActiveSection,
-      timeOfLastClick,
-      setTimeOfLastClick,
+      beginNavigation,
       isNavigating,
     }),
-    [activeSection, timeOfLastClick, setTimeOfLastClick, isNavigating],
+    [activeSection, beginNavigation, isNavigating],
   );
 
   return (

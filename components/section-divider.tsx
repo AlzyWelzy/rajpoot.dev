@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { m } from "motion/react";
 
 export default function SectionDivider() {

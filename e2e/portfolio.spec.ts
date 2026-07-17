@@ -6,15 +6,21 @@ test.describe("portfolio homepage", () => {
     await expect(
       page.getByRole("heading", { level: 1, name: /Manvendra/i }),
     ).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: "Primary" }),
+    ).toBeVisible();
   });
 
   test("theme switch toggles dark mode and persists", async ({ page }) => {
     await page.goto("/");
     const html = page.locator("html");
-    const toggle = page.getByRole("button", { name: /Switch to (dark|light) mode/i });
+    const toggle = page.getByRole("button", {
+      name: /Switch to (dark|light) mode/i,
+    });
 
-    const startedDark = await html.evaluate((el) => el.classList.contains("dark"));
+    const startedDark = await html.evaluate((el) =>
+      el.classList.contains("dark"),
+    );
 
     await toggle.click();
     if (startedDark) {
