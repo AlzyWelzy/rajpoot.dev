@@ -28,6 +28,17 @@ jobs:
           node-version: 22
           cache: pnpm
 
+      # pnpm-workspace.yaml is gitignored (Vercel's pnpm 9 rejects a
+      # settings-only workspace file), so recreate the build-script
+      # approvals pnpm 11 requires before installing.
+      - name: Allow native build scripts
+        run: |
+          cat > pnpm-workspace.yaml <<'EOF'
+          allowBuilds:
+            sharp: true
+            unrs-resolver: true
+          EOF
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
@@ -54,6 +65,14 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+
+      - name: Allow native build scripts
+        run: |
+          cat > pnpm-workspace.yaml <<'EOF'
+          allowBuilds:
+            sharp: true
+            unrs-resolver: true
+          EOF
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -83,6 +102,14 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+
+      - name: Allow native build scripts
+        run: |
+          cat > pnpm-workspace.yaml <<'EOF'
+          allowBuilds:
+            sharp: true
+            unrs-resolver: true
+          EOF
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
