@@ -8,7 +8,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? "github" : "list",
+  // github: inline PR annotations; html: written to playwright-report/ so the
+  // CI artifact upload has something to publish on failure.
+  reporter: process.env.CI
+    ? ([["github"], ["html", { open: "never" }]] as const)
+    : "list",
   // Visual baselines are committed for Linux (CI) only; local dev machines
   // (darwin) run the visual specs without comparing screenshots.
   ignoreSnapshots: !process.env.CI,

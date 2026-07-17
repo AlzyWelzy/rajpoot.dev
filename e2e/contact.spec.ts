@@ -15,8 +15,12 @@ test.describe("contact form", () => {
     await message.fill("Hello! Great portfolio.");
     await page.getByRole("button", { name: /send message/i }).click();
 
-    // Success toast appears and the inputs reset only on success.
-    await expect(page.getByText("Email sent successfully!")).toBeVisible();
+    // Success toast appears and the inputs reset only on success. The server
+    // action's first invocation can be slow on CI runners (especially under
+    // WebKit), so give the round trip a generous window.
+    await expect(page.getByText("Email sent successfully!")).toBeVisible({
+      timeout: 15_000,
+    });
     await expect(email).toHaveValue("");
     await expect(message).toHaveValue("");
   });
@@ -29,7 +33,9 @@ test.describe("contact form", () => {
     await message.fill("Submitted with the keyboard shortcut.");
     await message.press("ControlOrMeta+Enter");
 
-    await expect(page.getByText("Email sent successfully!")).toBeVisible();
+    await expect(page.getByText("Email sent successfully!")).toBeVisible({
+      timeout: 15_000,
+    });
     await expect(message).toHaveValue("");
   });
 });
