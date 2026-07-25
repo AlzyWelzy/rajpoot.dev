@@ -61,7 +61,7 @@ export default function Intro() {
       </div>
 
       {siteConfig.availability.open && (
-        <p className="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3.5 py-1.5 text-sm font-medium text-green-700 dark:border-green-400/25 dark:bg-green-400/10 dark:text-green-300">
+        <p className="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-green-600/30 bg-green-100 px-3.5 py-1.5 text-sm font-medium text-green-800 dark:border-green-400/25 dark:bg-green-400/10 dark:text-green-300">
           <span className="relative flex h-2 w-2" aria-hidden="true">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75 motion-reduce:animate-none" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
