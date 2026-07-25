@@ -64,6 +64,8 @@ The resume / cover-letter PDFs served at `/resume`, `/cover_letter` and `/experi
 
 ## Environment variables
 
+Copy [`.env.example`](.env.example) to `.env.local` and fill in what you need (`cp .env.example .env.local`). In production, set these in your Vercel project settings.
+
 | Key                        | Purpose                                                                                                                                                                    |
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `RESEND_API_KEY`           | Sending messages from the contact form via Resend                                                                                                                          |
