@@ -70,6 +70,7 @@ The resume / cover-letter PDFs served at `/resume`, `/cover_letter` and `/experi
 | `RESEND_FROM`              | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
 | `UPSTASH_REDIS_REST_URL`   | (Optional) Upstash Redis URL — enables IP rate limiting on the contact form                                                                                                |
 | `UPSTASH_REDIS_REST_TOKEN` | (Optional) Upstash Redis token — required alongside the URL for rate limiting                                                                                              |
+| `SHOW_TESTIMONIALS`        | (Optional, build-time) Set to `true` to render the testimonials section. Hidden by default until there are enough real endorsements.                                       |
 
 Without the Upstash vars, production falls back to a best-effort per-instance in-memory rate limit and logs a warning — configure Upstash for real protection.
 
