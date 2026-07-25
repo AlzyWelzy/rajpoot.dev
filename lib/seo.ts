@@ -35,10 +35,16 @@ export const siteConfig = {
     url: "https://cloudtechtiq.com/",
   },
   education: ["Jain University", "Bundelkhand University"],
+  // Job-search status rendered as the hero badge. Flip `open` to false to hide
+  // it entirely (no markup rendered); edit `label` to change the wording.
+  availability: {
+    open: true,
+    label: "Open to backend, AI & cloud roles",
+  },
   // Bump this on meaningful content changes. Drives sitemap `lastmod` and
   // JSON-LD `dateModified` from a single source rather than build time, so the
   // freshness signal reflects real updates, not redeploys.
-  lastUpdated: "2026-06-16",
+  lastUpdated: "2026-07-25",
   // Highlighted stack used in the OG image card.
   ogTags: ["Python", "Django", "FastAPI", "PostgreSQL", "Docker", "Kubernetes"],
   // A concise, distinct set. The keywords meta is not a ranking signal for

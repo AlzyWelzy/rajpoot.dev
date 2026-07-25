@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { m } from "motion/react";
+import { track } from "@vercel/analytics";
 import toast from "react-hot-toast";
 
 import SectionHeading from "./section-heading";
@@ -27,6 +28,7 @@ export default function Contact() {
         return { error };
       }
       toast.success("Email sent successfully!");
+      track("contact_submit");
       setEmail("");
       setMessage("");
       return { success: true };

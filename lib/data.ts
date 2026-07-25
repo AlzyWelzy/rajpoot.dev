@@ -1,7 +1,7 @@
 import React from "react";
 import { LuGraduationCap, LuCode } from "react-icons/lu";
 
-import type { ProjectType } from "./types";
+import type { ProjectType, TestimonialType } from "./types";
 
 export const links = [
   { name: "Home", hash: "#home" },
@@ -51,7 +51,7 @@ export const projectsData: ProjectType[] = [
   {
     title: "Multi-Tenant SaaS Platform (CloudTechTiq)",
     description:
-      "Built from scratch: the backend for a multi-tenant SaaS portal — secure MFA authentication and access control, AI-powered support features, real-time notifications, and automated background jobs, all shipped through CI/CD pipelines.",
+      "Architected the backend for a multi-tenant SaaS portal from the ground up — tenant-isolated data, MFA and role-based access control, AI-assisted support tooling, real-time notifications with email/SMS fallbacks, and background job processing, all delivered through automated CI/CD.",
     tags: ["Python", "Django", "DRF", "PostgreSQL", "Docker", "CI/CD"],
     logo: "/cloudtechtiq-logo.svg",
     liveUrl: "https://console.cloudtechtiq.com/",
@@ -59,7 +59,7 @@ export const projectsData: ProjectType[] = [
   {
     title: "Rosterly (Radixlink)",
     description:
-      "Contributed to the core development of Rosterly.io — building and refining backend features, authentication, and integrations to improve the overall product and user experience.",
+      "Core backend contributor on Rosterly.io — designed and hardened authentication, third-party integrations, and API features that improved reliability and the day-to-day scheduling experience.",
     tags: ["Django", "Python", "PostgreSQL", "React", "Stripe"],
     logo: "/rosterly-logo.svg",
     liveUrl: "https://rosterly.io/",
@@ -67,11 +67,26 @@ export const projectsData: ProjectType[] = [
   {
     title: "Namecheap Python Wrapper",
     description:
-      "An open-source Python SDK that wraps the Namecheap API behind a clean, typed interface for managing domains and DNS programmatically. Published to PyPI as namecheap-sdk.",
+      "Open-source Python SDK wrapping the Namecheap API behind a clean, fully typed interface for programmatic domain and DNS management. Published to PyPI as namecheap-wrapper.",
     tags: ["Python", "SDK", "REST API", "PyPI", "Open Source"],
     logo: "/namecheap-sdk-logo.svg",
     liveUrl: "https://pypi.org/project/namecheap-wrapper/",
     githubUrl: "https://github.com/AlzyWelzy/namecheap-wrapper",
+  },
+];
+
+// Only real, verifiable endorsements — no fabricated quotes. The first is taken
+// verbatim from the official Radixlink relieving letter (public/, served at
+// /experience_letter). Add LinkedIn recommendations here for stronger social
+// proof: paste the exact quote, the recommender's name + role, source
+// "LinkedIn", and the recommendation URL as sourceUrl.
+export const testimonialsData: TestimonialType[] = [
+  {
+    quote:
+      "During their tenure with us, Manvendra consistently demonstrated professionalism, dedication, and a positive attitude towards their work. They were a valuable member of the team and contributed to the company's objectives.",
+    author: "Elamathi",
+    title: "Human Resources · Radixlink",
+    source: "Relieving letter",
   },
 ];
 

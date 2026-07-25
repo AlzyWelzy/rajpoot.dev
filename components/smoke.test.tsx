@@ -79,6 +79,7 @@ import About from "./about";
 import Skills from "./skills";
 import Projects from "./projects";
 import Experience from "./experience";
+import Testimonials from "./testimonials";
 import Footer from "./footer";
 import ThemeSwitch from "./theme-switch";
 import ScrollToTop from "./scroll-to-top";
@@ -86,7 +87,12 @@ import ReadingProgress from "./reading-progress";
 import SectionHeading from "./section-heading";
 import SectionDivider from "./section-divider";
 import SubmitBtn from "./submit-btn";
-import { experiencesData, projectsData, skillsData } from "@/lib/data";
+import {
+  experiencesData,
+  projectsData,
+  skillsData,
+  testimonialsData,
+} from "@/lib/data";
 
 function withProviders(node: ReactNode) {
   return render(
@@ -144,6 +150,16 @@ describe("component smoke renders", () => {
       expect(
         screen.getByRole("heading", { name: entry.title }),
       ).toBeInTheDocument();
+    }
+  });
+
+  it("Testimonials renders each configured endorsement with its author", () => {
+    withProviders(<Testimonials />);
+    expect(
+      screen.getByRole("heading", { name: /what people say/i }),
+    ).toBeInTheDocument();
+    for (const testimonial of testimonialsData) {
+      expect(screen.getByText(testimonial.author)).toBeInTheDocument();
     }
   });
 

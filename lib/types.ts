@@ -14,3 +14,16 @@ export type ProjectType = {
   liveLabel?: string;
   githubUrl?: string;
 };
+
+export type TestimonialType = {
+  /** The endorsement, quoted verbatim from a real, verifiable source. */
+  quote: string;
+  author: string;
+  /** Author's role/company, e.g. "Human Resources · Radixlink". */
+  title: string;
+  /** Provenance label shown as a small tag, e.g. "Relieving letter",
+   *  "LinkedIn". Omit to show none. */
+  source?: string;
+  /** Optional link to verify the quote (e.g. a LinkedIn recommendation URL). */
+  sourceUrl?: string;
+};

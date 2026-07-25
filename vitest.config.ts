@@ -22,13 +22,13 @@ export default defineConfig({
         "lib/**",
       ],
       exclude: ["**/*.test.*", "**/*.d.ts"],
-      // Floors slightly below current coverage (≈78/73/72/79) so regressions
+      // Floors slightly below current coverage (≈87/81/85/88) so regressions
       // fail CI; ratchet upward as coverage grows.
       thresholds: {
-        statements: 75,
-        branches: 70,
-        functions: 70,
-        lines: 75,
+        statements: 86,
+        branches: 79,
+        functions: 83,
+        lines: 87,
       },
     },
     projects: [
