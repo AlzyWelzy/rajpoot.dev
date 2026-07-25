@@ -5,6 +5,7 @@ import Intro from "@/components/intro";
 import Projects from "@/components/projects";
 import SectionDivider from "@/components/section-divider";
 import Skills from "@/components/skills";
+import Testimonials from "@/components/testimonials";
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/seo";
 
@@ -17,6 +18,13 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
+  // Testimonials are gated behind a build-time env flag until there's a
+  // stronger set of real endorsements. Hidden by default; set
+  // SHOW_TESTIMONIALS=true to render the section. It has its own vertical
+  // spacing and no surrounding divider, so hiding it cleanly restores the
+  // Experience → Contact flow without any layout gap.
+  const showTestimonials = process.env.SHOW_TESTIMONIALS === "true";
+
   return (
     <main
       id="main"
@@ -29,6 +37,7 @@ export default function Home() {
       <Projects />
       <Skills />
       <Experience />
+      {showTestimonials && <Testimonials />}
       <Contact />
     </main>
   );

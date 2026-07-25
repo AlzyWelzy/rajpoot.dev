@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { m } from "motion/react";
+import { track } from "@vercel/analytics";
 import { BsArrowRight, BsLinkedin } from "react-icons/bs";
 import { HiDownload } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
@@ -59,6 +60,16 @@ export default function Intro() {
         </div>
       </div>
 
+      {siteConfig.availability.open && (
+        <p className="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-green-600/30 bg-green-100 px-3.5 py-1.5 text-sm font-medium text-green-800 dark:border-green-400/25 dark:bg-green-400/10 dark:text-green-300">
+          <span className="relative flex h-2 w-2" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75 motion-reduce:animate-none" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+          </span>
+          {siteConfig.availability.label}
+        </p>
+      )}
+
       <h1 className="mb-10 mt-4 px-4 text-2xl font-medium leading-normal! sm:text-4xl">
         <span className="font-bold">
           Hello, I&apos;m {siteConfig.shortName}.
@@ -81,6 +92,7 @@ export default function Intro() {
           onClick={() => {
             setActiveSection("Contact");
             beginNavigation();
+            track("cta_click", { cta: "get_in_touch" });
           }}
         >
           Get in touch{" "}
@@ -97,6 +109,7 @@ export default function Intro() {
           target="_blank"
           rel="noopener"
           download
+          onClick={() => track("cv_download")}
         >
           Download CV{" "}
           <HiDownload
@@ -111,6 +124,7 @@ export default function Intro() {
           href="/linkedin"
           target="_blank"
           rel="noopener"
+          onClick={() => track("social_click", { network: "linkedin" })}
         >
           <BsLinkedin aria-hidden="true" />
         </a>
@@ -121,6 +135,7 @@ export default function Intro() {
           href="/github"
           target="_blank"
           rel="noopener"
+          onClick={() => track("social_click", { network: "github" })}
         >
           <FaGithubSquare aria-hidden="true" />
         </a>
