@@ -20,6 +20,7 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 function readInitialTheme(): Theme {
+  /* v8 ignore next -- SSR guard: `document` is always defined in the browser/jsdom render path. */
   if (typeof document === "undefined") return "light";
   return document.documentElement.classList.contains("dark") ? "dark" : "light";
 }

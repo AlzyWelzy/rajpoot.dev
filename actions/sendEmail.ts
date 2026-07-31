@@ -56,6 +56,8 @@ let warnedNoRatelimit = false;
 
 function fallbackLimit(ip: string): boolean {
   const now = Date.now();
+  /* v8 ignore start -- memory-cap sweep only runs once >1000 distinct IPs
+     accumulate within a single window; a defensive bound, not unit-tested. */
   // Cap the map so a scan across many IPs can't grow memory unboundedly.
   if (fallbackHits.size > 1000) {
     for (const [key, hits] of fallbackHits) {
@@ -64,6 +66,7 @@ function fallbackLimit(ip: string): boolean {
       }
     }
   }
+  /* v8 ignore stop */
   const hits = (fallbackHits.get(ip) ?? []).filter(
     (t) => now - t < FALLBACK_WINDOW_MS,
   );

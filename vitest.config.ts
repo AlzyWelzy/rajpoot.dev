@@ -13,23 +13,28 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "html", "lcov"],
       reportsDirectory: "coverage",
+      // v4 reports every included source file by default (not only imported
+      // ones), so the numbers match what CI computes and nothing hides at 0%.
       include: [
-        "actions/**",
-        "app/**",
-        "components/**",
-        "context/**",
-        "email/**",
-        "lib/**",
+        "actions/**/*.{ts,tsx}",
+        "app/**/*.{ts,tsx}",
+        "components/**/*.{ts,tsx}",
+        "context/**/*.{ts,tsx}",
+        "email/**/*.{ts,tsx}",
+        "lib/**/*.{ts,tsx}",
       ],
-      exclude: ["**/*.test.*", "**/*.d.ts"],
-      // Floors kept ~2 points below current coverage (≈87/80/85/88) so genuine
-      // regressions fail CI without a razor-thin margin that trips on trivial
-      // churn. Ratchet upward as coverage grows.
+      exclude: [
+        "**/*.test.*",
+        "**/*.d.ts",
+        // Type-only module: its runtime footprint is a single re-export used
+        // solely in type positions, so there is nothing to execute.
+        "lib/types.ts",
+      ],
       thresholds: {
-        statements: 85,
-        branches: 78,
-        functions: 83,
-        lines: 86,
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
       },
     },
     projects: [
