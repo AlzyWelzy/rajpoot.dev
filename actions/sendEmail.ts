@@ -7,6 +7,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
 import { validateString, isValidEmail, getErrorMessage } from "@/lib/utils";
+import type { SendEmailResult } from "@/lib/types";
 import { logServerEvent } from "@/lib/observability";
 import ContactFormEmail from "@/email/contact-form-email";
 import { emailId, EMAIL_MAX_LENGTH, MESSAGE_MAX_LENGTH } from "@/lib/data";
@@ -122,7 +123,7 @@ async function client(): Promise<Client> {
     : { key: ANONYMOUS_KEY, identified: false };
 }
 
-const TOO_MANY = {
+const TOO_MANY: SendEmailResult = {
   error: "Too many messages. Please try again in a few minutes.",
 };
 
@@ -162,7 +163,9 @@ async function isRateLimited(): Promise<boolean> {
   return !allowed;
 }
 
-export const sendEmail = async (formData: FormData) => {
+export const sendEmail = async (
+  formData: FormData,
+): Promise<SendEmailResult> => {
   const senderEmail = formData.get("senderEmail");
   const message = formData.get("message");
   const honeypot = formData.get("contact_reason_hp");

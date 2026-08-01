@@ -100,6 +100,14 @@ Failures are reported through `lib/observability.ts` as single-line JSON with a
 stable `event` field, because a log drain can alert on that and free text can't.
 **Never put a message body or sender address in one of those lines.**
 
+The action's return type is declared explicitly as `SendEmailResult` in
+`lib/types.ts`. Don't drop the annotation and let it infer. TypeScript
+normalizes a union built from _fresh_ object literals in return position so
+that callers can destructure `{ error }` off it — but hoist one of those
+literals into a shared constant and the normalization stops applying, breaking
+`components/contact.tsx` with an error that points at the caller rather than
+the cause.
+
 ## Environment
 
 Everything is optional; the site builds and runs without any of it.
