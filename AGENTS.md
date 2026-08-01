@@ -34,7 +34,10 @@ behaviour (CSP headers, static prerendering, real React production mode).
 **`lib/seo.ts` is the single source of truth for site identity.** Name, role,
 URLs, social handles, location, employer, keywords. Metadata, JSON-LD, the
 sitemap, the manifest and the OG image all read from it. Never hardcode any of
-those values in a component.
+those values in a component. `lib/data.ts` re-exports `emailId` from it rather
+than restating the address. There are two role strings on purpose: `roleline`
+is the full headline for the OG card, and `roleShort` is the condensed one for
+the `<title>`, which search engines truncate around 60 characters.
 
 **Content sections are server components.** `about`, `skills`, `projects`,
 `experience` render on the server and wrap their content in
@@ -60,9 +63,22 @@ _visible_, never to hidden.
   PDF.** This is intentional. Don't "fix" it to match.
 - **`components/project.tsx` uses a plain `<img>` with an eslint-disable.**
   next/image doesn't optimize SVGs, and every project logo is an SVG.
-- **`serverExternalPackages` lists resend and its transitive deps.** Turbopack
-  can't resolve some of `html-to-text`'s ESM sub-dependencies when bundled; the
-  build breaks without this.
+- **`serverExternalPackages` is empty, with a long comment saying so.** resend
+  must be bundled; listing it broke `next start` under pnpm's strict linker.
+  The comment is the whole history — read it before touching the array.
+- **The contact email is a string template, not a React component.**
+  `email/contact-form-email.ts` returns `{ html, text }`. It was a `react-email`
+  component; that was an entire rendering runtime for one static template, and
+  the string version also produces a real `text/plain` part, which the React
+  path never did. Both fields are interpolated from untrusted form input, so
+  the HTML side escapes everything — React used to do that implicitly and now
+  it is explicit. **Don't drop `escapeHtml`.**
+- **The PDFs carry `X-Robots-Tag: noindex` in two places.**
+  `lib/serve-pdf.ts` sets it for `/resume` and friends; a `/:file(.*\.pdf)`
+  rule in `next.config.mjs` covers the raw `public/` filenames, which bypass
+  the route handler completely. Removing either one reopens the gap. It is
+  deliberately not a robots.txt `Disallow` — a blocked URL is never fetched,
+  so the crawler never sees the noindex and can still list the URL.
 - **The CSP keeps `'unsafe-inline'` in `script-src`.** Next injects inline
   hydration scripts whose contents change every build. Removing it requires
   either per-request nonces (which force dynamic rendering and give up the
@@ -88,8 +104,9 @@ _visible_, never to hidden.
 3. Rate limit — Upstash when configured, per-instance in-memory fallback
    otherwise.
 4. `E2E_TESTING=1` short-circuit — validates fully, sends nothing.
-5. Send via Resend; on failure log a structured event and return a generic
-   message. Provider error text must never reach the client.
+5. Render `email/contact-form-email.ts` and send both parts via Resend; on
+   failure log a structured event and return a generic message. Provider error
+   text must never reach the client.
 
 Two rate-limit budgets exist on purpose. Requests with a usable IP header get
 5 per 10 minutes; requests without one all share a single `"anonymous"` key, so

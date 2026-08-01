@@ -42,13 +42,23 @@ export default function ThemeContextProvider({
 }) {
   const [theme, setThemeState] = useState<Theme>(readInitialTheme);
 
-  const applyTheme = useCallback((next: Theme) => {
+  // Applies the theme to the DOM without writing it back to storage. Used by
+  // the cross-tab listener, where localStorage is already the source of the
+  // change and re-writing it would be a pointless round trip.
+  const paintTheme = useCallback((next: Theme) => {
     setThemeState(next);
-    safeSet("theme", next);
     const root = document.documentElement;
     root.classList.toggle("dark", next === "dark");
     root.style.colorScheme = next;
   }, []);
+
+  const applyTheme = useCallback(
+    (next: Theme) => {
+      paintTheme(next);
+      safeSet("theme", next);
+    },
+    [paintTheme],
+  );
 
   const toggleTheme = useCallback(() => {
     applyTheme(theme === "light" ? "dark" : "light");
@@ -67,6 +77,26 @@ export default function ThemeContextProvider({
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   }, [applyTheme]);
+
+  useEffect(() => {
+    // `storage` fires in every *other* tab of this origin, so toggling the
+    // theme in one tab no longer leaves the rest showing the old one. Only
+    // the "theme" key matters, and `newValue` is null when the key is removed
+    // (or storage cleared), in which case we fall back to the OS preference —
+    // which is the same rule readInitialTheme's inline script applies.
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== null && e.key !== "theme") return;
+      const next =
+        e.newValue === "dark" || e.newValue === "light"
+          ? e.newValue
+          : window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+      paintTheme(next);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [paintTheme]);
 
   const value = useMemo<ThemeContextType>(
     () => ({ theme, toggleTheme, setTheme: applyTheme }),

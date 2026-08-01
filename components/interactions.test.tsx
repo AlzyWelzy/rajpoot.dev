@@ -29,7 +29,6 @@ import ReadingProgress from "./reading-progress";
 import MotionProvider from "./motion-provider";
 import Header from "./header";
 import Project from "./project";
-import ContactFormEmail from "@/email/contact-form-email";
 
 afterEach(cleanup);
 
@@ -172,13 +171,5 @@ describe("Project card", () => {
       "src",
       "/example-logo.svg",
     );
-  });
-});
-
-describe("ContactFormEmail template", () => {
-  it("builds an element tree from the message and sender", () => {
-    expect(
-      ContactFormEmail({ message: "Hello there", senderEmail: "a@b.com" }),
-    ).toBeTruthy();
   });
 });

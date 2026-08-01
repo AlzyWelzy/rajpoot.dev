@@ -18,10 +18,6 @@ vi.mock("resend", () => ({
   },
 }));
 
-vi.mock("@/email/contact-form-email", () => ({
-  default: () => null,
-}));
-
 vi.mock("@upstash/ratelimit", () => {
   class Ratelimit {
     static slidingWindow = vi.fn(() => "sliding-window");

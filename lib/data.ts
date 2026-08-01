@@ -2,6 +2,7 @@ import React from "react";
 import { LuGraduationCap, LuCode } from "react-icons/lu";
 
 import type { ProjectType, TestimonialType } from "./types";
+import { siteConfig } from "./seo";
 
 export const links = [
   { name: "Home", hash: "#home" },
@@ -125,8 +126,10 @@ export const skillsData = [
   "Unit & Integration Testing",
 ] as const;
 
-export const emailId = "manvendra@rajpoot.dev" as const;
-export const websiteUrl = "rajpoot.dev" as const;
+// Re-exported from the site config rather than restated, so the address the
+// contact form sends to can't drift from the one JSON-LD and security.txt
+// publish. lib/seo.ts is the single source of truth for site identity.
+export const emailId = siteConfig.email;
 
 // Contact-form field limits, shared by the client inputs (maxLength) and the
 // server action's validation so the two can never drift apart.

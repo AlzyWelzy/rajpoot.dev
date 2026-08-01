@@ -10,8 +10,11 @@ import type { Metadata } from "next";
 import { siteConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  // Absolute (not templated) so the homepage title reads as the headline
+  // rather than "<page> | <name>". Built from siteConfig so the role wording
+  // can't drift from the hero, the OG card and the JSON-LD.
   title: {
-    absolute: `${siteConfig.name} — Backend Developer (AI & Cloud) | Portfolio`,
+    absolute: `${siteConfig.name} — ${siteConfig.roleShort} | Portfolio`,
   },
   description: siteConfig.description,
   alternates: { canonical: "/" },

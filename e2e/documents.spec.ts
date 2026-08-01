@@ -37,5 +37,18 @@ test.describe("document routes", () => {
       const body = await res.body();
       expect(body.subarray(0, 5).toString()).toBe("%PDF-");
     });
+
+    // The PDFs live in public/, so they are served at their raw filenames too.
+    // That path bypasses the route handler entirely, and with it the noindex
+    // the route sets — which would let the standalone document be indexed and
+    // compete with the homepage. next.config.mjs covers it with a header rule.
+    test(`/${filename} is noindex when fetched directly`, async ({
+      request,
+    }) => {
+      const res = await request.get(`/${filename}`);
+
+      expect(res.status()).toBe(200);
+      expect(res.headers()["x-robots-tag"]).toBe("noindex");
+    });
   }
 });

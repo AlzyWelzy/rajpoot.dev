@@ -6,6 +6,9 @@ export const siteConfig = {
   jobTitle: "Backend Developer",
   // Full résumé headline — used for OG image, hero, and rich phrasing.
   roleline: "Backend Developer · Automation & AI · Cloud Engineering",
+  // Condensed headline for the <title> tag, which search engines truncate
+  // around 60 characters — `roleline` plus the name would blow past that.
+  roleShort: "Backend Developer (AI & Cloud)",
   tagline:
     "Backend developer building scalable, secure, AI-powered systems and robust APIs.",
   description:

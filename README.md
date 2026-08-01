@@ -13,7 +13,7 @@ Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 - **TypeScript 6** (strict, `noUncheckedIndexedAccess`)
 - **Tailwind CSS v4** with CSS‑first `@theme` config and dark mode variants
 - **Motion** (the Framer Motion successor) for animations
-- **React Email + Resend** for the contact form
+- **Resend** for the contact form (dependency-free HTML + plaintext template)
 - **Edge-rendered OG images** (`app/opengraph-image.tsx`)
 
 ## SEO features

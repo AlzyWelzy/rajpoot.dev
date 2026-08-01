@@ -11,11 +11,8 @@ vi.mock("resend", () => ({
   },
 }));
 
-// The email template renders React; stub it so the action doesn't pull in the
-// full @react-email runtime during a unit test.
-vi.mock("@/email/contact-form-email", () => ({
-  default: () => null,
-}));
+// The email template is a dependency-free string builder, so it is left
+// unmocked — the assertions below check the real rendered payload.
 
 // No Upstash env vars are set in the test environment, so `ratelimit` is null
 // and this path is skipped — but mock the modules so importing them is cheap.
@@ -83,8 +80,33 @@ describe("sendEmail", () => {
     expect(sendMock.mock.calls[0]?.[0]).toMatchObject({
       replyTo: "real@example.com",
       to: expect.any(String),
+      html: expect.stringContaining("hello there"),
+      // Both parts are sent: a transactional message with no text/plain
+      // alternative scores worse with spam filters.
+      text: expect.stringContaining("hello there"),
     });
     expect(result).toEqual({ data: { id: "email_123" } });
+  });
+
+  it("escapes the visitor's input into the HTML part", async () => {
+    await sendEmail(
+      form({
+        senderEmail: "real@example.com",
+        message: "<img src=x onerror=alert(1)>",
+      }),
+    );
+
+    const payload = sendMock.mock.calls[0]?.[0] as {
+      html: string;
+      text: string;
+    };
+    // The template interpolates untrusted form input into an HTML string, so
+    // the escaping is the only thing standing between a submitted payload and
+    // markup running in whatever client opens the notification.
+    expect(payload.html).not.toContain("<img");
+    expect(payload.html).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    // The plaintext part is not markup and is deliberately left verbatim.
+    expect(payload.text).toContain("<img src=x onerror=alert(1)>");
   });
 
   it("returns a generic error and logs a structured event when the provider throws", async () => {

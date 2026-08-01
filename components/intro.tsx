@@ -35,8 +35,8 @@ export default function Intro() {
             <Image
               src={profileImage}
               alt={`${siteConfig.name} — ${siteConfig.jobTitle}`}
+              // `priority` already emits fetchpriority="high" + preload.
               priority
-              fetchPriority="high"
               placeholder="blur"
               sizes="96px"
               className="h-24 w-24 rounded-full object-cover border-[0.35rem] border-white shadow-xl"

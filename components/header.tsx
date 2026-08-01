@@ -54,8 +54,10 @@ export default function Header() {
     return () => observer.disconnect();
   }, [measure]);
 
+  // No role="banner": a <header> that isn't nested inside a sectioning element
+  // already exposes the banner landmark, so restating it is redundant.
   return (
-    <header className="z-[999] relative" role="banner">
+    <header className="z-[999] relative">
       <m.nav
         aria-label="Primary"
         className="fixed top-4 left-1/2 flex w-[min(100%-1.5rem,24rem)] items-center justify-center rounded-3xl border border-white/60 bg-white/80 shadow-lg shadow-black/5 ring-1 ring-black/5 backdrop-blur-xl backdrop-saturate-150 sm:top-6 sm:w-xl sm:rounded-full dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/40 dark:ring-white/5"

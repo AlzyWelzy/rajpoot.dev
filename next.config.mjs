@@ -3,22 +3,22 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  // Deliberately empty: resend / react-email must be BUNDLED, not external.
+  // Deliberately empty: resend must be BUNDLED, not external.
   //
-  // They used to be listed here because Turbopack couldn't resolve html-to-text's
-  // ESM sub-deps (leac, peberminta) when bundling. Next 16.2 resolves them fine,
-  // and keeping the entries actively broke `next start`: Next copies each
-  // external into .next/node_modules/<name>-<hash>/ WITHOUT its transitive deps,
-  // so at runtime the copy resolves its own imports by walking up to the
-  // project's node_modules — which under pnpm's strict linker does not contain
-  // them. The contact server action then died at module load with
-  // ERR_MODULE_NOT_FOUND (postal-mime via resend, prismjs via react-email),
-  // returning an opaque 500 for every submission.
+  // resend and react-email used to be listed here because Turbopack couldn't
+  // resolve html-to-text's ESM sub-deps (leac, peberminta) when bundling. Next
+  // 16.2 resolves them fine, and keeping the entries actively broke
+  // `next start`: Next copies each external into
+  // .next/node_modules/<name>-<hash>/ WITHOUT its transitive deps, so at
+  // runtime the copy resolves its own imports by walking up to the project's
+  // node_modules — which under pnpm's strict linker does not contain them. The
+  // contact server action then died at module load with ERR_MODULE_NOT_FOUND
+  // (postal-mime via resend), returning an opaque 500 for every submission.
   //
-  // Bundling also means react-email's dev-only surface (the CLI, socket.io,
-  // chokidar, the prismjs code-block) is tree-shaken out instead of being copied
-  // and loaded. Do not re-add entries here without checking that every package
-  // they reach at runtime resolves from the project root.
+  // react-email is gone entirely now — email/contact-form-email.ts builds the
+  // HTML and plaintext parts as strings — so the prismjs half of that failure
+  // can no longer recur. Do not re-add entries here without checking that
+  // every package they reach at runtime resolves from the project root.
   serverExternalPackages: [],
   // Tree-shake large barrel packages so only the icons/animations actually
   // used ship to the client, shrinking the JS bundle.
@@ -155,6 +155,17 @@ const nextConfig = {
         source: "/:path*",
         missing: [{ type: "host", value: "localhost" }],
         headers: securityHeaders({ upgradeInsecure: true }),
+      },
+      // The PDFs live in public/, so they are also reachable at their raw
+      // filenames — which bypasses the X-Robots-Tag that lib/serve-pdf.ts sets
+      // on /resume, /cover_letter and /experience_letter. Without this rule the
+      // standalone documents can be indexed and compete with the homepage,
+      // which is exactly what that header exists to prevent. Deliberately a
+      // header and not a robots.txt Disallow: a blocked URL is never fetched,
+      // so the crawler never sees the noindex and can still list it.
+      {
+        source: "/:file(.*\\.pdf)",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
       },
     ];
   },

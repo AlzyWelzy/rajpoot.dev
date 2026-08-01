@@ -1,6 +1,5 @@
 "use server";
 
-import React from "react";
 import { headers } from "next/headers";
 import { Resend } from "resend";
 import { Ratelimit } from "@upstash/ratelimit";
@@ -9,7 +8,7 @@ import { Redis } from "@upstash/redis";
 import { validateString, isValidEmail, getErrorMessage } from "@/lib/utils";
 import type { SendEmailResult } from "@/lib/types";
 import { logServerEvent } from "@/lib/observability";
-import ContactFormEmail from "@/email/contact-form-email";
+import contactFormEmail from "@/email/contact-form-email";
 import { emailId, EMAIL_MAX_LENGTH, MESSAGE_MAX_LENGTH } from "@/lib/data";
 
 // Created lazily inside the action's try/catch: the Resend constructor throws
@@ -200,12 +199,16 @@ export const sendEmail = async (
   }
 
   try {
+    const { html, text } = contactFormEmail({ message, senderEmail });
     const data = await getResend().emails.send({
       from: fromAddress,
       to: emailId,
       subject: "Message from contact form",
       replyTo: senderEmail,
-      react: React.createElement(ContactFormEmail, { message, senderEmail }),
+      html,
+      // A real text/plain alternative alongside the HTML part — transactional
+      // mail without one scores worse with spam filters.
+      text,
     });
     return { data };
   } catch (error: unknown) {

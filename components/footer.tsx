@@ -26,11 +26,9 @@ const iconLinkClasses =
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  // No role="contentinfo": a top-level <footer> already exposes that landmark.
   return (
-    <footer
-      role="contentinfo"
-      className="px-4 pb-10 text-center text-gray-600 dark:text-white/70"
-    >
+    <footer className="px-4 pb-10 text-center text-gray-600 dark:text-white/70">
       <p className="mb-2 block text-xs">
         <span className="font-semibold">
           Building scalable, secure backends and AI-powered systems.
