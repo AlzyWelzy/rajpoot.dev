@@ -2,6 +2,23 @@ import { links } from "./data";
 
 export type SectionName = (typeof links)[number]["name"];
 
+/**
+ * Result of the contact-form server action.
+ *
+ * Declared explicitly rather than inferred, because inference here is quietly
+ * fragile: TypeScript normalizes a union built from *fresh* object literals in
+ * return position so that `{ error }` can be destructured off it, but the
+ * moment one of those literals is hoisted into a shared constant the
+ * normalization stops applying and every caller breaks. Both members naming
+ * both keys makes the contract independent of how the action happens to be
+ * written.
+ *
+ * `data` is deliberately opaque — its shape differs between a real Resend
+ * response and the honeypot/E2E short-circuits, and no caller reads it.
+ */
+export type SendEmailResult =
+  { error: string; data?: undefined } | { data: unknown; error?: undefined };
+
 export type ProjectType = {
   title: string;
   description: string;
