@@ -132,9 +132,15 @@ test.describe("reduced motion", () => {
     // animation-range ever stops completing, the chips silently stay
     // invisible. Assert the settled state for all 32, not just the first.
     await page.goto("/");
-    await page.locator("#skills").scrollIntoViewIfNeeded();
 
     const chips = page.locator("#skills li");
+    // Scroll to the LAST chip, not the section top: the animation is driven by
+    // each chip's own `entry` range, and on a phone-width viewport the 32 chips
+    // wrap into a block taller than the screen, so bringing only the section
+    // heading into view leaves the bottom rows below the fold with their range
+    // not yet started. Once the last chip is in view every earlier one has
+    // passed `entry 60%` and `animation-fill-mode: both` holds it at opacity 1.
+    await chips.last().scrollIntoViewIfNeeded();
     await expect(chips.first()).toBeVisible();
 
     await expect(async () => {
