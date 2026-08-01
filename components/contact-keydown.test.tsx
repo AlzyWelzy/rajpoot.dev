@@ -36,18 +36,16 @@ import Contact from "./contact";
 afterEach(cleanup);
 
 describe("Contact — keyboard submit", () => {
-  it("requests submit on Ctrl/Cmd+Enter but not on a plain key", () => {
-    const requestSubmit = vi.fn();
-    HTMLFormElement.prototype.requestSubmit =
-      requestSubmit as HTMLFormElement["requestSubmit"];
-
+  it("clicks submit on Ctrl/Cmd+Enter but not on a plain key", () => {
     render(<Contact />);
     const message = screen.getByLabelText("Your message");
+    const submit = screen.getByRole("button", { name: /send message/i });
+    const clickSpy = vi.spyOn(submit, "click");
 
     fireEvent.keyDown(message, { key: "a" });
-    expect(requestSubmit).not.toHaveBeenCalled();
+    expect(clickSpy).not.toHaveBeenCalled();
 
     fireEvent.keyDown(message, { key: "Enter", ctrlKey: true });
-    expect(requestSubmit).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 });

@@ -103,9 +103,14 @@ export default function Contact() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
-            // Cmd/Ctrl+Enter submits; plain Enter stays a newline.
+            // Cmd/Ctrl+Enter submits; plain Enter stays a newline. Click the
+            // submit button (a real submitter) rather than form.requestSubmit(),
+            // which does not reliably trigger a React 19 form action in WebKit.
             if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-              e.currentTarget.form?.requestSubmit();
+              e.preventDefault();
+              e.currentTarget.form
+                ?.querySelector<HTMLButtonElement>('button[type="submit"]')
+                ?.click();
             }
           }}
           aria-invalid={state?.error ? true : undefined}

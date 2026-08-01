@@ -7,11 +7,17 @@ test.describe("contact form", () => {
   test("submitting a valid message shows success and clears the form", async ({
     page,
   }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/#contact");
     const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
-    await email.fill("visitor@example.com");
+    // WebKit drops fill() on this controlled type="email" input (the value never
+    // reaches React state), so type it key-by-key and confirm it landed before
+    // submitting — otherwise the empty email fails validation and no toast shows.
+    await email.click();
+    await email.pressSequentially("visitor@example.com");
+    await expect(email).toHaveValue("visitor@example.com");
     await message.fill("Hello! Great portfolio.");
     await page.getByRole("button", { name: /send message/i }).click();
 
@@ -26,10 +32,15 @@ test.describe("contact form", () => {
   });
 
   test("Cmd/Ctrl+Enter submits from the message field", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/#contact");
+    const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
-    await page.getByPlaceholder("Your email").fill("visitor@example.com");
+    // See the note above: type the email key-by-key so WebKit registers it.
+    await email.click();
+    await email.pressSequentially("visitor@example.com");
+    await expect(email).toHaveValue("visitor@example.com");
     await message.fill("Submitted with the keyboard shortcut.");
     await message.press("ControlOrMeta+Enter");
 
