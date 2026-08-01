@@ -12,28 +12,8 @@ runs:
         node-version: 24
         cache: pnpm
 
-    # pnpm-workspace.yaml is gitignored (Vercel's pnpm 9 rejects a
-    # settings-only workspace file), so recreate before installing:
-    #  - build-script approvals pnpm 11 requires, and
-    #  - overrides forcing next's vulnerable nested sharp (<0.35.0) and
-    #    postcss (<=8.5.17) up to patched versions. These must match the
-    #    lockfile's `overrides:` block or `--frozen-lockfile` fails. pnpm 11
-    #    ignores package.json `pnpm.overrides`, so they must live here.
-    - name: Recreate pnpm-workspace.yaml (build approvals + overrides)
-      shell: bash
-      run: |
-        cat > pnpm-workspace.yaml <<'EOF'
-        allowBuilds:
-          esbuild: true
-          sharp: true
-          unrs-resolver: true
-        minimumReleaseAgeExclude:
-          - postcss@8.5.23
-        overrides:
-          sharp: ^0.35.3
-          postcss: ^8.5.23
-        EOF
-
+    # Build approvals + overrides now live in the committed pnpm-workspace.yaml
+    # (single source for CI, local, and Vercel), so no recreation step is needed.
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
