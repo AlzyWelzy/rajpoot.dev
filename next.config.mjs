@@ -3,15 +3,23 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  // Keep these server-only packages external instead of bundling them. resend
-  // pulls in @react-email/render -> html-to-text, whose ESM sub-deps (leac,
-  // peberminta) Turbopack fails to resolve when bundled, breaking the build.
-  serverExternalPackages: [
-    "resend",
-    "react-email",
-    "@react-email/render",
-    "html-to-text",
-  ],
+  // Deliberately empty: resend / react-email must be BUNDLED, not external.
+  //
+  // They used to be listed here because Turbopack couldn't resolve html-to-text's
+  // ESM sub-deps (leac, peberminta) when bundling. Next 16.2 resolves them fine,
+  // and keeping the entries actively broke `next start`: Next copies each
+  // external into .next/node_modules/<name>-<hash>/ WITHOUT its transitive deps,
+  // so at runtime the copy resolves its own imports by walking up to the
+  // project's node_modules — which under pnpm's strict linker does not contain
+  // them. The contact server action then died at module load with
+  // ERR_MODULE_NOT_FOUND (postal-mime via resend, prismjs via react-email),
+  // returning an opaque 500 for every submission.
+  //
+  // Bundling also means react-email's dev-only surface (the CLI, socket.io,
+  // chokidar, the prismjs code-block) is tree-shaken out instead of being copied
+  // and loaded. Do not re-add entries here without checking that every package
+  // they reach at runtime resolves from the project root.
+  serverExternalPackages: [],
   // Tree-shake large barrel packages so only the icons/animations actually
   // used ship to the client, shrinking the JS bundle.
   experimental: {

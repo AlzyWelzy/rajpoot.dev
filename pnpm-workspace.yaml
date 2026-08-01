@@ -12,16 +12,6 @@ allowBuilds:
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - postcss@8.5.23
-# publicHoistPattern: next copies each `serverExternalPackages` entry into
-# .next/node_modules/<name>-<hash>/ WITHOUT its transitive deps, so at runtime
-# `resend` resolves its own imports by walking up to the project's
-# node_modules. pnpm's strict linker doesn't put them there, so `next start`
-# dies with ERR_MODULE_NOT_FOUND on postal-mime. Hoisting resend's runtime deps
-# to the root makes that walk-up succeed. Versions still come from the lockfile
-# (resend pins them exactly), so this is placement only, not a version choice.
-publicHoistPattern:
-  - postal-mime
-  - standardwebhooks
 overrides:
   sharp: ^0.35.3
   postcss: ^8.5.23
