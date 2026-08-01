@@ -73,6 +73,15 @@ _visible_, never to hidden.
   path never did. Both fields are interpolated from untrusted form input, so
   the HTML side escapes everything — React used to do that implicitly and now
   it is explicit. **Don't drop `escapeHtml`.**
+- **apex → www is a Vercel domain-level redirect, not a `redirects()` rule.**
+  It looks like it belongs in `next.config.mjs` next to the others. It doesn't:
+  Next applies **neither `headers()` nor the CSP to a redirect response**
+  (verified — an in-app apex rule answers with `location` and nothing else), so
+  moving it into the app would strip the security headers off that hop instead
+  of completing them. The side effect is that the apex answers with Vercel's
+  own bare `Strict-Transport-Security: max-age=…`, missing `includeSubDomains`
+  and `preload`, which is why the domain **cannot be submitted to
+  hstspreload.org** while the redirect exists.
 - **The PDFs carry `X-Robots-Tag: noindex` in two places.**
   `lib/serve-pdf.ts` sets it for `/resume` and friends; a `/:file(.*\.pdf)`
   rule in `next.config.mjs` covers the raw `public/` filenames, which bypass

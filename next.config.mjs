@@ -27,6 +27,18 @@ const nextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    // The site has exactly one next/image: the 96×96 hero avatar. Next builds
+    // its srcset from these two lists, and with the defaults that meant a
+    // 14-entry preload tag offering variants up to 3840w for a 24KB avatar —
+    // ~1.5KB of markup in the critical path describing images no layout on
+    // this site can ever request. Narrowed to the avatar's real DPR ladder
+    // (96 = 1x, 192 = 2x, 288 = 3x); deviceSizes keeps a single small entry
+    // because Next requires the list to be non-empty.
+    //
+    // If a full-width image is ever added, widen these again — otherwise it
+    // will be served from a 640w source and look soft on large screens.
+    imageSizes: [96, 192, 288],
+    deviceSizes: [640],
   },
   async redirects() {
     return [
@@ -71,6 +83,11 @@ const nextConfig = {
         destination: "https://esyconnect.com/candidate/alzywelzy/",
         permanent: true,
       },
+      // Note: apex → www is NOT handled here. Measured: Next applies neither
+      // headers() nor a CSP to a redirects() response — an in-app apex rule
+      // answers with `location` and nothing else — so moving the redirect into
+      // the app would strip the security headers off it rather than complete
+      // them. It stays a Vercel domain-level redirect. See AGENTS.md.
     ];
   },
   async headers() {
