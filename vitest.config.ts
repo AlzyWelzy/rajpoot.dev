@@ -30,11 +30,17 @@ export default defineConfig({
         // solely in type positions, so there is nothing to execute.
         "lib/types.ts",
       ],
+      // A floor, not a target. At 100% the thresholds started writing the
+      // tests: whole spec files existed only to render a component once and
+      // assert nothing, and source carried `/* v8 ignore */` pragmas to hide
+      // defensive branches that are correct precisely because they are hard to
+      // reach. 90% keeps a real regression gate while letting the suite be
+      // judged on whether it describes behaviour.
       thresholds: {
-        statements: 100,
-        branches: 100,
-        functions: 100,
-        lines: 100,
+        statements: 90,
+        branches: 90,
+        functions: 90,
+        lines: 90,
       },
     },
     projects: [

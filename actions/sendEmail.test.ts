@@ -87,7 +87,7 @@ describe("sendEmail", () => {
     expect(result).toEqual({ data: { id: "email_123" } });
   });
 
-  it("returns a generic error and logs detail when the provider throws", async () => {
+  it("returns a generic error and logs a structured event when the provider throws", async () => {
     const consoleError = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
@@ -102,7 +102,27 @@ describe("sendEmail", () => {
     });
     // Raw provider text must not leak to the client...
     expect(JSON.stringify(result)).not.toContain("401");
-    // ...but should be logged server-side.
-    expect(consoleError).toHaveBeenCalled();
+
+    // ...but a log drain must be able to alert on it, which needs a stable
+    // machine-readable event name rather than free text.
+    expect(consoleError).toHaveBeenCalledOnce();
+    const logged = JSON.parse(consoleError.mock.calls[0]?.[0] as string);
+    expect(logged.event).toBe("contact.send_failed");
+    expect(logged.level).toBe("error");
+    expect(logged.reason).toContain("401");
+    // Never ship the visitor's message or address to a third-party log sink.
+    expect(consoleError.mock.calls[0]?.[0]).not.toContain("real@example.com");
+    expect(consoleError.mock.calls[0]?.[0]).not.toContain("hello there");
+  });
+
+  it("returns an e2e marker without sending when E2E_TESTING=1", async () => {
+    vi.stubEnv("E2E_TESTING", "1");
+
+    await expect(
+      sendEmail(form({ senderEmail: "real@example.com", message: "hello" })),
+    ).resolves.toEqual({ data: { id: "e2e-skipped" } });
+    expect(sendMock).not.toHaveBeenCalled();
+
+    vi.unstubAllEnvs();
   });
 });

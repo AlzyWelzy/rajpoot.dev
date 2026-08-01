@@ -1,11 +1,15 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@testing-library/react";
 
 import JsonLd from "./json-ld";
 import { projectsData } from "@/lib/data";
 import { siteConfig } from "@/lib/seo";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.resetModules();
+  vi.doUnmock("@/lib/data");
+});
 
 type Node = Record<string, unknown> & { "@type"?: string; name?: string };
 
@@ -57,5 +61,28 @@ describe("JsonLd structured data", () => {
   it("escapes angle brackets so a value can't close the script early", () => {
     // The serialized content must contain no raw "<" (each is written as <).
     expect(renderScript().innerHTML).not.toContain("<");
+  });
+
+  it("omits url for a project that has no live link, keeping codeRepository", async () => {
+    vi.doMock("@/lib/data", () => ({
+      skillsData: ["Python", "Docker"],
+      projectsData: [
+        {
+          title: "OSS Lib",
+          description: "d",
+          tags: ["Python"],
+          githubUrl: "https://github.com/x/oss",
+        },
+      ],
+    }));
+    const { default: FreshJsonLd } = await import("./json-ld");
+    const { container } = render(<FreshJsonLd />);
+    const graph = JSON.parse(container.querySelector("script")!.textContent!);
+    const project = graph["@graph"].find(
+      (n: { name?: string }) => n.name === "OSS Lib",
+    );
+    expect(project.url).toBeUndefined();
+    expect(project.codeRepository).toBe("https://github.com/x/oss");
+    expect(project["@type"]).toBe("SoftwareSourceCode");
   });
 });

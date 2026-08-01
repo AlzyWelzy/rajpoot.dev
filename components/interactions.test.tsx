@@ -6,63 +6,26 @@ import {
   screen,
   within,
 } from "@testing-library/react";
-import { createElement, type ReactNode } from "react";
 
-const { MOTION_ONLY_PROPS } = vi.hoisted(() => ({
-  MOTION_ONLY_PROPS: new Set([
-    "initial",
-    "animate",
-    "exit",
-    "whileInView",
-    "whileHover",
-    "whileTap",
-    "transition",
-    "viewport",
-    "layoutId",
-    "variants",
-    "custom",
-  ]),
-}));
+// Behaviour of the interactive chrome: the theme toggle, the back-to-top
+// button, the header's active-section pill, and the data-driven branches of
+// the project/testimonial cards.
 
-vi.mock("motion/react", () => ({
-  m: new Proxy(
-    {},
-    {
-      get: (_target, tag: string) => (props: Record<string, unknown>) =>
-        createElement(
-          tag,
-          Object.fromEntries(
-            Object.entries(props).filter(
-              ([key]) => !MOTION_ONLY_PROPS.has(key),
-            ),
-          ),
-        ),
-    },
-  ),
-  AnimatePresence: ({ children }: { children: ReactNode }) => children,
-  LazyMotion: ({ children }: { children: ReactNode }) => children,
-  MotionConfig: ({ children }: { children: ReactNode }) => children,
-  domMax: {},
-}));
-
-vi.mock("react-intersection-observer", () => ({
-  useInView: () => ({ ref: () => {}, inView: false }),
-}));
-
-// Plain anchor so the click handler fires without an App Router context.
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    ...props
-  }: {
-    children: ReactNode;
-  } & Record<string, unknown>) => createElement("a", props, children),
-}));
+vi.mock("motion/react", async () =>
+  (await import("@/test-utils/mocks")).motionMock(),
+);
+vi.mock("react-intersection-observer", async () =>
+  (await import("@/test-utils/mocks")).intersectionObserverMock(),
+);
+vi.mock("next/link", async () =>
+  (await import("@/test-utils/mocks")).nextLinkMock(),
+);
 
 import ThemeContextProvider from "@/context/theme-context";
 import ActiveSectionContextProvider from "@/context/active-section-context";
 import ThemeSwitch from "./theme-switch";
 import ScrollToTop from "./scroll-to-top";
+import ReadingProgress from "./reading-progress";
 import MotionProvider from "./motion-provider";
 import Header from "./header";
 import Project from "./project";
@@ -113,6 +76,17 @@ describe("ScrollToTop", () => {
   });
 });
 
+describe("ReadingProgress", () => {
+  it("is decorative — hidden from assistive tech, not a status role", () => {
+    const { container } = render(<ReadingProgress />);
+    const bar = container.firstElementChild;
+    // The section nav is the real wayfinding; a screen reader announcing a
+    // scroll percentage on every frame would be noise, not information.
+    expect(bar).toHaveAttribute("aria-hidden", "true");
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
+  });
+});
+
 describe("MotionProvider", () => {
   it("renders its children", () => {
     render(
@@ -125,31 +99,79 @@ describe("MotionProvider", () => {
 });
 
 describe("Header navigation", () => {
-  it("marks a link active on click", () => {
-    render(
+  function renderHeader() {
+    return render(
       <ActiveSectionContextProvider>
         <Header />
       </ActiveSectionContextProvider>,
     );
-    const nav = screen.getByRole("navigation", { name: "Primary" });
-    fireEvent.click(within(nav).getByRole("link", { name: "Projects" }));
+  }
+
+  const nav = () => screen.getByRole("navigation", { name: "Primary" });
+
+  it("marks a link active on click", () => {
+    renderHeader();
+    fireEvent.click(within(nav()).getByRole("link", { name: "Projects" }));
     // Re-query: the motion mock remounts the subtree, detaching the old node.
     expect(
-      within(screen.getByRole("navigation", { name: "Primary" })).getByRole(
-        "link",
-        { name: "Projects" },
-      ),
+      within(nav()).getByRole("link", { name: "Projects" }),
     ).toHaveAttribute("aria-current", "page");
+  });
+
+  it("moves the active pill onto the clicked item", () => {
+    renderHeader();
+    const pill = screen.getByTestId("active-pill");
+    // "Home" is active on mount, so the pill is already placed.
+    expect(pill).toHaveStyle({ opacity: "1" });
+
+    fireEvent.click(within(nav()).getByRole("link", { name: "Contact" }));
+
+    const active = nav().querySelector('[data-active="true"]');
+    expect(active).toHaveTextContent("Contact");
+    expect(screen.getByTestId("active-pill")).toHaveStyle({ opacity: "1" });
   });
 });
 
-describe("Project without any links", () => {
-  it("renders the card body but no action buttons", () => {
+describe("Project card", () => {
+  it("renders both action links when the project has them", () => {
+    render(
+      <Project
+        title="Both"
+        description="Has both links."
+        tags={["Python"]}
+        liveUrl="https://example.dev"
+        githubUrl="https://github.com/x/y"
+      />,
+    );
+    expect(
+      screen.getByRole("link", { name: /open both/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /both source code/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the card body but no action buttons when it has neither", () => {
     render(
       <Project title="Solo" description="No links here." tags={["Bash"]} />,
     );
     expect(screen.getByRole("heading", { name: "Solo" })).toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+
+  it("shows the logo when one is configured", () => {
+    render(
+      <Project
+        title="Logo'd"
+        description="Has a logo."
+        tags={["SDK"]}
+        logo="/example-logo.svg"
+      />,
+    );
+    expect(screen.getByAltText("Logo'd logo")).toHaveAttribute(
+      "src",
+      "/example-logo.svg",
+    );
   });
 });
 

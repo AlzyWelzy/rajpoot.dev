@@ -84,3 +84,52 @@
 @utility focus-ring {
   @apply focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 dark:focus-visible:ring-white;
 }
+
+/* ---------------------------------------------------------------------------
+   JS-free reveals.
+
+   These replace motion-driven animations on elements that are otherwise
+   entirely static (the 32 skill chips, the section divider), keeping them out
+   of the client bundle. Written unlayered so they win over Tailwind's layered
+   utilities without needing !important.
+   --------------------------------------------------------------------------- */
+
+@keyframes chip-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes divider-rise {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Scroll-driven, so each chip reveals as it enters the viewport rather than
+     all at once on load. Gated on @supports: browsers without scroll-driven
+     animations (Firefox at time of writing) simply render the chips visible,
+     which is the correct no-JS fallback — never a hidden-content trap. */
+  @supports (animation-timeline: view()) {
+    .chip-reveal {
+      animation: chip-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+
+  .divider-rise {
+    animation: divider-rise 0.5s ease-out 0.125s both;
+  }
+}

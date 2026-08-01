@@ -35,10 +35,18 @@ export default defineConfig({
     { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
   ],
   // Run the production build so tests exercise what actually ships.
-  // E2E_TESTING drops the CSP's upgrade-insecure-requests directive, which
-  // WebKit applies even to localhost (breaking asset loads over plain http).
+  // E2E_TESTING is a *runtime* flag only: it tells the contact-form action to
+  // validate but not actually send. The CSP's upgrade-insecure-requests
+  // directive (which WebKit applies even to localhost, breaking plain-http
+  // asset loads) is dropped by host match in next.config.mjs instead, so the
+  // build itself is an ordinary production build — which is what lets CI build
+  // once and share it with the Lighthouse job. E2E_SKIP_BUILD=1 reuses a
+  // `.next` restored from that shared artifact.
   webServer: {
-    command: `E2E_TESTING=1 pnpm build && E2E_TESTING=1 pnpm start --port ${PORT}`,
+    command:
+      process.env.E2E_SKIP_BUILD === "1"
+        ? `E2E_TESTING=1 pnpm start --port ${PORT}`
+        : `pnpm build && E2E_TESTING=1 pnpm start --port ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

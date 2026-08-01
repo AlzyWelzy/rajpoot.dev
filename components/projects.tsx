@@ -1,18 +1,15 @@
-"use client";
-
 import SectionHeading from "./section-heading";
 import Project from "./project";
+import SectionSpy from "./section-spy";
 import { projectsData } from "@/lib/data";
-import { useSectionInView } from "@/lib/hooks";
 
+// Server component: project data is rendered here and only the individual
+// cards (which animate on hover/enter) are client components.
 export default function Projects() {
-  const { ref } = useSectionInView("Projects");
-
   return (
-    <section
-      ref={ref}
+    <SectionSpy
+      section="Projects"
       id="projects"
-      tabIndex={-1}
       aria-label="Projects"
       className="mb-28 w-full max-w-2xl scroll-mt-28 outline-none"
     >
@@ -22,6 +19,6 @@ export default function Projects() {
           <Project key={project.title} {...project} />
         ))}
       </div>
-    </section>
+    </SectionSpy>
   );
 }
