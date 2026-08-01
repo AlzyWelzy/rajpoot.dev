@@ -49,6 +49,36 @@ test.describe("contact form", () => {
     });
     await expect(message).toHaveValue("");
   });
+
+  test("a honeypot-filled submission is dropped without telling the bot", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/#contact");
+    const email = page.getByPlaceholder("Your email");
+    const message = page.getByPlaceholder("Your message");
+
+    await email.click();
+    await email.pressSequentially("bot@example.com");
+    await expect(email).toHaveValue("bot@example.com");
+    await message.fill("Buy my product.");
+
+    // Fill the hidden field the way an indiscriminate form-filler would.
+    await page
+      .locator('input[name="contact_reason_hp"]')
+      .evaluate((el: HTMLInputElement) => {
+        el.value = "http://spam.example";
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+
+    await page.getByRole("button", { name: /send message/i }).click();
+
+    // The server pretends it worked — the whole point is not to signal that
+    // the trap was detected.
+    await expect(page.getByText("Email sent successfully!")).toBeVisible({
+      timeout: 15_000,
+    });
+  });
 });
 
 test.describe("keyboard navigation", () => {

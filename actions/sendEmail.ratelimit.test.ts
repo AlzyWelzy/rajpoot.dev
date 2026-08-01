@@ -121,6 +121,42 @@ describe("sendEmail rate limiting (Upstash configured)", () => {
 
     expect(limitMock).toHaveBeenCalledWith("anonymous");
   });
+
+  it("gives the shared anonymous bucket its own, wider window", async () => {
+    limitMock.mockResolvedValue({ success: true });
+    const { Ratelimit } = await import("@upstash/ratelimit");
+    const slidingWindow = Ratelimit.slidingWindow as unknown as ReturnType<
+      typeof vi.fn
+    >;
+    slidingWindow.mockClear();
+
+    const sendEmail = await freshSendEmail();
+    await sendEmail(validForm());
+
+    // Everyone without a usable IP header shares one key, so applying the
+    // per-IP budget to it would let one script lock out every other
+    // header-less visitor. The two budgets must differ, and the anonymous one
+    // must be the larger.
+    const limits = slidingWindow.mock.calls.map((call) => call[0] as number);
+    expect(limits).toHaveLength(2);
+    const [identified, anonymous] = limits;
+    expect(anonymous).toBeGreaterThan(identified!);
+  });
+
+  it("logs a structured rate_limited event when it turns someone away", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    limitMock.mockResolvedValue({ success: false });
+    const sendEmail = await freshSendEmail();
+
+    await sendEmail(validForm());
+
+    const line = warn.mock.calls.at(-1)?.[0] as string;
+    expect(JSON.parse(line)).toMatchObject({
+      event: "contact.rate_limited",
+      identified: false,
+    });
+    warn.mockRestore();
+  });
 });
 
 describe("sendEmail rate limiting (production fallback, Upstash unset)", () => {
@@ -154,9 +190,30 @@ describe("sendEmail rate limiting (production fallback, Upstash unset)", () => {
       error: "Too many messages. Please try again in a few minutes.",
     });
     expect(sendMock).toHaveBeenCalledTimes(5);
-    expect(warn).toHaveBeenCalledOnce();
+    // One misconfiguration warning, then one warning for the rejected request.
+    const events = warn.mock.calls.map(
+      (call) => JSON.parse(call[0] as string).event,
+    );
+    expect(events).toEqual([
+      "contact.ratelimit_misconfigured",
+      "contact.rate_limited",
+    ]);
     // The Upstash client must not have been constructed at all.
     expect(limitMock).not.toHaveBeenCalled();
+  });
+
+  it("does not let one header-less caller lock out the rest", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    getHeaders.current = () => new Headers();
+    const sendEmail = await freshSendEmail();
+
+    // Five requests would exhaust an identified IP's budget outright. The
+    // shared anonymous bucket has to keep serving well past that point.
+    for (let i = 0; i < 6; i++) {
+      expect(await sendEmail(validForm())).toEqual({
+        data: { id: "email_123" },
+      });
+    }
   });
 
   it("limits per IP, not globally", async () => {

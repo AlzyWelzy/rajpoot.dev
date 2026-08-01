@@ -1,25 +1,18 @@
-"use client";
-
 import Link from "next/link";
-import { m } from "motion/react";
 
 import SectionHeading from "./section-heading";
-import { useSectionInView } from "@/lib/hooks";
+import SectionSpy from "./section-spy";
 
+// Server component: the prose is static, so only SectionSpy (the scroll-spy
+// ref + reveal) crosses into the client bundle.
 export default function About() {
-  const { ref } = useSectionInView("About");
-
   return (
-    <m.section
-      ref={ref}
+    <SectionSpy
+      section="About"
       id="about"
-      tabIndex={-1}
       aria-label="About Manvendra Rajpoot"
+      reveal
       className="mb-28 max-w-180 text-center leading-8 outline-none sm:mb-40 scroll-mt-28"
-      initial={{ opacity: 0, y: 100 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ delay: 0.175 }}
     >
       <SectionHeading>About me</SectionHeading>
 
@@ -68,6 +61,6 @@ export default function About() {
         </Link>{" "}
         where I can build things that scale.
       </p>
-    </m.section>
+    </SectionSpy>
   );
 }

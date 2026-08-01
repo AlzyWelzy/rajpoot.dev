@@ -61,4 +61,88 @@ test.describe("portfolio homepage", () => {
     );
     expect(isInvalid).toBe(true);
   });
+
+  test("the active pill follows the selected nav item", async ({ page }) => {
+    await page.goto("/");
+    const nav = page.getByRole("navigation", { name: "Primary" });
+    const pill = page.getByTestId("active-pill");
+
+    await expect(pill).toBeVisible();
+    const home = await pill.boundingBox();
+
+    await nav.getByRole("link", { name: "Contact" }).click();
+    await expect(nav.getByRole("link", { name: "Contact" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+
+    // The pill is a measured CSS transform rather than a motion layout
+    // animation, so this is the assertion that it actually moved.
+    await expect(async () => {
+      const contact = await pill.boundingBox();
+      expect(contact!.x).not.toBeCloseTo(home!.x, 0);
+    }).toPass({ timeout: 5_000 });
+  });
+});
+
+test.describe("404", () => {
+  test("an unknown path renders the not-found page and links home", async ({
+    page,
+  }) => {
+    const response = await page.goto("/definitely-not-a-real-page");
+    expect(response?.status()).toBe(404);
+
+    await expect(
+      page.getByRole("heading", { name: /wandered off/i }),
+    ).toBeVisible();
+    await page.getByRole("link", { name: /back to home/i }).click();
+    await expect(
+      page.getByRole("heading", { level: 1, name: /Manvendra/i }),
+    ).toBeVisible();
+  });
+});
+
+test.describe("reduced motion", () => {
+  test("every section's content is visible without animations", async ({
+    page,
+  }) => {
+    // Several reveals are now CSS-driven rather than motion-driven. The failure
+    // mode of that approach is content stuck at opacity 0 for anyone the
+    // animation never runs for, so assert the end state directly.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+
+    for (const id of ["#about", "#projects", "#skills", "#experience"]) {
+      await page.locator(id).scrollIntoViewIfNeeded();
+      await expect(page.locator(id)).toBeVisible();
+    }
+
+    // The skill chips are the ones that lost their JS animation entirely.
+    const chips = page.locator("#skills li");
+    await expect(chips.first()).toBeVisible();
+    await expect(chips.last()).toBeVisible();
+    await expect(chips.first()).toHaveCSS("opacity", "1");
+  });
+
+  test("every skill chip finishes fully opaque with animations enabled", async ({
+    page,
+  }) => {
+    // The counterpart to the test above. The skill chips reveal via a CSS
+    // scroll-driven animation whose keyframes start at opacity 0 — if the
+    // animation-range ever stops completing, the chips silently stay
+    // invisible. Assert the settled state for all 32, not just the first.
+    await page.goto("/");
+    await page.locator("#skills").scrollIntoViewIfNeeded();
+
+    const chips = page.locator("#skills li");
+    await expect(chips.first()).toBeVisible();
+
+    await expect(async () => {
+      const opacities = await chips.evaluateAll((els) =>
+        els.map((el) => Number(getComputedStyle(el).opacity)),
+      );
+      expect(opacities.length).toBeGreaterThan(0);
+      expect(opacities.every((o) => o > 0.9)).toBe(true);
+    }).toPass({ timeout: 5_000 });
+  });
 });

@@ -10,12 +10,38 @@ permissions:
   contents: read
 
 # Supersede in-progress runs for the same branch/PR so pushes don't queue
-# three heavy jobs against stale commits.
+# heavy jobs against stale commits.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # The production build happens exactly once and is shared with the jobs that
+  # need a running server. It used to run three times (here, inside Playwright's
+  # webServer, and again for Lighthouse); the CSP no longer differs between an
+  # E2E build and a real one, so one artifact is valid for all of them.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # sync-build-meta derives the content date from history; a depth-1
+          # clone would usually miss the last commit that touched content.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload build output
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: next-build
+          path: .next
+          include-hidden-files: true
+          retention-days: 1
+
   verify:
     runs-on: ubuntu-latest
     steps:
@@ -46,15 +72,19 @@ jobs:
           path: coverage/
           retention-days: 7
 
-      - name: Build
-        run: pnpm build
-
   e2e:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - uses: ./.github/actions/setup
+
+      - name: Download build output
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: next-build
+          path: .next
 
       - name: Get Playwright version
         id: playwright-version
@@ -77,6 +107,8 @@ jobs:
         run: pnpm exec playwright install-deps chromium webkit
 
       - name: Run E2E tests
+        env:
+          E2E_SKIP_BUILD: "1"
         run: pnpm test:e2e
 
       - name: Upload Playwright report
@@ -88,14 +120,18 @@ jobs:
           retention-days: 7
 
   lighthouse:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - uses: ./.github/actions/setup
 
-      - name: Build
-        run: pnpm build
+      - name: Download build output
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: next-build
+          path: .next
 
       - name: Run Lighthouse CI (desktop)
         run: pnpm dlx @lhci/cli@0.15.1 autorun

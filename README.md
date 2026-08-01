@@ -56,7 +56,15 @@ pnpm test:e2e      # Playwright (Chromium, WebKit, mobile) against the prod buil
 
 Lighthouse CI also runs desktop and mobile audits against the production build, with enforced resource budgets (script/total transfer size). A husky pre-commit hook runs lint-staged (ESLint + Prettier on staged files). CodeQL and `pnpm audit` scan for vulnerabilities, and coverage thresholds are enforced in `vitest.config.ts`.
 
+CI builds the site exactly once and shares the artifact with the E2E and Lighthouse jobs.
+
 Visual regression baselines (`e2e/*-snapshots/`) are Linux-only and compared in CI; to regenerate them run the Playwright Docker image as described in `e2e/visual.spec.ts`.
+
+Contributing to the code? [`AGENTS.md`](AGENTS.md) documents the architectural rules and the decisions that look like bugs until you know the reason for them.
+
+## Generated metadata
+
+`pnpm build` runs [`scripts/sync-build-meta.mjs`](scripts/sync-build-meta.mjs) first, which derives the site's content-modified date from git history (feeding the sitemap's `lastmod` and JSON-LD's `dateModified`) and rolls the `Expires` field in `public/.well-known/security.txt` forward before it lapses. Both outputs are committed; run `pnpm sync:meta` to refresh them on their own.
 
 ## Documents
 

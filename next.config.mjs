@@ -66,48 +66,69 @@ const nextConfig = {
     ];
   },
   async headers() {
-    // Static CSP (no nonce, so the app stays fully prerendered). 'unsafe-inline'
-    // is required because Next injects inline hydration/theme scripts and motion
-    // sets inline styles; the value still comes from restricting *sources*
-    // (no external scripts beyond self + Vercel Analytics) plus object/base/frame
-    // hardening. The Vercel hosts cover Analytics + Speed Insights.
-    const csp = [
-      "default-src 'self'",
-      "base-uri 'self'",
-      "object-src 'none'",
-      "frame-ancestors 'self'",
-      "form-action 'self'",
-      "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data:",
-      "font-src 'self' data:",
-      "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
-      "frame-src 'self'",
-      "manifest-src 'self'",
-      // Dropped for E2E builds: WebKit (unlike Chromium) applies the upgrade
-      // to localhost too, turning every asset request into https://localhost
-      // and breaking the whole page under Playwright's plain-http server.
-      ...(process.env.E2E_TESTING === "1" ? [] : ["upgrade-insecure-requests"]),
-    ].join("; ");
+    // Static CSP (no nonce, so the app stays fully prerendered).
+    //
+    // script-src keeps 'unsafe-inline' on purpose. Next injects inline
+    // hydration/flight scripts whose contents change every build, so removing
+    // it needs either per-request nonces — which force dynamic rendering and
+    // give up the fully-prerendered output this site's performance budget
+    // depends on — or a two-pass build that hashes the emitted HTML after
+    // `headers()` has already been evaluated. Neither trade is worth it here,
+    // so the protection comes from restricting *sources* instead: no external
+    // script origin beyond Vercel Analytics, and everything not actively used
+    // pinned to 'none' rather than inheriting default-src.
+    //
+    // style-src needs 'unsafe-inline' for motion's inline style attributes.
+    const csp = ({ upgradeInsecure }) =>
+      [
+        "default-src 'self'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        // Nothing on this site is meant to be framed, anywhere.
+        "frame-ancestors 'none'",
+        "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "font-src 'self' data:",
+        "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+        "manifest-src 'self'",
+        // Unused sinks, explicitly closed: an injected payload can't reach for
+        // a plugin, iframe, worker, or media element at all.
+        "object-src 'none'",
+        "frame-src 'none'",
+        "child-src 'none'",
+        "worker-src 'none'",
+        "media-src 'none'",
+        // WebKit (unlike Chromium) applies the upgrade to localhost too,
+        // turning every asset request into https://localhost and breaking the
+        // page under Playwright's plain-http server — so it is dropped for
+        // localhost only, by host match rather than by build flag. That keeps
+        // one build valid for E2E, Lighthouse and production alike.
+        ...(upgradeInsecure ? ["upgrade-insecure-requests"] : []),
+      ].join("; ");
 
     // CSP only in production. Next's dev server + React dev mode require
     // eval() (HMR, callstack reconstruction) which this policy intentionally
     // forbids; `next start` and Vercel run production React, which never evals.
     const isProd = process.env.NODE_ENV === "production";
 
-    const securityHeaders = [
-      ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
+    const securityHeaders = ({ upgradeInsecure }) => [
+      ...(isProd
+        ? [{ key: "Content-Security-Policy", value: csp({ upgradeInsecure }) }]
+        : []),
       { key: "X-DNS-Prefetch-Control", value: "on" },
       {
         key: "Strict-Transport-Security",
         value: "max-age=63072000; includeSubDomains; preload",
       },
       { key: "X-Content-Type-Options", value: "nosniff" },
-      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      // Matches frame-ancestors 'none' for pre-CSP3 user agents.
+      { key: "X-Frame-Options", value: "DENY" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
       {
         key: "Permissions-Policy",
-        value: "camera=(), microphone=(), geolocation=()",
+        value:
+          "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
       },
       // Origin isolation, defense-in-depth alongside the CSP: no cross-origin
       // window handles to this page, and its resources can't be embedded
@@ -115,7 +136,19 @@ const nextConfig = {
       { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
       { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
     ];
-    return [{ source: "/:path*", headers: securityHeaders }];
+
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "localhost" }],
+        headers: securityHeaders({ upgradeInsecure: false }),
+      },
+      {
+        source: "/:path*",
+        missing: [{ type: "host", value: "localhost" }],
+        headers: securityHeaders({ upgradeInsecure: true }),
+      },
+    ];
   },
 };
 

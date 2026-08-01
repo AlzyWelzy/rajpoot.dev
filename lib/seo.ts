@@ -1,3 +1,5 @@
+import { contentUpdated } from "./generated/content-updated";
+
 export const siteConfig = {
   name: "Manvendra Rajpoot",
   shortName: "Manvendra",
@@ -41,10 +43,11 @@ export const siteConfig = {
     open: true,
     label: "Open to backend, AI & cloud roles",
   },
-  // Bump this on meaningful content changes. Drives sitemap `lastmod` and
-  // JSON-LD `dateModified` from a single source rather than build time, so the
-  // freshness signal reflects real updates, not redeploys.
-  lastUpdated: "2026-07-25",
+  // Drives sitemap `lastmod` and JSON-LD `dateModified`. Derived from the last
+  // git commit that touched actual content (see scripts/sync-build-meta.mjs)
+  // rather than build time or a hand-bumped constant — redeploys don't churn
+  // the freshness signal, and nobody has to remember to update it.
+  lastUpdated: contentUpdated,
   // Highlighted stack used in the OG image card.
   ogTags: ["Python", "Django", "FastAPI", "PostgreSQL", "Docker", "Kubernetes"],
   // A concise, distinct set. The keywords meta is not a ranking signal for
