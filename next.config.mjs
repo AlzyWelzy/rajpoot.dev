@@ -24,6 +24,26 @@ const nextConfig = {
   // used ship to the client, shrinking the JS bundle.
   experimental: {
     optimizePackageImports: ["react-icons", "motion"],
+    // Inline the stylesheet into the HTML instead of linking it.
+    //
+    // The CSS was shipping as a render-blocking <link> in <head>, so a
+    // first-time visitor could not paint until a second round trip completed.
+    // Measured in Chromium at 200ms RTT / 1.6Mbps, median of 7 cold loads:
+    //
+    //   blocking <link>   FCP 724ms
+    //   inlined           FCP 436ms   (-288ms)
+    //
+    // That measurement is biased *against* inlining — `next start` serves no
+    // brotli, so the inlined document was transferred fatter than it ships in
+    // production, where the delta is +8.7KB (16.0 -> 24.7KB brotli). It wins
+    // anyway.
+    //
+    // The cost is repeat visits: the linked file was immutable and cached for a
+    // year, whereas inlined CSS is re-sent with every HTML response. This is a
+    // portfolio whose traffic is overwhelmingly first-time (recruiters
+    // following a CV link), so that is the right side of the trade. Re-measure
+    // if the CSS grows substantially or repeat traffic starts to dominate.
+    inlineCss: true,
   },
   images: {
     formats: ["image/avif", "image/webp"],
