@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { track } from "$lib/analytics";
-  import { reveal } from "$lib/actions/reveal";
   import LuCode from "$lib/icons/LuCode.svelte";
   import LuExternalLink from "$lib/icons/LuExternalLink.svelte";
   import LuGithub from "$lib/icons/LuGithub.svelte";
@@ -26,7 +24,7 @@
 -->
 <article
   data-reveal
-  use:reveal={{ amount: 0.3 }}
+  data-reveal-amount="0.3"
   class="group mb-6 overflow-hidden rounded-2xl border border-black/5 bg-gray-100 shadow-sm transition last:mb-0 hover:-translate-y-1 hover:shadow-md dark:border-white/10 dark:bg-white/4"
 >
   <div
@@ -83,8 +81,11 @@
             href={liveUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onclick={() =>
-              track("project_click", { project: title, target: "live" })}
+            data-track="project_click"
+            data-track-props={JSON.stringify({
+              project: title,
+              target: "live",
+            })}
             aria-label="Open {title} — {liveLabel} (opens in a new tab)"
             class="focus-ring inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white outline-none transition hover:scale-105 hover:bg-gray-950 active:scale-100 dark:bg-white/15 dark:hover:bg-white/25"
           >
@@ -97,8 +98,11 @@
             href={githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onclick={() =>
-              track("project_click", { project: title, target: "github" })}
+            data-track="project_click"
+            data-track-props={JSON.stringify({
+              project: title,
+              target: "github",
+            })}
             aria-label="View {title} source code on GitHub (opens in a new tab)"
             class="focus-ring inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-gray-800 outline-none transition hover:scale-105 hover:bg-black/5 active:scale-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
           >

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { reveal } from "$lib/actions/reveal";
   import LuQuote from "$lib/icons/LuQuote.svelte";
   import type { TestimonialType } from "$lib/types";
 
@@ -16,7 +15,8 @@
 <!-- One-shot reveal on enter, staggered per card (cheap; runs once). -->
 <li
   data-reveal
-  use:reveal={{ amount: 0.3, delay: index * 0.1 }}
+  data-reveal-amount="0.3"
+  data-reveal-delay={index * 0.1}
   class="flex w-full flex-col rounded-2xl border border-black/5 bg-gray-100 p-6 text-left shadow-sm sm:max-w-md sm:p-7 dark:border-white/10 dark:bg-white/4"
 >
   <LuQuote

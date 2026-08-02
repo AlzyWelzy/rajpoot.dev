@@ -158,6 +158,11 @@ ${rules}
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
+# The progressive-enhancement bundle. Content-hashed by
+# scripts/gen-enhance.mjs, so a change means a new filename.
+/_enhance/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # The images and icons could in principle be replaced in place, so they get a
 # long-but-finite window rather than \`immutable\` — a month of staleness for
 # repeat visitors is an acceptable price, and renaming the file busts it

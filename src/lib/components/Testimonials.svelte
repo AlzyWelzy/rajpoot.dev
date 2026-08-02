@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { reveal } from "$lib/actions/reveal";
   import { testimonialsData } from "$lib/data";
   import LuQuote from "$lib/icons/LuQuote.svelte";
   import SectionHeading from "./SectionHeading.svelte";
@@ -25,7 +24,7 @@
     {#if testimonialsData.length === 1}
       <figure
         data-reveal
-        use:reveal={{ amount: 0.3 }}
+        data-reveal-amount="0.3"
         class="mx-auto max-w-2xl rounded-3xl border border-black/5 bg-gray-100 px-6 py-10 text-center shadow-sm sm:px-12 sm:py-12 dark:border-white/10 dark:bg-white/4"
       >
         <LuQuote

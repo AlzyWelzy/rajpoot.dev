@@ -142,6 +142,17 @@ async function buildFont() {
 
   const subset = await subsetFont(readFileSync(src), subsetCharacters(), {
     targetFormat: "woff2",
+    // Inter Variable ships a 100–900 weight axis. This design uses four
+    // weights — normal, medium, semibold, bold — so everything below 400 and
+    // above 700 is outline data for weights nothing can request. Clipping the
+    // axis to the used range costs nothing visually and takes the file from
+    // 34KB to 25KB.
+    //
+    // Widen this if the design reaches for `font-light` or `font-extrabold`,
+    // and keep the `font-weight` range in app.css's @font-face in step —
+    // a weight outside the declared range gets synthesised by the browser,
+    // which looks noticeably worse than the real thing.
+    variationAxes: { wght: { min: 400, max: 700 } },
   });
   writeFileSync(out, subset);
   console.log(

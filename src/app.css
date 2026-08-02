@@ -19,7 +19,10 @@
   font-family: "Inter Variable";
   font-style: normal;
   font-display: swap;
-  font-weight: 100 900;
+  /* Must match the axis range scripts/gen-images.mjs clips the file to. A
+     weight outside the declared range is synthesised by the browser, which
+     looks noticeably worse than the real outline. */
+  font-weight: 400 700;
   src: url("/fonts/inter-latin-variable.woff2") format("woff2-variations");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
@@ -129,8 +132,59 @@
    simply visible, never stuck at opacity 0.
    --------------------------------------------------------------------------- */
 
-/* Applied by the `reveal` action (src/lib/actions/reveal.ts) *after* it has
-   confirmed it can also remove it. Never present in the served HTML. */
+/* ---------------------------------------------------------------------------
+   State that used to be reactive class bindings.
+
+   With `csr: false` there is no framework in the browser to recompute a class
+   list, so anything derived purely from a DOM state the browser already tracks
+   is expressed here instead. This is strictly better than the reactive
+   version for the theme icons in particular: `html.dark` is set by the inline
+   script in app.html *before first paint*, so the correct icon is painted
+   immediately rather than after hydration.
+   --------------------------------------------------------------------------- */
+
+/* The header's active nav item. src/lib/enhance/nav.ts sets data-active. */
+.nav-item[data-active="true"] .nav-link {
+  color: var(--color-gray-950);
+}
+
+html.dark .nav-item[data-active="true"] .nav-link {
+  color: #fff;
+}
+
+/* The active item already has the pill behind it; a hover background on top of
+   that reads as a double highlight. */
+.nav-item[data-active="true"] .nav-link:hover {
+  background-color: transparent;
+}
+
+/* Theme-switch icons: stacked, crossfading on the `dark` class. */
+.theme-icon-sun {
+  rotate: 0deg;
+  scale: 1;
+  opacity: 1;
+}
+
+.theme-icon-moon {
+  rotate: 90deg;
+  scale: 0.5;
+  opacity: 0;
+}
+
+html.dark .theme-icon-sun {
+  rotate: -90deg;
+  scale: 0.5;
+  opacity: 0;
+}
+
+html.dark .theme-icon-moon {
+  rotate: 0deg;
+  scale: 1;
+  opacity: 1;
+}
+
+/* Applied by src/lib/enhance/reveal.ts *after* it has confirmed it can also
+   remove it. Never present in the served HTML. */
 .reveal-pending {
   opacity: 0;
   transform: translateY(100px);

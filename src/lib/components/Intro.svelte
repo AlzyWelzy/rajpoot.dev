@@ -1,20 +1,17 @@
 <script lang="ts">
-  import { track } from "$lib/analytics";
   import BsArrowRight from "$lib/icons/BsArrowRight.svelte";
   import BsLinkedin from "$lib/icons/BsLinkedin.svelte";
   import FaGithubSquare from "$lib/icons/FaGithubSquare.svelte";
   import HiDownload from "$lib/icons/HiDownload.svelte";
-  import { sectionSpy } from "$lib/actions/section-spy";
   import { siteConfig } from "$lib/seo";
-  import { activeSection } from "$lib/state/active-section.svelte";
 </script>
 
 <section
   id="home"
   tabindex="-1"
   aria-label="Introduction"
+  data-section="Home"
   class="mb-28 max-w-200 scroll-mt-28 text-center outline-none sm:mb-0"
-  use:sectionSpy={"Home"}
 >
   <div class="flex items-center justify-center">
     <div class="relative">
@@ -90,11 +87,8 @@
     <a
       href="#contact"
       class="focus-ring group flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-white outline-none transition hover:scale-110 hover:bg-gray-950 active:scale-105"
-      onclick={() => {
-        activeSection.set("Contact");
-        activeSection.beginNavigation();
-        track("cta_click", { cta: "get_in_touch" });
-      }}
+      data-track="cta_click"
+      data-track-props={JSON.stringify({ cta: "get_in_touch" })}
     >
       Get in touch
       <BsArrowRight
@@ -110,7 +104,7 @@
       target="_blank"
       rel="noopener"
       download
-      onclick={() => track("cv_download")}
+      data-track="cv_download"
     >
       Download CV
       <HiDownload
@@ -125,7 +119,8 @@
       href="/linkedin"
       target="_blank"
       rel="noopener"
-      onclick={() => track("social_click", { network: "linkedin" })}
+      data-track="social_click"
+      data-track-props={JSON.stringify({ network: "linkedin" })}
     >
       <BsLinkedin aria-hidden="true" />
     </a>
@@ -136,7 +131,8 @@
       href="/github"
       target="_blank"
       rel="noopener"
-      onclick={() => track("social_click", { network: "github" })}
+      data-track="social_click"
+      data-track-props={JSON.stringify({ network: "github" })}
     >
       <FaGithubSquare aria-hidden="true" />
     </a>

@@ -8,6 +8,16 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
 
+  // src/lib/enhance/ is bundled by esbuild (scripts/gen-enhance.mjs), which
+  // supplies this via its own `define`. Vitest imports those modules directly,
+  // so it needs the same constant or analytics.ts throws on a bare reference.
+  // The app build never imports that module, so this is inert there.
+  define: {
+    __ANALYTICS_ENDPOINT__: JSON.stringify(
+      process.env.PUBLIC_ANALYTICS_ENDPOINT ?? "",
+    ),
+  },
+
   // No `build` block: SvelteKit owns cssCodeSplit, and the CSS inlining that
   // matters for first paint is `kit.inlineStyleThreshold` in svelte.config.js.
 

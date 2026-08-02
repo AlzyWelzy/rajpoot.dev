@@ -9,10 +9,9 @@
   import ScrollToTop from "$lib/components/ScrollToTop.svelte";
   import ThemeSwitch from "$lib/components/ThemeSwitch.svelte";
   import Toaster from "$lib/components/Toaster.svelte";
+  import { enhanceUrl } from "$lib/generated/enhance-url";
   import { buildJsonLd } from "$lib/json-ld";
   import { siteConfig } from "$lib/seo";
-  import { activeSection } from "$lib/state/active-section.svelte";
-  import { theme } from "$lib/state/theme.svelte";
 
   let { children }: { children: Snippet } = $props();
 
@@ -21,11 +20,6 @@
   const title = `${siteConfig.name} — ${siteConfig.roleShort} | Portfolio`;
   const ogTitle = `${siteConfig.name} — ${siteConfig.jobTitle}`;
   const ogImage = `${siteConfig.url}${siteConfig.ogImage}`;
-
-  // The two ambient listeners the React context providers used to own. They
-  // are page-lifetime, so the layout is the right place for them.
-  $effect(() => theme.listen());
-  $effect(() => activeSection.listen());
 </script>
 
 <svelte:head>
@@ -127,6 +121,14 @@
   -->
   <!-- eslint-disable-next-line svelte/no-at-html-tags, no-useless-escape -->
   {@html `<script type="application/ld+json">${jsonLd}<\/script>`}
+
+  <!--
+    The site's entire client runtime (src/lib/enhance/). `type="module"` is
+    deferred by definition, so it never blocks parsing or paint; the URL is
+    content-hashed by scripts/gen-enhance.mjs and served immutably.
+  -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags, no-useless-escape -->
+  {@html `<script type="module" src="${enhanceUrl}"><\/script>`}
 </svelte:head>
 
 <a
