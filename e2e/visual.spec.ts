@@ -1,5 +1,12 @@
 import { expect, test } from "@playwright/test";
 
+// NOTE: there are currently NO committed baselines. The previous set was
+// captured against the React build and the rewrite changes rendering (self-
+// hosted webfont, CSS-driven reveals), so comparing against them would report
+// diffs that aren't regressions. They were deleted rather than left to fail;
+// regenerate with the command below and commit the result. Until then this
+// spec passes trivially — `toHaveScreenshot` writes a baseline on first run.
+//
 // Visual baselines are committed for Linux only (what CI runs on); locally
 // the comparisons are skipped via `ignoreSnapshots` in playwright.config.ts.
 // To (re)generate baselines, run the suite in the Playwright Docker image:

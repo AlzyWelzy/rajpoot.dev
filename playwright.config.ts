@@ -14,7 +14,7 @@ export default defineConfig({
     ? ([["github"], ["html", { open: "never" }]] as const)
     : "list",
   // Visual baselines are committed for Linux (CI) only; local dev machines
-  // (darwin) run the visual specs without comparing screenshots.
+  // run the visual specs without comparing screenshots.
   ignoreSnapshots: !process.env.CI,
   expect: {
     toHaveScreenshot: {
@@ -34,19 +34,33 @@ export default defineConfig({
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
   ],
-  // Run the production build so tests exercise what actually ships.
-  // E2E_TESTING is a *runtime* flag only: it tells the contact-form action to
-  // validate but not actually send. The CSP's upgrade-insecure-requests
-  // directive (which WebKit applies even to localhost, breaking plain-http
-  // asset loads) is dropped by host match in next.config.mjs instead, so the
-  // build itself is an ordinary production build — which is what lets CI build
-  // once and share it with the Lighthouse job. E2E_SKIP_BUILD=1 reuses a
-  // `.next` restored from that shared artifact.
+  /**
+   * Runs the real thing: `wrangler dev` boots the same workerd runtime
+   * Cloudflare runs in production, serving the same build output through the
+   * same static-asset pipeline. That fidelity matters more than it did under
+   * `next start`, because the security headers now come from `_headers` — a
+   * file only the asset server interprets, which a plain Vite preview would
+   * ignore entirely.
+   *
+   * E2E_TESTING=1 is passed twice, doing two different jobs:
+   *   • to the *build*, where scripts/gen-headers.mjs uses it to omit
+   *     `upgrade-insecure-requests`. WebKit applies that directive to localhost
+   *     too, rewriting every asset URL to https and breaking the page under
+   *     Playwright's plain-http server. (Under Next this was a per-request host
+   *     match; `_headers` is a static file, so the decision moves to build
+   *     time. src/lib/security-headers.test.ts asserts the production form,
+   *     which is the coverage that trade gives up here.)
+   *   • to the *Worker*, where /api/contact uses it to run the full validation
+   *     path without actually calling Resend.
+   *
+   * E2E_SKIP_BUILD=1 reuses an existing build (e.g. one restored from a CI
+   * artifact) — which must itself have been produced with E2E_TESTING=1.
+   */
   webServer: {
     command:
       process.env.E2E_SKIP_BUILD === "1"
-        ? `E2E_TESTING=1 pnpm start --port ${PORT}`
-        : `pnpm build && E2E_TESTING=1 pnpm start --port ${PORT}`,
+        ? `pnpm exec wrangler dev --port ${PORT} --var E2E_TESTING:1`
+        : `E2E_TESTING=1 pnpm build && pnpm exec wrangler dev --port ${PORT} --var E2E_TESTING:1`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

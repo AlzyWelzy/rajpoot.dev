@@ -1,0 +1,119 @@
+import { projectsData, skillsData } from "./data";
+import { siteConfig } from "./seo";
+
+const personId = `${siteConfig.url}/#person`;
+const websiteId = `${siteConfig.url}/#website`;
+const profileId = `${siteConfig.url}/#profilepage`;
+
+const KNOWN_LANGS = ["Python", "TypeScript", "JavaScript"];
+
+/**
+ * The site's structured data, as a `<script type="application/ld+json">` body.
+ *
+ * Returns a string rather than markup because it is injected through
+ * `{@html}` in the root layout's `<svelte:head>` — there is no component tree
+ * here, just one serialized graph.
+ */
+export function buildJsonLd(): string {
+  // Spread to drop the readonly tuple type without an `as unknown` escape hatch.
+  const skills = [...skillsData];
+
+  // Each project as a structured node, authored by the Person, so search
+  // engines can associate the portfolio's work with its owner.
+  const projectNodes = projectsData.map((p, i) => {
+    const id = `${siteConfig.url}/#project-${i + 1}`;
+    const isCode = Boolean(p.githubUrl);
+    const lang = p.tags.find((t) => KNOWN_LANGS.includes(t));
+    return {
+      "@type": isCode ? "SoftwareSourceCode" : "CreativeWork",
+      "@id": id,
+      name: p.title,
+      description: p.description,
+      author: { "@id": personId },
+      keywords: p.tags.join(", "),
+      ...(p.liveUrl ? { url: p.liveUrl } : {}),
+      ...(p.githubUrl ? { codeRepository: p.githubUrl } : {}),
+      ...(isCode && lang ? { programmingLanguage: lang } : {}),
+    };
+  });
+
+  // Single @graph so every node can reference the canonical Person via @id —
+  // this is what lets ProfilePage.mainEntity, WebSite.about, etc. resolve.
+  const graph = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": personId,
+        name: siteConfig.name,
+        alternateName: ["Manvendra", "AlzyWelzy"],
+        url: siteConfig.url,
+        image: `${siteConfig.url}/profile.jpg`,
+        jobTitle: siteConfig.jobTitle,
+        description: siteConfig.description,
+        email: `mailto:${siteConfig.email}`,
+        knowsAbout: skills,
+        knowsLanguage: ["English", "Hindi"],
+        hasOccupation: {
+          "@type": "Occupation",
+          name: "Backend Developer",
+          occupationalCategory: "15-1252",
+          description:
+            "Builds scalable, secure backend systems, AI automation, robust APIs, and cloud infrastructure.",
+          skills: skills.join(", "),
+        },
+        worksFor: {
+          "@type": "Organization",
+          name: siteConfig.employer.name,
+          url: siteConfig.employer.url,
+        },
+        alumniOf: siteConfig.education.map((name) => ({
+          "@type": "CollegeOrUniversity",
+          name,
+        })),
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: siteConfig.location.city,
+          addressRegion: siteConfig.location.region,
+          addressCountry: siteConfig.location.countryCode,
+        },
+        nationality: { "@type": "Country", name: siteConfig.location.country },
+        sameAs: [
+          siteConfig.github,
+          siteConfig.linkedin,
+          siteConfig.twitterUrl,
+          siteConfig.instagram,
+          siteConfig.facebook,
+          siteConfig.blog,
+        ],
+      },
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        name: `${siteConfig.name} — Portfolio`,
+        url: siteConfig.url,
+        inLanguage: siteConfig.language,
+        publisher: { "@id": personId },
+        about: { "@id": personId },
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": profileId,
+        url: siteConfig.url,
+        name: `${siteConfig.name} — ${siteConfig.jobTitle}`,
+        description: siteConfig.description,
+        // Content-derived (not render-time) so it conveys real freshness.
+        dateModified: siteConfig.lastUpdated,
+        inLanguage: siteConfig.language,
+        isPartOf: { "@id": websiteId },
+        mainEntity: { "@id": personId },
+        about: { "@id": personId },
+        hasPart: projectNodes.map((p) => ({ "@id": p["@id"] })),
+      },
+      ...projectNodes,
+    ],
+  };
+
+  // Escape "<" so a value can never close the <script> tag early (XSS hardening).
+  return JSON.stringify(graph).replace(/</g, "\\u003c");
+}

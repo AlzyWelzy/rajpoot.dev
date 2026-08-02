@@ -3,12 +3,12 @@ name: Dependabot lockfile repair
 # Dependabot patches pnpm-lock.yaml with its own implementation instead of
 # running pnpm, so it never reads pnpm-workspace.yaml and strips the `overrides:`
 # block on every npm PR. Every `pnpm install --frozen-lockfile` after that -- CI
-# and Vercel alike -- aborts with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH, which takes
+# and local installs alike -- aborts with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH, which takes
 # out the preview deployment too. This job regenerates the lockfile from
 # pnpm-workspace.yaml and pushes it back onto the Dependabot branch.
 #
 # The push uses an SSH deploy key rather than GITHUB_TOKEN on purpose: pushes
-# made with GITHUB_TOKEN do not retrigger workflows, so CI and Vercel would never
+# made with GITHUB_TOKEN do not retrigger workflows, so CI would never
 # re-run against the repaired commit.
 
 on:
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Configures origin over SSH so the push below retriggers CI + Vercel.
+          # Configures origin over SSH so the push below retriggers CI.
           # Lives in the *Dependabot* secrets store, not Actions -- runs whose
           # actor is dependabot[bot] cannot read Actions secrets.
           ssh-key: ${{ secrets.DEPENDABOT_LOCKFILE_SSH_KEY }}

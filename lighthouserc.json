@@ -1,7 +1,8 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "pnpm start --port 3200",
+      "startServerCommand": "pnpm exec wrangler dev --port 3200",
+      "startServerReadyPattern": "Ready on",
       "url": ["http://localhost:3200/"],
       "numberOfRuns": 3,
       "settings": { "preset": "desktop" }
@@ -14,9 +15,9 @@
         "categories:seo": ["error", { "minScore": 0.95 }],
         "resource-summary:script:size": [
           "error",
-          { "maxNumericValue": 358400 }
+          { "maxNumericValue": 204800 }
         ],
-        "resource-summary:total:size": ["error", { "maxNumericValue": 512000 }]
+        "resource-summary:total:size": ["error", { "maxNumericValue": 409600 }]
       }
     },
     "upload": {

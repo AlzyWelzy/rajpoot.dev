@@ -1,7 +1,7 @@
 name: Dependabot auto-merge
 
 # Queues routine Dependabot updates for merge once every required check passes.
-# Auto-merge is a queue, not an immediate merge: if CI or Vercel fails, the PR
+# Auto-merge is a queue, not an immediate merge: if CI fails, the PR
 # just sits there. Majors are deliberately excluded -- they get read by hand.
 
 on: pull_request

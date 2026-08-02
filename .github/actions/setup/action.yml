@@ -1,7 +1,6 @@
 name: Setup pnpm and install
 description: >
-  Set up pnpm + Node (with store caching), recreate the gitignored
-  pnpm-workspace.yaml build-script approvals, and install dependencies.
+  Set up pnpm + Node (with store caching) and install dependencies.
 runs:
   using: composite
   steps:
@@ -12,8 +11,8 @@ runs:
         node-version: 24
         cache: pnpm
 
-    # Build approvals + overrides now live in the committed pnpm-workspace.yaml
-    # (single source for CI, local, and Vercel), so no recreation step is needed.
+    # Build approvals + overrides live in the committed pnpm-workspace.yaml
+    # (single source for CI and local), so no recreation step is needed.
     - name: Install dependencies
       shell: bash
       env:

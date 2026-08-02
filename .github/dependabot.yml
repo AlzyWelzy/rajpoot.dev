@@ -19,18 +19,17 @@ updates:
       major:
         update-types:
           - "major"
-    # Held-back majors. These are known-incompatible with the current Next
-    # toolchain, so without these rules Dependabot reopens the same PR every
-    # day and it has to be closed by hand every time. Drop an entry once the
-    # ceiling actually lifts.
+    # Held-back majors. Without these rules Dependabot reopens the same PR
+    # every day and it has to be closed by hand every time. Drop an entry once
+    # the ceiling actually lifts.
+    #
+    # The ESLint 10 hold is gone: it existed for eslint-config-next, which the
+    # move to SvelteKit removed.
     ignore:
-      # TypeScript 7 (the native port) is not yet supported by
-      # eslint-config-next / the Next TS plugin.
+      # TypeScript 7 (the native port) is not yet supported by svelte-check or
+      # typescript-eslint.
       - dependency-name: "typescript"
         versions: [">=7"]
-      # ESLint 10 removes APIs eslint-config-next still relies on.
-      - dependency-name: "eslint"
-        versions: [">=10"]
 
   # SHA-pinned in the workflows; grouped so an Actions sweep is one PR.
   - package-ecosystem: "github-actions"
