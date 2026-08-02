@@ -55,6 +55,20 @@ export const POST: RequestHandler = async ({ request }) => {
     });
   }
 
+  // E2E runs stop here: the whole client → endpoint → validation path runs for
+  // real, but nothing external is called.
+  //
+  // Deliberately *before* Turnstile, not after. Managed mode always challenges
+  // an automation browser — that is the control working, not a bug — so a
+  // headless Playwright run can never obtain a token. With this check after the
+  // verification, whether the suite passed depended on whether a
+  // TURNSTILE_SECRET_KEY happened to be present in the local `.dev.vars`, which
+  // is not something a test run should be sensitive to. The Turnstile path is
+  // covered by src/lib/turnstile.test.ts instead.
+  if (env.E2E_TESTING === "1") {
+    return json({ data: { id: "e2e-skipped" } } satisfies SendEmailResult);
+  }
+
   const secret = env.TURNSTILE_SECRET_KEY;
   if (!secret && !warnedNoTurnstile) {
     warnedNoTurnstile = true;
@@ -80,12 +94,6 @@ export const POST: RequestHandler = async ({ request }) => {
       } satisfies SendEmailResult,
       { status: 403 },
     );
-  }
-
-  // E2E runs stop here: the whole client → endpoint → validation path runs for
-  // real, but no email is sent.
-  if (env.E2E_TESTING === "1") {
-    return json({ data: { id: "e2e-skipped" } } satisfies SendEmailResult);
   }
 
   try {

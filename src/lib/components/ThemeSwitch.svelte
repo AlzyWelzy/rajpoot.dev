@@ -31,10 +31,10 @@
   -->
   <span class="relative block h-[1em] w-[1em]" aria-hidden="true">
     <BsSun
-      class="theme-icon theme-icon-sun absolute inset-0 transition-[opacity,transform] duration-300"
+      class="theme-icon theme-icon-sun absolute inset-0 transition-[opacity,rotate,scale] duration-300"
     />
     <BsMoon
-      class="theme-icon theme-icon-moon absolute inset-0 transition-[opacity,transform] duration-300"
+      class="theme-icon theme-icon-moon absolute inset-0 transition-[opacity,rotate,scale] duration-300"
     />
   </span>
 </button>

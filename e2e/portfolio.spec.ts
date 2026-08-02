@@ -152,3 +152,79 @@ test.describe("reduced motion", () => {
     }).toPass({ timeout: 5_000 });
   });
 });
+
+test.describe("with animations enabled", () => {
+  // Everything else in this suite forces `reducedMotion: "reduce"` for
+  // determinism, and every CSS animation on this site lives inside a
+  // `prefers-reduced-motion: no-preference` block. That combination meant the
+  // animated state was never exercised at all — and it shipped a header that
+  // sat half its own width left of centre, because a keyframe animating
+  // `transform` composed with Tailwind's standalone `translate` property
+  // instead of overriding it.
+  //
+  // These tests run with motion ON specifically to cover that gap.
+
+  test("the header stays centred once its entrance animation settles", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/");
+
+    const nav = page.getByRole("navigation", { name: "Primary" });
+    await expect(nav).toBeVisible();
+
+    await expect(async () => {
+      const box = (await nav.boundingBox())!;
+      const viewport = page.viewportSize()!;
+      const navCentre = box.x + box.width / 2;
+      expect(Math.abs(navCentre - viewport.width / 2)).toBeLessThan(4);
+    }).toPass({ timeout: 5_000 });
+  });
+
+  test("no element composes a keyframe transform with a Tailwind translate", async ({
+    page,
+  }) => {
+    // The general form of the bug above. `translate`/`scale`/`rotate` are
+    // separate properties from `transform` and the browser composes them, so an
+    // element carrying both a utility and a keyframe silently gets the sum.
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/");
+    await page.waitForTimeout(1200);
+
+    const offenders = await page.evaluate(() =>
+      [...document.querySelectorAll("*")]
+        .filter((el) => {
+          const cs = getComputedStyle(el);
+          if (cs.animationName === "none") return false;
+          const standalone = [cs.translate, cs.scale, cs.rotate].some(
+            (v) => v && v !== "none",
+          );
+          if (!standalone) return false;
+          // Composing is only a bug when the keyframe actually leaves a
+          // transform behind; an identity matrix is harmless.
+          return (
+            cs.transform !== "none" &&
+            cs.transform !== "matrix(1, 0, 0, 1, 0, 0)"
+          );
+        })
+        .map((el) => `${el.tagName}.${el.className}`),
+    );
+
+    expect(offenders).toEqual([]);
+  });
+
+  test("sections still reveal to fully visible", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/");
+
+    for (const id of ["#about", "#projects", "#skills", "#experience"]) {
+      await page.locator(id).scrollIntoViewIfNeeded();
+      await expect(async () => {
+        const opacity = await page
+          .locator(id)
+          .evaluate((el) => Number(getComputedStyle(el).opacity));
+        expect(opacity).toBeGreaterThan(0.95);
+      }).toPass({ timeout: 5_000 });
+    }
+  });
+});

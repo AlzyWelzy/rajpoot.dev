@@ -218,14 +218,32 @@ html.dark .theme-icon-moon {
   }
 }
 
+/*
+  Animates translateY ONLY — never the horizontal centring.
+
+  The nav is centred with Tailwind's `-translate-x-1/2`, which in Tailwind v4
+  compiles to the standalone `translate` property, not to `transform`. The two
+  are separate and both apply, so a keyframe that also said
+  `transform: translate(-50%, …)` shifted the nav half its width *twice* and
+  parked it left of centre.
+
+  It was invisible in testing because the whole block is inside
+  `prefers-reduced-motion: no-preference`, and every screenshot and Playwright
+  run had reduced motion forced on — so the animation never ran and
+  `translate: -50%` centred it correctly on its own.
+
+  The rule this leaves behind: if an element has a Tailwind translate/scale/
+  rotate utility, a keyframe on it must not touch `transform`, because the
+  browser composes the two rather than one overriding the other.
+*/
 @keyframes nav-drop {
   from {
     opacity: 0;
-    transform: translate(-50%, -100px);
+    transform: translateY(-100px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: none;
   }
 }
 

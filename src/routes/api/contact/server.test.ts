@@ -137,6 +137,20 @@ describe("POST /api/contact — Turnstile", () => {
     expect(verifyMock).toHaveBeenCalledWith("secret", "tok", "203.0.113.9");
   });
 
+  it("is not consulted at all during an E2E run", async () => {
+    // Managed mode always challenges an automation browser, so an E2E run can
+    // never hold a token. Verification therefore has to be skipped rather than
+    // satisfied, or the suite's result depends on whether a secret happens to
+    // be configured locally.
+    env.E2E_TESTING = "1";
+    env.TURNSTILE_SECRET_KEY = "secret";
+
+    const res = await post(VALID);
+
+    expect(res.status).toBe(200);
+    expect(verifyMock).not.toHaveBeenCalled();
+  });
+
   it("warns exactly once when no secret is configured", async () => {
     // Absent secret is a valid local/E2E posture but must be loud in prod —
     // once per isolate, not once per submission, or a busy form buries the
@@ -144,10 +158,12 @@ describe("POST /api/contact — Turnstile", () => {
     //
     // `warnedNoTurnstile` is module state, so this needs a module instance no
     // earlier test in this file has already tripped.
+    //
+    // Deliberately not an E2E run: that path returns before reaching the
+    // warning, which is the point of it being there.
     vi.resetModules();
     const { POST: fresh } = await import("./+server");
 
-    env.E2E_TESTING = "1";
     await post(VALID, {}, fresh);
     await post(VALID, {}, fresh);
 
