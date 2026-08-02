@@ -3,6 +3,7 @@ const SCRIPT_SRC =
 
 type TurnstileApi = {
   render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+  getResponse: (id?: string) => string | undefined;
   reset: (id?: string) => void;
 };
 
@@ -29,9 +30,12 @@ export function initTurnstile() {
     if (!turnstile || !container || !siteKey) return;
     widgetId = turnstile.render(container, {
       sitekey: siteKey,
-      // Only surfaces a visible challenge when Cloudflare actually wants one;
-      // a legitimate visitor normally sees nothing at all.
-      appearance: "interaction-only",
+      // "always", not "interaction-only": the widget is the only visible
+      // evidence that bot protection is wired up at all, and an invisible
+      // control is impossible to verify — for a visitor mid-submission or for
+      // whoever is checking the deploy. Managed mode still resolves silently
+      // for a legitimate visitor; they just see it resolve.
+      appearance: "always",
       size: "flexible",
       callback: (value: string) => {
         token = value;
@@ -62,7 +66,30 @@ export function initTurnstile() {
       document.head.append(script);
     },
 
-    token: () => token,
+    /**
+     * The current token, or null.
+     *
+     * `getResponse()` is asked first and the callback-captured value is only a
+     * fallback. The callback fires once, at the moment a challenge resolves;
+     * anything that happens afterwards — a silent refresh, a re-render, a token
+     * that resolved before this module attached its handler — is invisible to
+     * it. `getResponse()` always reflects the widget's actual current state.
+     *
+     * Turnstile also writes its own `cf-turnstile-response` hidden input into
+     * the container, which sits inside the form, so `new FormData(form)` picks
+     * the token up even if both of these return null.
+     */
+    token: () => {
+      if (widgetId !== undefined) {
+        try {
+          const current = api()?.getResponse(widgetId);
+          if (current) return current;
+        } catch {
+          /* Widget not ready; fall through to the captured value. */
+        }
+      }
+      return token;
+    },
 
     /** After a successful send, so a second message gets a fresh token. */
     reset() {

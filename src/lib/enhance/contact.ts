@@ -29,10 +29,29 @@ export function initContact() {
   const challenge = initTurnstile();
 
   // Turnstile is the only third-party script on the site and the form sits at
-  // the bottom of a long page. Booting it on first interaction rather than on
-  // load keeps a cross-origin request off the critical path of every visitor,
-  // almost none of whom reach the form.
+  // the bottom of a long page, so it is deliberately not loaded on page load —
+  // that would put a cross-origin request on the critical path of every
+  // visitor, almost none of whom scroll this far.
+  //
+  // It boots when the form comes into view instead, not on first focus: the
+  // widget is visible, and a visitor who tabs straight into the email field
+  // should not have to wait for a challenge to appear underneath them. Focus is
+  // kept as a fallback for browsers without IntersectionObserver.
   form.addEventListener("focusin", () => challenge.start(), { once: true });
+
+  if (typeof IntersectionObserver !== "undefined") {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          challenge.start();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(form);
+  }
 
   let pending = false;
 
@@ -75,6 +94,11 @@ export function initContact() {
     setError(null);
 
     try {
+      // Turnstile renders its own `cf-turnstile-response` hidden input inside
+      // the container, which is within the form, so FormData usually already
+      // carries the token. This only overwrites it when the widget reports a
+      // newer one — never with an empty value, which would blank out a token
+      // the form had picked up on its own.
       const body = new FormData(form);
       const token = challenge.token();
       if (token) body.set("cf-turnstile-response", token);

@@ -90,7 +90,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   try {
     const { html, text } = contactFormEmail({ message, senderEmail });
-    const data = await new Resend(env.RESEND_API_KEY).emails.send({
+    const sent = await new Resend(env.RESEND_API_KEY).emails.send({
       from: fromAddress(),
       to: emailId,
       subject: "Message from contact form",
@@ -100,7 +100,13 @@ export const POST: RequestHandler = async ({ request }) => {
       // mail without one scores worse with spam filters.
       text,
     });
-    return json({ data } satisfies SendEmailResult);
+
+    // Only the id. The SDK's result also carries the raw upstream response,
+    // including Resend's rate-limit and `x-resend-daily-quota` /
+    // `x-resend-monthly-quota` headers — account-level facts about how much
+    // mail this domain sends, echoed to anyone who POSTs the form. No caller
+    // reads any of it; the client only checks whether `error` is set.
+    return json({ data: { id: sent.data?.id } } satisfies SendEmailResult);
   } catch (error: unknown) {
     // Log the real cause server-side; return a generic message so raw SDK/infra
     // error text never reaches the client. No message body or sender address in

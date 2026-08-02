@@ -29,18 +29,20 @@
   // cannot compete with the real domain in search results.
   "workers_dev": true,
 
-  // The custom domains this Worker answers on. Commented out until the DNS
-  // cutover, because uncommenting them is what actually moves rajpoot.dev off
-  // Vercel — `wrangler deploy` creates the DNS records and starts serving
-  // production traffic immediately.
+  // Staging. new.rajpoot.dev is the full production shape — real domain, real
+  // TLS, real Turnstile — without touching the live site, so the cutover can be
+  // rehearsed and the contact form tested end to end against real Resend.
   //
-  // Both apex and www are listed. Apex -> www stays a Cloudflare Redirect Rule
-  // rather than anything in the app; see the deploy section of AGENTS.md.
-  //
-  // "routes": [
-  //   { "pattern": "rajpoot.dev", "custom_domain": true },
-  //   { "pattern": "www.rajpoot.dev", "custom_domain": true }
-  // ],
+  // The apex and www entries stay commented until the cutover: uncommenting
+  // them is what actually moves rajpoot.dev off Vercel, since `wrangler deploy`
+  // creates the DNS records and starts serving production traffic immediately.
+  // Apex -> www stays a Cloudflare Redirect Rule rather than anything in the
+  // app; see the deploy section of AGENTS.md.
+  "routes": [
+    { "pattern": "new.rajpoot.dev", "custom_domain": true },
+    // { "pattern": "rajpoot.dev", "custom_domain": true },
+    // { "pattern": "www.rajpoot.dev", "custom_domain": true },
+  ],
 
   // No "vars" block. Every runtime value this Worker reads is a secret
   // (RESEND_API_KEY, RESEND_FROM, TURNSTILE_SECRET_KEY) and is set with

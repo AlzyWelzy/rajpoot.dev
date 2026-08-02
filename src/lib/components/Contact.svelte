@@ -78,9 +78,15 @@
 
     <Turnstile />
 
-    <div class="mt-3 flex justify-center">
-      <SubmitBtn />
-    </div>
+    <!--
+      Directly in the form, not wrapped in a centering div.
+
+      The form is `flex flex-col`, so a child with an explicit width (the button
+      is `w-32`) sits at the start of the cross axis — i.e. left-aligned. That
+      is how the original renders and a centred button reads as a different
+      design. Verified against www.rajpoot.dev rather than assumed.
+    -->
+    <SubmitBtn />
 
     <p
       id="contact-error"

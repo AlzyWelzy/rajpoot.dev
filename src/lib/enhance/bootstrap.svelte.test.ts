@@ -82,8 +82,9 @@ describe("turnstile rendering", () => {
     expect(render).toHaveBeenCalledOnce();
     const opts = render.mock.calls[0]![1];
     expect(opts.sitekey).toBe("site-key");
-    // interaction-only means a legitimate visitor normally sees nothing.
-    expect(opts).toMatchObject({ appearance: "interaction-only" });
+    // "always", not "interaction-only": an invisible control is impossible to
+    // verify, for a visitor mid-submission or for whoever is checking a deploy.
+    expect(opts).toMatchObject({ appearance: "always" });
   });
 
   it("captures the token from the success callback", () => {
