@@ -82,6 +82,22 @@ _visible_, never to hidden.
   own bare `Strict-Transport-Security: max-age=…`, missing `includeSubDomains`
   and `preload`, which is why the domain **cannot be submitted to
   hstspreload.org** while the redirect exists.
+- **`vercel.json` exists only to pin the region to `fra1`.** Don't move headers,
+  redirects or rewrites into it — those live in `next.config.mjs`, and a
+  `vercel.json` route would silently take precedence over them.
+  The region was `bom1`. Every route here is prerendered, so the region does not
+  serve the steady-state request — the CDN does. It decides two things that do
+  matter. First, Vercel's CDN cache is **segmented per region and evicts rarely
+  requested assets** ("once a day" is the docs' own example); at this site's
+  traffic almost every European visitor arrives at a cold PoP, misses, and pays
+  a proxy hop to the region. On `bom1` that hop was measured in Speed Insights
+  as TTFB p75 1.82s, with every Poor country far from Mumbai (Switzerland 4.13s,
+  Nicaragua 4.1s, Germany 2.01s) while India scored Great. Second, the contact
+  server action and its Upstash round trip execute there.
+  `fra1` because the audience is EU/US recruiters. **If the Upstash database is
+  not in or near `eu-central-1`, move it** — a cross-region Redis call now sits
+  in the contact form's critical path. Switch to `iad1` if the traffic mix ever
+  turns US-heavy.
 - **The PDFs carry `X-Robots-Tag: noindex` in two places.**
   `lib/serve-pdf.ts` sets it for `/resume` and friends; a `/:file(.*\.pdf)`
   rule in `next.config.mjs` covers the raw `public/` filenames, which bypass
