@@ -143,5 +143,34 @@ ${rules}
 
 /*.pdf
   X-Robots-Tag: noindex
+
+# Caching for the assets that are NOT content-hashed.
+#
+# The adapter emits a rule for /_app/immutable/*, whose filenames carry a hash.
+# Everything below lives at a stable path — the webfont has to, so the layout
+# can preload it without chasing a hash — and therefore inherits Cloudflare's
+# default for static assets, which is \`max-age=0, must-revalidate\`. Left
+# alone, that means every repeat visitor pays a revalidation round trip for the
+# 33KB font sitting on the critical path.
+#
+# Fonts are immutable in the literal sense: this is a pinned release of Inter,
+# and a different font would be a different filename.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The images and icons could in principle be replaced in place, so they get a
+# long-but-finite window rather than \`immutable\` — a month of staleness for
+# repeat visitors is an acceptable price, and renaming the file busts it
+# immediately if something needs to change sooner.
+/profile-*
+  Cache-Control: public, max-age=2592000
+/opengraph-image.png
+  Cache-Control: public, max-age=2592000
+/apple-icon.png
+  Cache-Control: public, max-age=2592000
+/*.svg
+  Cache-Control: public, max-age=2592000
+/favicon.ico
+  Cache-Control: public, max-age=2592000
 `;
 }

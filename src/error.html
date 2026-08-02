@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, follow" />
+    <title>Something went wrong</title>
+  </head>
+  <!--
+    Last-resort boundary, and the counterpart to Next's `global-error.tsx`.
+
+    `+error.svelte` renders *inside* `+layout.svelte`, so it cannot help when
+    the layout itself is what failed. SvelteKit falls back to this file in that
+    case, which is why it ships its own document and cannot rely on the app's
+    fonts, theme or stylesheet — hence the inline styles.
+
+    %sveltekit.status% and %sveltekit.error.message% are the only substitutions
+    available here; there is no component tree at this point.
+  -->
+  <body
+    style="
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family:
+        system-ui,
+        -apple-system,
+        &quot;Segoe UI&quot;,
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+      background: #0b1020;
+      color: #f8fafc;
+      padding: 1.5rem;
+      text-align: center;
+    "
+  >
+    <main style="max-width: 28rem">
+      <p
+        style="
+          margin: 0 0 0.75rem;
+          font-size: 0.8rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          opacity: 0.6;
+        "
+      >
+        Error %sveltekit.status%
+      </p>
+      <h1 style="font-size: 1.75rem; margin: 0 0 0.75rem">
+        Something went wrong
+      </h1>
+      <p style="opacity: 0.75; margin: 0 0 1.5rem; line-height: 1.6">
+        The page failed to load. Please try again in a moment.
+      </p>
+      <a
+        href="/"
+        style="
+          display: inline-block;
+          border-radius: 9999px;
+          background: #f8fafc;
+          color: #0b1020;
+          padding: 0.75rem 1.75rem;
+          font-size: 1rem;
+          font-weight: 600;
+          text-decoration: none;
+        "
+      >
+        Back to home
+      </a>
+    </main>
+  </body>
+</html>

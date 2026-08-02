@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
+import subsetFont from "subset-font";
 import sharp from "sharp";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -88,23 +89,64 @@ function isFresh(out, inputs) {
 // --- webfont ----------------------------------------------------------------
 
 /**
- * Copies the latin subset of Inter Variable to a stable, unhashed path.
+ * The glyphs the webfont is cut down to.
  *
- * app.css declares the @font-face by hand (see the comment there) so only this
- * one subset ships instead of all seven. A fixed URL is what lets the layout
- * preload it — the font is needed for the very first paint, and waiting for the
- * CSS to parse before the request starts costs a round trip.
+ * Basic Latin in full — not just what the site currently renders — because the
+ * contact form's textarea inherits this font, and a visitor typing a character
+ * that isn't in the subset would watch it render in a fallback face mid-word.
+ * Every printable ASCII character is therefore included regardless of whether
+ * any copy uses it.
+ *
+ * On top of that: the four non-ASCII characters the page actually renders
+ * (© · — and the 👋 emoji, which comes from the system emoji font either way),
+ * plus typographic punctuation and Latin-1 accents the copy could reasonably
+ * grow into without anyone remembering to revisit this list.
  */
-function copyFont() {
+function subsetCharacters() {
+  let chars = "";
+  for (let code = 0x20; code <= 0x7e; code++)
+    chars += String.fromCharCode(code);
+  chars += "©·—–…‘’“”€£°×÷±≈≤≥™→←↑↓•§¶†‡";
+  chars += "àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿ";
+  chars += "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝ";
+  return chars;
+}
+
+/**
+ * Subsets Inter Variable to that character set and writes it to a stable,
+ * unhashed path.
+ *
+ * Two reductions, in order. app.css declares the @font-face by hand (see the
+ * comment there) so only the *latin* subset ships instead of all seven —
+ * ~170KB of woff2 down to 48KB. This then cuts that 48KB to ~33KB by dropping
+ * the several hundred latin glyphs the site has no use for. The saving is
+ * smaller than the glyph count suggests because this is a variable font: the
+ * weight axis carries outline data per glyph, so each one costs more than it
+ * would in a static face, and the shared tables don't shrink at all.
+ *
+ * It is worth doing anyway because this file is preloaded and blocks first
+ * paint — it is the single largest thing on the critical path.
+ *
+ * The path is fixed rather than content-hashed so <svelte:head> can preload it
+ * without chasing a hash; `_headers` gives it a one-year immutable cache in
+ * exchange, which it can have because this is a pinned release of Inter.
+ */
+async function buildFont() {
   const src = join(
     root,
     "node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
   );
   const out = join(STATIC, "fonts/inter-latin-variable.woff2");
   mkdirSync(dirname(out), { recursive: true });
-  if (isFresh(out, [src])) return;
-  writeFileSync(out, readFileSync(src));
-  console.log("[gen-images] fonts/inter-latin-variable.woff2");
+  if (isFresh(out, [src, fileURLToPath(import.meta.url)])) return;
+
+  const subset = await subsetFont(readFileSync(src), subsetCharacters(), {
+    targetFormat: "woff2",
+  });
+  writeFileSync(out, subset);
+  console.log(
+    `[gen-images] fonts/inter-latin-variable.woff2 (${statSync(src).size} -> ${subset.length} bytes)`,
+  );
 }
 
 // --- hero avatar ------------------------------------------------------------
@@ -299,7 +341,7 @@ function generateAppleIcon() {
 }
 
 mkdirSync(STATIC, { recursive: true });
-copyFont();
+await buildFont();
 await generateAvatars();
 await generateOgImage();
 generateAppleIcon();
