@@ -16,4 +16,20 @@ runs:
     # (single source for CI, local, and Vercel), so no recreation step is needed.
     - name: Install dependencies
       shell: bash
-      run: pnpm install --frozen-lockfile
+      env:
+        IS_DEPENDABOT: ${{ github.actor == 'dependabot[bot]' }}
+      run: |
+        if pnpm install --frozen-lockfile; then
+          exit 0
+        fi
+        # Dependabot strips the pnpm-workspace.yaml `overrides:` block from the
+        # lockfile, so the frozen install aborts. dependabot-lockfile.yml pushes
+        # a repaired lockfile, but this run can start before that lands -- so on
+        # Dependabot branches, repair in place rather than reporting a red check
+        # for a problem that is already being fixed. Everywhere else a lockfile
+        # mismatch stays fatal.
+        if [ "$IS_DEPENDABOT" != 'true' ]; then
+          exit 1
+        fi
+        echo "::warning::Lockfile out of sync on a Dependabot branch; regenerating for this run."
+        pnpm install --no-frozen-lockfile

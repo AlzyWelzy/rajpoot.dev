@@ -1,20 +1,27 @@
-# Weekly dependency updates. npm minor/patch bumps arrive as one grouped PR to
-# keep noise down; majors and GitHub Actions (SHA-pinned in ci.yml) come
-# individually.
+# Daily dependency updates, batched into two npm PRs: one for minor/patch and
+# one for majors. Majors stay in their own PR because dependabot-auto-merge.yml
+# only queues non-major updates -- mixing them would block routine bumps behind
+# a manual review.
+#
+# Note: every npm PR here lands with a lockfile missing the pnpm-workspace.yaml
+# `overrides:` block; dependabot-lockfile.yml repairs it. See that workflow.
 version: 2
 updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     groups:
       minor-and-patch:
         update-types:
           - "minor"
           - "patch"
+      major:
+        update-types:
+          - "major"
     # Held-back majors. These are known-incompatible with the current Next
     # toolchain, so without these rules Dependabot reopens the same PR every
-    # week and it has to be closed by hand every time. Drop an entry once the
+    # day and it has to be closed by hand every time. Drop an entry once the
     # ceiling actually lifts.
     ignore:
       # TypeScript 7 (the native port) is not yet supported by
@@ -25,7 +32,11 @@ updates:
       - dependency-name: "eslint"
         versions: [">=10"]
 
+  # SHA-pinned in the workflows; grouped so an Actions sweep is one PR.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    groups:
+      actions:
+        patterns: ["*"]

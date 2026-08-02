@@ -1,0 +1,61 @@
+name: Dependabot lockfile repair
+
+# Dependabot patches pnpm-lock.yaml with its own implementation instead of
+# running pnpm, so it never reads pnpm-workspace.yaml and strips the `overrides:`
+# block on every npm PR. Every `pnpm install --frozen-lockfile` after that -- CI
+# and Vercel alike -- aborts with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH, which takes
+# out the preview deployment too. This job regenerates the lockfile from
+# pnpm-workspace.yaml and pushes it back onto the Dependabot branch.
+#
+# The push uses an SSH deploy key rather than GITHUB_TOKEN on purpose: pushes
+# made with GITHUB_TOKEN do not retrigger workflows, so CI and Vercel would never
+# re-run against the repaired commit.
+
+on:
+  push:
+    branches: ["dependabot/npm_and_yarn/**"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repair:
+    # Also the loop guard: the repair push below is authored by the deploy key,
+    # not dependabot[bot], so it cannot retrigger this job.
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Configures origin over SSH so the push below retriggers CI + Vercel.
+          # Lives in the *Dependabot* secrets store, not Actions -- runs whose
+          # actor is dependabot[bot] cannot read Actions secrets.
+          ssh-key: ${{ secrets.DEPENDABOT_LOCKFILE_SSH_KEY }}
+
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # --lockfile-only resolves and rewrites the lockfile without downloading or
+      # executing package code, so no postinstall script from a freshly bumped
+      # dependency can observe the deploy key.
+      - name: Regenerate lockfile
+        run: pnpm install --lockfile-only --no-frozen-lockfile
+
+      - name: Commit and push if the lockfile changed
+        run: |
+          if git diff --quiet -- pnpm-lock.yaml; then
+            echo "Lockfile already consistent with pnpm-workspace.yaml; nothing to do."
+            exit 0
+          fi
+          git config user.name 'dependabot[bot]'
+          git config user.email '49699333+dependabot[bot]@users.noreply.github.com'
+          git commit -m 'chore(deps): restore pnpm-workspace.yaml overrides in lockfile' -- pnpm-lock.yaml
+          git push
