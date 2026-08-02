@@ -8,16 +8,17 @@ Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 
 ## Stack
 
-- **SvelteKit 2** + **Svelte 5** (runes), fully prerendered
+- **SvelteKit 2** + **Svelte 5**, fully prerendered with `csr: false` — Svelte is the templating layer and **no framework JavaScript reaches the browser**
 - **Cloudflare Workers** with static assets (`@sveltejs/adapter-cloudflare`)
 - **TypeScript 6** (strict, `noUncheckedIndexedAccess`)
 - **Tailwind CSS v4** with CSS‑first `@theme` config and dark mode variants
-- **CSS-only animation** — keyframes, scroll-driven timelines, and two small actions; no animation library
+- **CSS-only animation** — keyframes and scroll-driven timelines; no animation library
+- **~2KB of progressive enhancement** (`src/lib/enhance/`) for the theme toggle, scroll-spy, reveals and contact form
 - **Resend** for the contact form (dependency-free HTML + plaintext template)
-- **Cloudflare Turnstile** for bot protection
-- **Build-time image generation** (satori + resvg) for the OG card, touch icon and avatar ladder
+- **Cloudflare Turnstile** for bot protection, loaded on first interaction
+- **Build-time asset generation** — satori + resvg for the OG card and touch icon, sharp for the avatar ladder, and a subset webfont clipped to the glyphs and weights actually used
 
-Roughly 46KB of JavaScript reaches the browser on first load.
+The entire critical path is about **47KB**: 18KB of HTML with the CSS inlined, a 25KB webfont, 2.3KB of script and a 1.3KB avatar.
 
 ## SEO features
 

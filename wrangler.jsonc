@@ -23,6 +23,25 @@
     "enabled": true,
   },
 
+  // A workers.dev URL for previewing a deploy before it is the live site.
+  // Harmless to leave on: it is a separate hostname, and the canonical URL and
+  // JSON-LD all point at https://www.rajpoot.dev regardless, so the preview
+  // cannot compete with the real domain in search results.
+  "workers_dev": true,
+
+  // The custom domains this Worker answers on. Commented out until the DNS
+  // cutover, because uncommenting them is what actually moves rajpoot.dev off
+  // Vercel — `wrangler deploy` creates the DNS records and starts serving
+  // production traffic immediately.
+  //
+  // Both apex and www are listed. Apex -> www stays a Cloudflare Redirect Rule
+  // rather than anything in the app; see the deploy section of AGENTS.md.
+  //
+  // "routes": [
+  //   { "pattern": "rajpoot.dev", "custom_domain": true },
+  //   { "pattern": "www.rajpoot.dev", "custom_domain": true }
+  // ],
+
   // No "vars" block. Every runtime value this Worker reads is a secret
   // (RESEND_API_KEY, RESEND_FROM, TURNSTILE_SECRET_KEY) and is set with
   // `wrangler secret put`. SHOW_TESTIMONIALS is a *build*-time flag read while

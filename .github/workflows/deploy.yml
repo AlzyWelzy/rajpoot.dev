@@ -1,0 +1,49 @@
+name: Deploy
+
+# Deploys on every push to main, once CI has had its say. Manual runs are
+# allowed too, for redeploying without a code change (e.g. after rotating a
+# secret, or to pick up a new content date).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never let two deploys race. `cancel-in-progress: false` on purpose: a
+  # half-finished upload that gets cancelled is worse than a queued one.
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # sync-build-meta derives the content date from history; a depth-1
+          # clone would usually miss the last commit that touched content.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      # A production build — no E2E_TESTING, so `_headers` keeps
+      # `upgrade-insecure-requests`.
+      - name: Build
+        env:
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
+          PUBLIC_ANALYTICS_ENDPOINT: ${{ vars.PUBLIC_ANALYTICS_ENDPOINT }}
+          SHOW_TESTIMONIALS: ${{ vars.SHOW_TESTIMONIALS }}
+        run: pnpm build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # The build already ran above, with the repo's env; let wrangler do
+          # nothing but upload.
+          command: deploy

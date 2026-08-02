@@ -11,7 +11,7 @@
  * apply to localhost and break every asset load under Playwright's plain-http
  * server. src/lib/security-headers.test.ts asserts the production form.
  */
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -25,12 +25,15 @@ const contents = renderHeadersFile({ upgradeInsecure: !isE2E });
 
 mkdirSync(dirname(OUT), { recursive: true });
 
-const existing = existsSync(OUT) ? readFileSync(OUT, "utf8") : null;
-if (existing === contents) {
-  console.log("[gen-headers] _headers already current");
-} else {
-  writeFileSync(OUT, contents);
-  console.log(
-    `[gen-headers] _headers written (upgrade-insecure-requests: ${!isE2E})`,
-  );
-}
+// Always rewrite, never skip on a content match.
+//
+// This file is the one build output whose *correct* content depends on an
+// environment variable rather than on source. Skipping the write when the
+// bytes happen to match is how a `_headers` left behind by an E2E build — one
+// deliberately missing `upgrade-insecure-requests` — can survive into a
+// production build and ship. The write costs nothing; the failure mode is a
+// security directive silently absent in production.
+writeFileSync(OUT, contents);
+console.log(
+  `[gen-headers] _headers written (upgrade-insecure-requests: ${!isE2E})`,
+);

@@ -6,11 +6,14 @@ like mistakes until you know why.
 
 ## What this is
 
-A single-page portfolio site for Manvendra Rajpoot: SvelteKit 2, Svelte 5
-(runes), Tailwind v4, deployed on Cloudflare Workers with static assets. Every
-page is prerendered at build time. There is no database, no CMS and no
-authentication — the only server-side behaviour is the contact endpoint and
-three PDF routes.
+A single-page portfolio site for Manvendra Rajpoot: SvelteKit 2, Svelte 5,
+Tailwind v4, deployed on Cloudflare Workers with static assets. Every page is
+prerendered at build time and **ships no framework JavaScript** — see
+"Architecture rules". There is no database, no CMS and no authentication; the
+only server-side behaviour is the contact endpoint and three PDF routes.
+
+The whole critical path is about 47KB: 18KB of HTML with the CSS inlined, 25KB
+webfont, 2.3KB of progressive-enhancement script, 1.3KB avatar.
 
 It was a Next.js 16 / React 19 app on Vercel until the rewrite. A lot of the
 comments in this repo say "this used to be X" — that history is kept where it
@@ -55,25 +58,53 @@ it at build time to emit `_headers`, and a build script can't import TypeScript
 without a compile step. See "Two serving paths" below for why it has two
 consumers at all.
 
-**Sections use actions, not wrapper components.** `SectionSpy.svelte` exists for
-shared markup only. The scroll-spy is `use:sectionSpy` and the reveal is
-`use:reveal` — plain Svelte actions attached to server-rendered markup. In the
-React build this had to be a client-component wrapper, because marking a section
-`"use client"` to observe itself would drag all of its prose into the bundle.
-Svelte has no such split; don't reintroduce the wrapper pattern.
+**`csr = false`. Svelte does not run in the browser at all.** This is the rule
+everything else in this section follows from, and the easiest one to break by
+accident. SvelteKit prerenders the site and ships **no** framework runtime, no
+client router and no hydration; Svelte is the templating language, nothing more.
+
+The router is what made this worth doing: ~12KB brotli of navigation,
+preloading and scroll-restoration on a single page whose every link is a hash
+anchor or an external URL. Hydration cost another ~19KB re-deriving markup
+identical to what was already served.
+
+**All interactivity lives in `src/lib/enhance/`** — one esbuild bundle (~2KB
+brotli) that finds its own markup by data attribute. Consequences, in order of
+how likely they are to bite:
+
+- **Markup must be complete and usable in the server-rendered HTML.** Nothing in
+  that bundle renders UI. The scroll-to-top button ships `hidden`, the toast
+  region ships empty, the contact form ships with a real `action`/`method` so it
+  still POSTs without JavaScript. If you find yourself wanting to create an
+  element from script, render it in the component and toggle it instead.
+- **No `$state`, `$effect` or event handlers in components.** They compile away
+  to nothing. Use a `data-` attribute and handle it in `enhance/`.
+- **Adding an interactive behaviour means editing two files** — the component,
+  for the markup and the attribute, and an `enhance/` module for the behaviour.
+- `scripts/gen-enhance.mjs` **fails the build above 20KB.** If the site genuinely
+  needs more client code than that, reconsider the architecture rather than
+  raising the number.
+
+**Prefer CSS to script for anything derived from DOM state.** The theme icons
+are the model: which one shows is driven entirely by `html.dark`, which
+app.html's inline script sets _before first paint_, so the right icon paints
+immediately rather than after a swap. The nav's active item works the same way
+off `data-active`. This is strictly better than the reactive version was, not a
+compromise.
 
 **Animation is CSS, not a library.** motion/framer is gone. Entrance animations
-are keyframes in `app.css`, scroll reveals are the `reveal` action toggling one
-class, and the reading-progress bar is a scroll-driven CSS animation that never
-touches the main thread. Anything scroll-driven must be wrapped in
+are keyframes in `app.css`, scroll reveals toggle one class, and the
+reading-progress bar is a scroll-driven CSS animation that never touches the
+main thread. Anything scroll-driven must be wrapped in
 `@supports (animation-timeline: view())`.
 
-**Every reveal degrades to _visible_, never to hidden.** This is a hard rule and
-there is a spec enforcing it. The `reveal` action hides the element only after
-confirming it can also un-hide it (JS running, `IntersectionObserver` present,
-reduced motion not requested). The React version declared `initial={{ opacity: 0 }}`
-in the markup, so a hydration failure left the section permanently invisible.
-Author the settled state; let the animation remove a temporary starting state.
+**Every reveal degrades to _visible_, never to hidden.** A hard rule, with specs
+enforcing it at both levels. `enhance/reveal.ts` hides an element only after
+confirming it can also un-hide it (script running, `IntersectionObserver`
+present, reduced motion not requested). The React version declared
+`initial={{ opacity: 0 }}` in the markup, so a hydration failure left the
+section permanently invisible. Author the settled state; let the animation
+remove a temporary starting state.
 
 ## Two serving paths
 
@@ -143,7 +174,13 @@ have two emitters, so both read from `src/lib/security-headers.js` and
 - **`serve-pdf.ts` fetches the file instead of reading it.** There is no
   filesystem on a Worker. It uses the `ASSETS` binding in production and
   `event.fetch` in dev, where that binding doesn't exist.
-- **Coverage thresholds are 80–90, not 100.** They were 100 once, and it showed:
+- **`src/lib/enhance/` is plain TS, not Svelte.** It is bundled by esbuild
+  outside SvelteKit's Vite pipeline, so `$env/*` and `$lib/*` are unavailable to
+  it: build-time values arrive through esbuild `define` (see
+  `__ANALYTICS_ENDPOINT__`) and per-deploy values through `data-` attributes
+  (see the Turnstile site key). Its tests are named `*.svelte.test.ts` purely to
+  land in the jsdom Vitest project; there is no Svelte in them.
+- **Coverage thresholds are 85–90, not 100.** They were 100 once, and it showed:
   spec files existed only to render a component and assert nothing. Add tests
   because they describe behaviour, not to move the number.
 
