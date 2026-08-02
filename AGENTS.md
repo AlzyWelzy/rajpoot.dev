@@ -246,22 +246,42 @@ the cheap native option.
 
 ## Deploying
 
+Account `AlzyWelzy`, Worker `portfolio`. Preview URL:
+<https://portfolio.manvendra-raj-2002.workers.dev>.
+
 ```bash
-pnpm deploy                            # build + wrangler deploy
-wrangler secret put RESEND_API_KEY     # once, per secret
+pnpm deploy                                 # build + verify + wrangler deploy
+wrangler secret put RESEND_API_KEY           # once, per secret
 wrangler secret put TURNSTILE_SECRET_KEY
 ```
 
-DNS lives on Cloudflare already. Both apex and `www` should be proxied records
-pointing at the Worker, with **apex → www as a Cloudflare Redirect Rule**.
+CI deploys on push to `main` (`.github/workflows/deploy.yml`). It needs
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as repo **secrets**, and
+`PUBLIC_TURNSTILE_SITE_KEY` as a repo **variable** (it is a build-time value
+baked into the HTML, not a runtime secret).
 
-That redirect is worth understanding. On Vercel it had to be a platform-level
-domain redirect, because Next applied neither `headers()` nor the CSP to a
-redirect response — so that hop answered with a bare
-`Strict-Transport-Security` missing `includeSubDomains; preload`, and the domain
-**could not be submitted to hstspreload.org**. Here `_headers` covers redirect
-responses, so the full set rides along and that blocker is gone. Submit the
-domain once the redirect is in place and verified.
+### The DNS cutover
+
+The Worker is deployed but **not** serving `rajpoot.dev` — that is still on
+Vercel. To move it:
+
+1. Uncomment the `routes` block in `wrangler.jsonc` and deploy. That creates the
+   DNS records for apex and `www` and starts serving production traffic.
+2. Remove the old Vercel A/CNAME records for both hostnames.
+3. Add a Cloudflare **Redirect Rule**: `rajpoot.dev/*` → `https://www.rajpoot.dev/$1`,
+   301, preserving path and query.
+4. Verify `curl -sSI https://rajpoot.dev/` returns 301 **with** the full
+   security header set, then submit the domain to <https://hstspreload.org>.
+
+Step 4 is the one that was impossible before. On Vercel, apex → www had to be a
+platform-level redirect because Next applied neither `headers()` nor the CSP to
+a redirect response, so that hop answered with a bare
+`Strict-Transport-Security` missing `includeSubDomains; preload` — and the
+domain could not be submitted. `_headers` covers redirect responses, so the
+full set now rides along.
+
+Rollback is repointing DNS at Vercel; keep that project until the new setup has
+a few days of clean traffic.
 
 ## Generated files
 

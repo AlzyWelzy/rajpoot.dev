@@ -56,13 +56,16 @@ describe("track", () => {
 
   it("falls back to a keepalive fetch without sendBeacon", () => {
     vi.stubGlobal("navigator", {});
-    const fetchSpy = vi.fn(() => Promise.resolve(new Response()));
+    // Typed with both parameters so `mock.calls[0][1]` is inspectable.
+    const fetchSpy = vi.fn((_url: string, _init: RequestInit) =>
+      Promise.resolve(new Response()),
+    );
     vi.stubGlobal("fetch", fetchSpy);
 
     track("contact_submit", {}, ENDPOINT);
 
     expect(fetchSpy).toHaveBeenCalledOnce();
-    const init = fetchSpy.mock.calls[0]![1] as RequestInit;
+    const init = fetchSpy.mock.calls[0]![1];
     expect(init.method).toBe("POST");
     expect(init.keepalive).toBe(true);
   });
