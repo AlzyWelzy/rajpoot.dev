@@ -105,12 +105,19 @@ _visible_, never to hidden.
   the route handler completely. Removing either one reopens the gap. It is
   deliberately not a robots.txt `Disallow` — a blocked URL is never fetched,
   so the crawler never sees the noindex and can still list the URL.
-- **`lib/serve-pdf.ts` reads via the Workers `ASSETS` binding, not Node's
-  `fs`.** There is no real filesystem at request time on Cloudflare Workers.
-  `getCloudflareContext().env.ASSETS.fetch(path)` resolves purely by path —
-  the host in the fetch target is a throwaway. Tests stand in for the binding
-  with `test-utils/mocks.tsx`'s `cloudflareAssetsMock()`, which serves the
-  same contract from `public/` on disk via `fs` instead.
+- **`lib/serve-pdf.ts` tries the Workers `ASSETS` binding first, then falls
+  back to Node's `fs`.** There is no real filesystem at request time on
+  Cloudflare Workers, so the binding is required there —
+  `getCloudflareContext().env.ASSETS.fetch(path)` resolves purely by path,
+  the host in the fetch target is a throwaway. But `getCloudflareContext`
+  throws when no Cloudflare context is registered at all, which is exactly
+  what happens under plain `next start`/`next dev` without
+  `initOpenNextCloudflareForDev` — including CI's E2E suite, which builds
+  and runs the site as a normal Node server. Losing the fallback 404s every
+  PDF route there; it's caught by `lib/serve-pdf.fallback.test.ts`, not the
+  mocked test in `lib/serve-pdf.test.ts` (which stands in for the binding
+  via `test-utils/mocks.tsx`'s `cloudflareAssetsMock()` and so never
+  exercises the fallback).
 - **The CSP keeps `'unsafe-inline'` in `script-src`.** Next injects inline
   hydration scripts whose contents change every build. Removing it requires
   either per-request nonces (which force dynamic rendering and give up the

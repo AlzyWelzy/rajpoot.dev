@@ -1,32 +1,52 @@
 import { NextResponse } from "next/server";
+import { promises as fs } from "fs";
+import path from "path";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+
+/**
+ * Reads a public/ file's bytes. Prefers the Workers ASSETS binding — there
+ * is no real filesystem at request time on Cloudflare Workers, and the
+ * binding resolves purely by path, so the host in the fetch target is a
+ * throwaway. Falls back to Node's fs when no Cloudflare context is
+ * available (plain `next dev`/`next start`, e.g. local dev without
+ * `initOpenNextCloudflareForDev`, or CI's E2E suite, which builds and runs
+ * the site as a normal Node server rather than through Wrangler) — this
+ * project isn't committed to Workers as the only deploy target yet, so
+ * `servePdf` has to work either way.
+ */
+async function readPublicFile(fileName: string): Promise<ArrayBuffer | null> {
+  try {
+    const { env } = await getCloudflareContext({ async: true });
+    if (!env.ASSETS) return null;
+    const asset = await env.ASSETS.fetch(`https://assets.local/${fileName}`);
+    return asset.ok ? await asset.arrayBuffer() : null;
+  } catch {
+    try {
+      const filePath = path.join(process.cwd(), "public", fileName);
+      const buffer = await fs.readFile(filePath);
+      return buffer.buffer.slice(
+        buffer.byteOffset,
+        buffer.byteOffset + buffer.byteLength,
+      ) as ArrayBuffer;
+    } catch {
+      return null;
+    }
+  }
+}
 
 /**
  * Serve a PDF from public/ as a download. Shared by the resume, cover-letter,
  * and experience-letter routes so header/caching/robots policy lives in one
  * place.
- *
- * Reads via the Workers ASSETS binding rather than Node's fs — there is no
- * real filesystem at request time on Cloudflare Workers. The binding
- * resolves purely by path, so the host in the fetch target is a throwaway.
  */
 export async function servePdf(fileName: string, notFoundMessage: string) {
-  const { env } = await getCloudflareContext({ async: true });
+  const bytes = await readPublicFile(fileName);
 
-  // Typed optional because not every @opennextjs/cloudflare project
-  // configures assets, but wrangler.jsonc always does — a missing binding
-  // here means the deploy is misconfigured, not a normal 404.
-  if (!env.ASSETS) {
-    throw new Error("ASSETS binding is not configured (check wrangler.jsonc)");
-  }
-
-  const asset = await env.ASSETS.fetch(`https://assets.local/${fileName}`);
-
-  if (!asset.ok) {
+  if (!bytes) {
     return new NextResponse(notFoundMessage, { status: 404 });
   }
 
-  return new NextResponse(asset.body, {
+  return new NextResponse(bytes, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="${fileName}"`,
