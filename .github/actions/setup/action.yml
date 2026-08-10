@@ -13,7 +13,8 @@ runs:
         cache: pnpm
 
     # Build approvals + overrides now live in the committed pnpm-workspace.yaml
-    # (single source for CI, local, and Vercel), so no recreation step is needed.
+    # (single source for CI, local, and the Cloudflare deploy), so no
+    # recreation step is needed.
     - name: Install dependencies
       shell: bash
       env:

@@ -40,7 +40,7 @@ test.describe("security headers", () => {
       expect(csp).toContain(directive);
     }
 
-    // No external script origin beyond Vercel's analytics bundle.
+    // No external script origin beyond Cloudflare's analytics beacon.
     const scriptSrc = csp!
       .split(";")
       .map((d) => d.trim())
@@ -49,7 +49,7 @@ test.describe("security headers", () => {
     const externalOrigins = scriptSrc!
       .split(/\s+/)
       .filter((token) => token.startsWith("http"));
-    expect(externalOrigins).toEqual(["https://va.vercel-scripts.com"]);
+    expect(externalOrigins).toEqual(["https://static.cloudflareinsights.com"]);
   });
 
   test("upgrade-insecure-requests is suppressed for localhost only", async ({

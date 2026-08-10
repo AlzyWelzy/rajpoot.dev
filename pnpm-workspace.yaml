@@ -1,7 +1,7 @@
-# pnpm 10/11 configuration (committed — read by CI, local, and Vercel via
-# corepack + the packageManager field). pnpm no longer reads the `pnpm` field
-# in package.json, so overrides must live here or `--frozen-lockfile` fails
-# against the lockfile's recorded overrides.
+# pnpm 10/11 configuration (committed — read by CI, local, and the Cloudflare
+# deploy, via corepack + the packageManager field). pnpm no longer reads the
+# `pnpm` field in package.json, so overrides must live here or
+# `--frozen-lockfile` fails against the lockfile's recorded overrides.
 #
 # overrides: force next's vulnerable nested sharp (<0.35.0) and postcss
 # (<=8.5.17) up to patched versions so `pnpm audit --prod` stays clean. nanoid
@@ -13,6 +13,7 @@ allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+  workerd: true
 minimumReleaseAgeExclude:
   - postcss@8.5.23
 overrides:

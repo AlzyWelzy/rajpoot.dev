@@ -1,13 +1,12 @@
-import { ImageResponse } from "next/og";
-
-// Generated at build time as a real 180x180 PNG (Safari ignores SVG/manifest
-// icons and a JPG apple-touch-icon is non-standard). Mirrors public/icon.svg:
-// a deep squircle with a cyan->indigo->fuchsia gradient "M".
+// The apple-touch-icon's visual tree. Bundled and rendered by
+// scripts/generate-static-images.mjs — not run directly, and not part of
+// the Next.js app (see that file for why this moved out of
+// app/apple-icon.tsx). Mirrors public/icon.svg: a deep squircle with a
+// cyan->indigo->fuchsia gradient "M".
 export const size = { width: 180, height: 180 };
-export const contentType = "image/png";
 
 export default function AppleIcon() {
-  return new ImageResponse(
+  return (
     <div
       style={{
         width: "100%",
@@ -35,7 +34,6 @@ export default function AppleIcon() {
       >
         M
       </div>
-    </div>,
-    { ...size },
+    </div>
   );
 }

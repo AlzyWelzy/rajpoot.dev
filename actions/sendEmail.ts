@@ -37,8 +37,8 @@ const IDENTIFIED_LIMIT = 5;
 // applying IDENTIFIED_LIMIT to it would let a single script burn five requests
 // and lock out *every other* header-less visitor. They get their own, much
 // wider window instead: still bounded, but not a five-request denial of
-// service against everyone. On Vercel `x-real-ip` is always present, so this
-// is a safety net for other hosts rather than a hot path.
+// service against everyone. Cloudflare always sets `cf-connecting-ip`, so
+// this is a safety net rather than a hot path.
 const ANONYMOUS_LIMIT = 50;
 const ANONYMOUS_KEY = "anonymous";
 
@@ -110,10 +110,13 @@ type Client = {
 
 async function client(): Promise<Client> {
   const hdrs = await headers();
-  // Prefer the platform-trusted header. x-forwarded-for is client-spoofable
-  // on its left side, so never trust the first hop — fall back to the LAST
-  // entry (the one the trusted proxy appended) only if x-real-ip is absent.
+  // cf-connecting-ip is Cloudflare's own trusted header — set at the edge on
+  // every request, not client-suppliable. x-real-ip/x-forwarded-for are kept
+  // as fallbacks only; x-forwarded-for is client-spoofable on its left side,
+  // so never trust the first hop — fall back to the LAST entry (the one the
+  // trusted proxy appended) only if the others are absent.
   const ip =
+    hdrs.get("cf-connecting-ip")?.trim() ||
     hdrs.get("x-real-ip")?.trim() ||
     hdrs.get("x-forwarded-for")?.split(",").pop()?.trim();
 

@@ -1,4 +1,6 @@
 import { createElement, type ReactNode } from "react";
+import { readFile } from "fs/promises";
+import path from "path";
 
 /**
  * Shared module mocks for the component tests. These used to be copy-pasted
@@ -97,7 +99,36 @@ export function nextImageMock() {
 /** Static image import — resolved by Next at build time, not by vitest. */
 export function profileImageMock() {
   return {
-    default: { src: "/profile.jpg", width: 96, height: 96, blurDataURL: "" },
+    default: { src: "/profile.webp", width: 96, height: 96, blurDataURL: "" },
+  };
+}
+
+/**
+ * Stands in for the Workers ASSETS binding (`@opennextjs/cloudflare`'s
+ * `getCloudflareContext`), which only exists inside the Workers runtime.
+ * Same contract as the real binding — fetch a path, get a Response — just
+ * backed by Node's fs reading from public/ instead of Cloudflare's asset
+ * store.
+ */
+export function cloudflareAssetsMock() {
+  return {
+    getCloudflareContext: async () => ({
+      env: {
+        ASSETS: {
+          fetch: async (input: string) => {
+            const { pathname } = new URL(input);
+            try {
+              const buffer = await readFile(
+                path.join(process.cwd(), "public", pathname),
+              );
+              return new Response(new Uint8Array(buffer), { status: 200 });
+            } catch {
+              return new Response(null, { status: 404 });
+            }
+          },
+        },
+      },
+    }),
   };
 }
 

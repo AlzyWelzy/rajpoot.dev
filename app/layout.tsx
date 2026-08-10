@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -79,7 +78,7 @@ export const metadata: Metadata = {
     // Declaring `icons` here overrides the auto-merge for the other rels, so we
     // list the scalable SVG icon and the generated PNG apple-touch-icon.
     icon: { url: "/icon.svg", type: "image/svg+xml" },
-    apple: { url: "/apple-icon", sizes: "180x180", type: "image/png" },
+    apple: { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
   },
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -159,8 +158,19 @@ export default function RootLayout({
             </MotionProvider>
           </ActiveSectionContextProvider>
         </ThemeContextProvider>
-        <Analytics />
-        <SpeedInsights />
+        {process.env.NEXT_PUBLIC_CF_BEACON_TOKEN && (
+          // Cloudflare Web Analytics: pageviews + Core Web Vitals only, no
+          // custom events. Dashboard-only (no query API) — see the
+          // Cloudflare dashboard's Web Analytics section for the token.
+          <Script
+            strategy="afterInteractive"
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({
+              token: process.env.NEXT_PUBLIC_CF_BEACON_TOKEN,
+              spa: true,
+            })}
+          />
+        )}
       </body>
     </html>
   );

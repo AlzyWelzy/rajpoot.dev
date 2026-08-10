@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
+import Button from "@/components/button";
 
 /**
  * Route-level error boundary. Catches render/runtime errors in the page tree
@@ -16,7 +16,10 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Surface the cause locally; Vercel also captures it server-side.
+    // Surface the cause in the browser console. This boundary only catches
+    // client-side render errors, so there is no server-side counterpart to
+    // rely on for capture here — wire up Workers Logs or an error tracker if
+    // that's needed.
     console.error(error);
   }, [error]);
 
@@ -36,19 +39,10 @@ export default function Error({
         Sorry about that. You can try again, or head back to the homepage.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <button
-          type="button"
-          onClick={reset}
-          className="group inline-flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-white outline-none transition hover:scale-110 hover:bg-gray-950 focus-ring active:scale-105 dark:bg-white/10"
-        >
-          Try again
-        </button>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-full border border-black/15 px-7 py-3 font-medium text-gray-800 outline-none transition hover:scale-105 hover:bg-black/5 focus-ring active:scale-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
-        >
+        <Button onClick={reset}>Try again</Button>
+        <Button href="/" variant="secondary">
           Back to home
-        </Link>
+        </Button>
       </div>
     </main>
   );

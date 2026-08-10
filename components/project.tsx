@@ -1,7 +1,6 @@
 "use client";
 
 import { m } from "motion/react";
-import { track } from "@vercel/analytics";
 import { LuGithub, LuExternalLink, LuCode } from "react-icons/lu";
 
 import type { ProjectType } from "@/lib/types";
@@ -83,9 +82,6 @@ export default function Project({
                 href={liveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() =>
-                  track("project_click", { project: title, target: "live" })
-                }
                 aria-label={`Open ${title} — ${liveLabel} (opens in a new tab)`}
                 className="inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white outline-none transition hover:scale-105 hover:bg-gray-950 active:scale-100 focus-ring dark:bg-white/15 dark:hover:bg-white/25"
               >
@@ -97,9 +93,6 @@ export default function Project({
                 href={githubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() =>
-                  track("project_click", { project: title, target: "github" })
-                }
                 aria-label={`View ${title} source code on GitHub (opens in a new tab)`}
                 className="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-gray-800 outline-none transition hover:scale-105 hover:bg-black/5 active:scale-100 focus-ring dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
               >

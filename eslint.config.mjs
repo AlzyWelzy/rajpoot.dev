@@ -5,6 +5,7 @@ const eslintConfig = [
   {
     ignores: [
       ".next/**",
+      ".open-next/**",
       "node_modules/**",
       "public/**",
       "e2e/**",
@@ -12,6 +13,7 @@ const eslintConfig = [
       "playwright-report/**",
       "test-results/**",
       "coverage/**",
+      "cloudflare-env.d.ts",
     ],
   },
   ...nextCoreWebVitals,

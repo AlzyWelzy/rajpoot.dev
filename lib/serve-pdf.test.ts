@@ -1,7 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@opennextjs/cloudflare", async () =>
+  (await import("@/test-utils/mocks")).cloudflareAssetsMock(),
+);
 
 import { servePdf } from "./serve-pdf";
-import { coverLetterName, experienceLetterName, resumeName } from "./data";
+import {
+  coverLetterName,
+  experienceLetterName,
+  resumeName,
+  resumeDevopsEngineerName,
+  resumeFullStackName,
+  resumeSoftwareEngineerName,
+} from "./data";
 
 describe("servePdf", () => {
   it("serves an existing public PDF with download headers", async () => {
@@ -17,7 +28,14 @@ describe("servePdf", () => {
   });
 
   it("serves every configured document from public/", async () => {
-    for (const name of [resumeName, coverLetterName, experienceLetterName]) {
+    for (const name of [
+      resumeName,
+      resumeDevopsEngineerName,
+      resumeFullStackName,
+      resumeSoftwareEngineerName,
+      coverLetterName,
+      experienceLetterName,
+    ]) {
       const res = await servePdf(name, "missing");
       expect(res.status, `expected ${name} to exist in public/`).toBe(200);
     }

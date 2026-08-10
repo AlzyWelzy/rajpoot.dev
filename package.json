@@ -10,6 +10,7 @@
     "dev": "next dev",
     "build": "pnpm sync:meta && next build",
     "sync:meta": "node scripts/sync-build-meta.mjs",
+    "generate:images": "node scripts/generate-static-images.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
@@ -18,6 +19,9 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -32,8 +36,6 @@
   "dependencies": {
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.2",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
     "clsx": "^2.1.1",
     "motion": "^13.0.0",
     "next": "^16.3.0",
@@ -42,11 +44,11 @@
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.7.0",
     "react-intersection-observer": "^11.0.0",
-    "resend": "^6.18.1",
-    "sharp": "^0.35.3"
+    "resend": "^6.18.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@opennextjs/cloudflare": "^1.20.2",
     "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.0",
@@ -55,6 +57,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitest/coverage-v8": "^4.1.10",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.0",
     "husky": "^9.1.7",
@@ -64,6 +67,7 @@
     "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "wrangler": "^4.120.0"
   }
 }

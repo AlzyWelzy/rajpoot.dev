@@ -1,3 +1,5 @@
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -46,19 +48,12 @@ const nextConfig = {
     inlineCss: true,
   },
   images: {
-    formats: ["image/avif", "image/webp"],
-    // The site has exactly one next/image: the 96×96 hero avatar. Next builds
-    // its srcset from these two lists, and with the defaults that meant a
-    // 14-entry preload tag offering variants up to 3840w for a 24KB avatar —
-    // ~1.5KB of markup in the critical path describing images no layout on
-    // this site can ever request. Narrowed to the avatar's real DPR ladder
-    // (96 = 1x, 192 = 2x, 288 = 3x); deviceSizes keeps a single small entry
-    // because Next requires the list to be non-empty.
-    //
-    // If a full-width image is ever added, widen these again — otherwise it
-    // will be served from a 640w source and look soft on large screens.
-    imageSizes: [96, 192, 288],
-    deviceSizes: [640],
+    // Next's built-in optimizer needs sharp, which doesn't run in the
+    // Workers runtime. The alternative (a Cloudflare Images binding) is
+    // paid infra not worth it for the site's one image — the 96×96 hero
+    // avatar, already shipped pre-optimized as a WebP. Unoptimized serves
+    // that source directly, no on-the-fly resizing.
+    unoptimized: true,
   },
   async redirects() {
     return [
@@ -107,7 +102,7 @@ const nextConfig = {
       // headers() nor a CSP to a redirects() response — an in-app apex rule
       // answers with `location` and nothing else — so moving the redirect into
       // the app would strip the security headers off it rather than complete
-      // them. It stays a Vercel domain-level redirect. See AGENTS.md.
+      // them. It's a Cloudflare Redirect Rule instead. See AGENTS.md.
     ];
   },
   async headers() {
@@ -120,8 +115,8 @@ const nextConfig = {
     // depends on — or a two-pass build that hashes the emitted HTML after
     // `headers()` has already been evaluated. Neither trade is worth it here,
     // so the protection comes from restricting *sources* instead: no external
-    // script origin beyond Vercel Analytics, and everything not actively used
-    // pinned to 'none' rather than inheriting default-src.
+    // script origin beyond Cloudflare Web Analytics, and everything not
+    // actively used pinned to 'none' rather than inheriting default-src.
     //
     // style-src needs 'unsafe-inline' for motion's inline style attributes.
     const csp = ({ upgradeInsecure }) =>
@@ -131,11 +126,15 @@ const nextConfig = {
         "form-action 'self'",
         // Nothing on this site is meant to be framed, anywhere.
         "frame-ancestors 'none'",
-        "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+        "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data:",
         "font-src 'self' data:",
-        "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+        // The beacon script (static.cloudflareinsights.com) and the data it
+        // reports to (bare cloudflareinsights.com, no `static.` prefix) are
+        // different subdomains — both are needed or the beacon loads but
+        // silently fails to report.
+        "connect-src 'self' https://cloudflareinsights.com",
         "manifest-src 'self'",
         // Unused sinks, explicitly closed: an injected payload can't reach for
         // a plugin, iframe, worker, or media element at all.
@@ -154,7 +153,8 @@ const nextConfig = {
 
     // CSP only in production. Next's dev server + React dev mode require
     // eval() (HMR, callstack reconstruction) which this policy intentionally
-    // forbids; `next start` and Vercel run production React, which never evals.
+    // forbids; `next start` and the deployed Worker run production React,
+    // which never evals.
     const isProd = process.env.NODE_ENV === "production";
 
     const securityHeaders = ({ upgradeInsecure }) => [
@@ -207,5 +207,9 @@ const nextConfig = {
     ];
   },
 };
+
+// Makes Cloudflare bindings (the ASSETS binding lib/serve-pdf.ts depends on,
+// etc.) available during `next dev`, not just in the deployed Worker.
+initOpenNextCloudflareForDev();
 
 export default nextConfig;

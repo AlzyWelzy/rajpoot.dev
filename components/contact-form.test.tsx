@@ -18,7 +18,6 @@ const { sendEmailMock, toastMock, useFormStatusMock } = vi.hoisted(() => ({
 
 vi.mock("@/actions/sendEmail", () => ({ sendEmail: sendEmailMock }));
 vi.mock("react-hot-toast", () => ({ default: toastMock }));
-vi.mock("@vercel/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/hooks", () => ({ useSectionInView: () => ({ ref: () => {} }) }));
 vi.mock("motion/react", async () =>
   (await import("@/test-utils/mocks")).motionMock(),

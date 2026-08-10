@@ -83,7 +83,24 @@ describe("sendEmail rate limiting (Upstash configured)", () => {
     expect(result).toEqual({ data: { id: "email_123" } });
   });
 
-  it("keys the limit on x-real-ip when present", async () => {
+  it("keys the limit on cf-connecting-ip when present", async () => {
+    limitMock.mockResolvedValue({ success: true });
+    getHeaders.current = () =>
+      new Headers({
+        "cf-connecting-ip": "203.0.113.7",
+        "x-real-ip": "6.6.6.6",
+        "x-forwarded-for": "6.6.6.6, 203.0.113.7",
+      });
+    const sendEmail = await freshSendEmail();
+
+    await sendEmail(validForm());
+
+    // cf-connecting-ip is Cloudflare's own trusted header — it wins over the
+    // other (fallback-only) headers when present.
+    expect(limitMock).toHaveBeenCalledWith("203.0.113.7");
+  });
+
+  it("falls back to x-real-ip when cf-connecting-ip is absent", async () => {
     limitMock.mockResolvedValue({ success: true });
     getHeaders.current = () =>
       new Headers({

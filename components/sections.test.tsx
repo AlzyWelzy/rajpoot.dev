@@ -15,7 +15,7 @@ vi.mock("react-intersection-observer", async () =>
 vi.mock("next/image", async () =>
   (await import("@/test-utils/mocks")).nextImageMock(),
 );
-vi.mock("@/public/profile.jpg", async () =>
+vi.mock("@/public/profile.webp", async () =>
   (await import("@/test-utils/mocks")).profileImageMock(),
 );
 

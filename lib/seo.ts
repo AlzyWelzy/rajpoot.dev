@@ -14,7 +14,7 @@ export const siteConfig = {
   description:
     "Manvendra Rajpoot is a backend developer specializing in AI automation, robust API design, and cloud engineering. He builds scalable, secure, multi-tenant systems with Python, Django, DRF, FastAPI, PostgreSQL, Redis, Docker, and Kubernetes. Explore projects, experience, and get in touch.",
   url: "https://www.rajpoot.dev",
-  ogImage: "/opengraph-image",
+  ogImage: "/opengraph-image.png",
   email: "manvendra@rajpoot.dev",
   locale: "en_US",
   language: "en",

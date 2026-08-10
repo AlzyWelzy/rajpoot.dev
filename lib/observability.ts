@@ -4,9 +4,10 @@
  * message whether Resend delivered or not, so a silent outage would otherwise
  * look exactly like a quiet week.
  *
- * A log drain (Vercel, Datadog, …) can alert on the `event` field; free-text
- * `console.error` gives nothing stable to key off. Deliberately dependency
- * free: adding an APM SDK to a static portfolio costs more than it returns.
+ * A log drain (Cloudflare Workers Logs, Datadog, …) can alert on the `event`
+ * field; free-text `console.error` gives nothing stable to key off.
+ * Deliberately dependency free: adding an APM SDK to a static portfolio
+ * costs more than it returns.
  *
  * Never pass message bodies or sender addresses in here — the whole point is
  * that these lines are safe to ship to a third-party log sink.

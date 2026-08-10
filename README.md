@@ -8,13 +8,13 @@ Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 
 ## Stack
 
-- **Next.js 16** (App Router, Server Actions, Metadata API, OG image generation)
+- **Next.js 16** (App Router, Server Actions, Metadata API)
 - **React 19**
 - **TypeScript 6** (strict, `noUncheckedIndexedAccess`)
 - **Tailwind CSS v4** with CSS‑first `@theme` config and dark mode variants
 - **Motion** (the Framer Motion successor) for animations
 - **Resend** for the contact form (dependency-free HTML + plaintext template)
-- **Edge-rendered OG images** (`app/opengraph-image.tsx`)
+- **Cloudflare Workers** deployment via the OpenNext adapter (`@opennextjs/cloudflare`)
 
 ## SEO features
 
@@ -23,7 +23,7 @@ Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 - JSON‑LD structured data (`Person`, `WebSite`, `ProfilePage`)
 - Dynamic `app/sitemap.ts` and `app/robots.ts`
 - Web App Manifest via `app/manifest.ts`
-- Dynamic Open Graph image (1200×630)
+- Open Graph image (1200×630), pre-rendered at build time — see `pnpm generate:images` in [AGENTS.md](AGENTS.md)
 - Preconfigured security headers (CSP, HSTS, COOP/CORP, referrer policy, permissions policy, etc.)
 - Accessibility: skip link, landmarks, aria labels, focus styles, `prefers-reduced-motion`
 
@@ -68,19 +68,20 @@ Contributing to the code? [`AGENTS.md`](AGENTS.md) documents the architectural r
 
 ## Documents
 
-The resume / cover-letter PDFs served at `/resume`, `/cover_letter` and `/experience_letter` live in `public/`. Their LaTeX sources live in [`latex/`](latex/) — they are source files only and are not deployed.
+The resume / cover-letter PDFs served at `/resume` (and its role variants at `/resume/devops_engineer`, `/resume/full_stack`, `/resume/software_engineer`), `/cover_letter` and `/experience_letter` live in `public/`. Their LaTeX sources live in [`latex/`](latex/) — they are source files only and are not deployed.
 
 ## Environment variables
 
-Copy [`.env.example`](.env.example) to `.env.local` and fill in what you need (`cp .env.example .env.local`). In production, set these in your Vercel project settings.
+Copy [`.env.example`](.env.example) to `.env.local` and fill in what you need (`cp .env.example .env.local`). In production, set these via `wrangler secret put <NAME>` or the Cloudflare dashboard.
 
-| Key                        | Purpose                                                                                                                                                                    |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `RESEND_API_KEY`           | Sending messages from the contact form via Resend                                                                                                                          |
-| `RESEND_FROM`              | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
-| `UPSTASH_REDIS_REST_URL`   | (Optional) Upstash Redis URL — enables IP rate limiting on the contact form                                                                                                |
-| `UPSTASH_REDIS_REST_TOKEN` | (Optional) Upstash Redis token — required alongside the URL for rate limiting                                                                                              |
-| `SHOW_TESTIMONIALS`        | (Optional, build-time) Set to `true` to render the testimonials section. Hidden by default until there are enough real endorsements.                                       |
+| Key                           | Purpose                                                                                                                                                                    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`              | Sending messages from the contact form via Resend                                                                                                                          |
+| `RESEND_FROM`                 | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
+| `UPSTASH_REDIS_REST_URL`      | (Optional) Upstash Redis URL — enables IP rate limiting on the contact form                                                                                                |
+| `UPSTASH_REDIS_REST_TOKEN`    | (Optional) Upstash Redis token — required alongside the URL for rate limiting                                                                                              |
+| `NEXT_PUBLIC_CF_BEACON_TOKEN` | (Optional, build-time) Cloudflare Web Analytics site token. Beacon script isn't rendered if unset.                                                                         |
+| `SHOW_TESTIMONIALS`           | (Optional, build-time) Set to `true` to render the testimonials section. Hidden by default until there are enough real endorsements.                                       |
 
 Without the Upstash vars, production falls back to a best-effort per-instance in-memory rate limit and logs a warning — configure Upstash for real protection.
 

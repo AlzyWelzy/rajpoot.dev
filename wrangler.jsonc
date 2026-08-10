@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rajpoot-dev-portfolio",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-08-10",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    // The site is ~100% statically prerendered. Without this, Workers Static
+    // Assets would serve every matching request *before* the Worker runs at
+    // all, which means next.config.mjs's headers() (the CSP/HSTS/COOP/CORP
+    // stack) would silently never apply to the homepage or any static page.
+    // Routing every request through the Worker first costs a little latency,
+    // which is a non-issue at this site's traffic volume.
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+  },
+}

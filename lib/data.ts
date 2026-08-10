@@ -139,11 +139,17 @@ export const MESSAGE_MAX_LENGTH = 5000;
 export const documentsName = {
   cover_letter: "Manvendra_Rajpoot_Cover_Letter.pdf",
   resume: "Manvendra_Rajpoot_Resume.pdf",
+  resume_devops_engineer: "Manvendra_Rajpoot_DevOps_Engineer_Resume.pdf",
+  resume_full_stack: "Manvendra_Rajpoot_Full_Stack_Resume.pdf",
+  resume_software_engineer: "Manvendra_Rajpoot_Software_Engineer_Resume.pdf",
   experience_letter: "Manvendra_Rajpoot_Experience_Letter.pdf",
 } as const;
 
 export const {
   cover_letter: coverLetterName,
   resume: resumeName,
+  resume_devops_engineer: resumeDevopsEngineerName,
+  resume_full_stack: resumeFullStackName,
+  resume_software_engineer: resumeSoftwareEngineerName,
   experience_letter: experienceLetterName,
 } = documentsName;

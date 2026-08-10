@@ -7,14 +7,15 @@ like mistakes until you know why.
 ## What this is
 
 A single-page portfolio site for Manvendra Rajpoot: Next.js 16 App Router,
-React 19, Tailwind v4, deployed on Vercel. Every route is statically
-prerendered. There is no database, no CMS and no authentication — the only
-server-side behaviour is the contact form's server action and three PDF routes.
+React 19, Tailwind v4, deployed on Cloudflare Workers via the OpenNext adapter
+(`@opennextjs/cloudflare`). Every route is statically prerendered. There is no
+database, no CMS and no authentication — the only server-side behaviour is the
+contact form's server action and six PDF routes.
 
 ## Commands
 
 ```bash
-pnpm dev            # dev server
+pnpm dev            # dev server (Cloudflare bindings available via initOpenNextCloudflareForDev)
 pnpm build          # sync build metadata, then next build
 pnpm lint           # ESLint
 pnpm typecheck      # next typegen && tsc --noEmit
@@ -23,6 +24,9 @@ pnpm test           # Vitest unit + component
 pnpm test:coverage  # ...with thresholds enforced
 pnpm test:e2e       # Playwright, against a real production build
 pnpm sync:meta      # regenerate content date + security.txt Expires
+pnpm generate:images # regenerate opengraph-image.png + apple-icon.png (manual, see below)
+pnpm preview        # opennextjs-cloudflare build + local Workers runtime preview
+pnpm deploy         # opennextjs-cloudflare build + wrangler deploy
 ```
 
 `pnpm test:e2e` builds the site first. That takes a couple of minutes; there is
@@ -73,37 +77,40 @@ _visible_, never to hidden.
   path never did. Both fields are interpolated from untrusted form input, so
   the HTML side escapes everything — React used to do that implicitly and now
   it is explicit. **Don't drop `escapeHtml`.**
-- **apex → www is a Vercel domain-level redirect, not a `redirects()` rule.**
-  It looks like it belongs in `next.config.mjs` next to the others. It doesn't:
-  Next applies **neither `headers()` nor the CSP to a redirect response**
-  (verified — an in-app apex rule answers with `location` and nothing else), so
-  moving it into the app would strip the security headers off that hop instead
-  of completing them. The side effect is that the apex answers with Vercel's
-  own bare `Strict-Transport-Security: max-age=…`, missing `includeSubDomains`
-  and `preload`, which is why the domain **cannot be submitted to
-  hstspreload.org** while the redirect exists.
-- **`vercel.json` exists only to pin the region to `fra1`.** Don't move headers,
-  redirects or rewrites into it — those live in `next.config.mjs`, and a
-  `vercel.json` route would silently take precedence over them.
-  The region was `bom1`. Every route here is prerendered, so the region does not
-  serve the steady-state request — the CDN does. It decides two things that do
-  matter. First, Vercel's CDN cache is **segmented per region and evicts rarely
-  requested assets** ("once a day" is the docs' own example); at this site's
-  traffic almost every European visitor arrives at a cold PoP, misses, and pays
-  a proxy hop to the region. On `bom1` that hop was measured in Speed Insights
-  as TTFB p75 1.82s, with every Poor country far from Mumbai (Switzerland 4.13s,
-  Nicaragua 4.1s, Germany 2.01s) while India scored Great. Second, the contact
-  server action and its Upstash round trip execute there.
-  `fra1` because the audience is EU/US recruiters. **If the Upstash database is
-  not in or near `eu-central-1`, move it** — a cross-region Redis call now sits
-  in the contact form's critical path. Switch to `iad1` if the traffic mix ever
-  turns US-heavy.
+- **apex → www is a Cloudflare Redirect Rule, not a `redirects()` rule.** Same
+  reasoning as it was on Vercel: an in-app rule would strip the security
+  headers off that hop. On Cloudflare it doesn't have to — a zone-level
+  Redirect Rule runs at the edge before the Worker, and the zone's own HSTS
+  setting (SSL/TLS → Edge Certificates → HSTS, `includeSubDomains` + `preload`)
+  applies to _all_ zone responses including redirects, so this configuration
+  no longer blocks hstspreload.org submission the way Vercel's did.
+- **`wrangler.jsonc`'s `assets.run_worker_first: true` is required, not
+  optional.** This site is ~100% statically prerendered. With the default
+  `false`, Workers Static Assets would serve matching requests _before the
+  Worker runs at all_ — meaning `next.config.mjs`'s entire `headers()`
+  function (the CSP/HSTS/COOP/CORP stack) would silently never apply to the
+  homepage or any static page. `true` routes every request through the Worker
+  first, at a latency cost that doesn't matter at this site's traffic volume.
+- **No region pinning, unlike the old Vercel setup.** Workers run at whatever
+  Cloudflare PoP is closest to each request, globally, by default — there is
+  no per-region function/cache segmentation to reason about the way Vercel's
+  `regions: ["fra1"]` required. One consequence carries over though: **the
+  contact server action's Upstash round trip now runs from whichever edge PoP
+  handled that request**, not a single pinned region — if Upstash latency
+  regresses, check where the database actually lives relative to the visitor,
+  not a single fixed region.
 - **The PDFs carry `X-Robots-Tag: noindex` in two places.**
   `lib/serve-pdf.ts` sets it for `/resume` and friends; a `/:file(.*\.pdf)`
   rule in `next.config.mjs` covers the raw `public/` filenames, which bypass
   the route handler completely. Removing either one reopens the gap. It is
   deliberately not a robots.txt `Disallow` — a blocked URL is never fetched,
   so the crawler never sees the noindex and can still list the URL.
+- **`lib/serve-pdf.ts` reads via the Workers `ASSETS` binding, not Node's
+  `fs`.** There is no real filesystem at request time on Cloudflare Workers.
+  `getCloudflareContext().env.ASSETS.fetch(path)` resolves purely by path —
+  the host in the fetch target is a throwaway. Tests stand in for the binding
+  with `test-utils/mocks.tsx`'s `cloudflareAssetsMock()`, which serves the
+  same contract from `public/` on disk via `fs` instead.
 - **The CSP keeps `'unsafe-inline'` in `script-src`.** Next injects inline
   hydration scripts whose contents change every build. Removing it requires
   either per-request nonces (which force dynamic rendering and give up the
@@ -159,6 +166,7 @@ Everything is optional; the site builds and runs without any of it.
 | `RESEND_API_KEY`                    | Form validates, then returns a friendly error               |
 | `RESEND_FROM`                       | Falls back to the Resend sandbox sender                     |
 | `UPSTASH_REDIS_REST_URL` / `_TOKEN` | Per-instance in-memory rate limit + a warning event         |
+| `NEXT_PUBLIC_CF_BEACON_TOKEN`       | Cloudflare Web Analytics beacon script not rendered         |
 | `SHOW_TESTIMONIALS`                 | Testimonials section hidden (default)                       |
 | `E2E_TESTING`                       | Set by Playwright at runtime; skips the actual send         |
 | `E2E_SKIP_BUILD`                    | Set by CI; reuse a `.next` restored from the build artifact |
@@ -173,6 +181,18 @@ the churn is minimal. Don't edit either by hand.
 
 The content date trails the commit that regenerates it by one, which is far
 finer resolution than search engines treat the signal at.
+
+**`public/opengraph-image.png` and `public/apple-icon.png` are also
+generated and committed**, by `pnpm generate:images`
+(`scripts/generate-static-images.mjs`, sourced from `scripts/og-image.tsx` and
+`scripts/apple-icon.tsx`). These used to be App Router `ImageResponse` routes
+rendered per request; they're pre-rendered once now because `next/og` pulls
+in `@vercel/og`'s WASM font renderer (~1.5MB uncompressed), which was pushing
+the deployed Worker over Cloudflare's free-plan 3MB size limit for images
+whose content never actually varies by request. Unlike the git-derived
+metadata above, nothing re-triggers this automatically — run it by hand
+after changing either source (or anything from `lib/seo.ts` they read) and
+commit the output.
 
 ## Version ceilings
 

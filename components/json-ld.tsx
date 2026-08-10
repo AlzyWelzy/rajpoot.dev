@@ -41,7 +41,7 @@ export default function JsonLd() {
         name: siteConfig.name,
         alternateName: ["Manvendra", "AlzyWelzy"],
         url: siteConfig.url,
-        image: `${siteConfig.url}/profile.jpg`,
+        image: `${siteConfig.url}/profile.webp`,
         jobTitle: siteConfig.jobTitle,
         description: siteConfig.description,
         email: `mailto:${siteConfig.email}`,

@@ -3,12 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { m } from "motion/react";
-import { track } from "@vercel/analytics";
 import { BsArrowRight, BsLinkedin } from "react-icons/bs";
 import { HiDownload } from "react-icons/hi";
 import { FaGithubSquare } from "react-icons/fa";
 
-import profileImage from "@/public/profile.jpg";
+import profileImage from "@/public/profile.webp";
 import { useSectionInView } from "@/lib/hooks";
 import { useActiveSectionContext } from "@/context/active-section-context";
 import { siteConfig } from "@/lib/seo";
@@ -92,7 +91,6 @@ export default function Intro() {
           onClick={() => {
             setActiveSection("Contact");
             beginNavigation();
-            track("cta_click", { cta: "get_in_touch" });
           }}
         >
           Get in touch{" "}
@@ -109,7 +107,6 @@ export default function Intro() {
           target="_blank"
           rel="noopener"
           download
-          onClick={() => track("cv_download")}
         >
           Download CV{" "}
           <HiDownload
@@ -124,7 +121,6 @@ export default function Intro() {
           href="/linkedin"
           target="_blank"
           rel="noopener"
-          onClick={() => track("social_click", { network: "linkedin" })}
         >
           <BsLinkedin aria-hidden="true" />
         </a>
@@ -135,7 +131,6 @@ export default function Intro() {
           href="/github"
           target="_blank"
           rel="noopener"
-          onClick={() => track("social_click", { network: "github" })}
         >
           <FaGithubSquare aria-hidden="true" />
         </a>

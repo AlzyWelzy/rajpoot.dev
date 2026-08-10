@@ -2,6 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import { FaPaperPlane } from "react-icons/fa";
+import Spinner from "@/components/spinner";
 
 export default function SubmitBtn() {
   const { pending } = useFormStatus();
@@ -18,10 +19,7 @@ export default function SubmitBtn() {
         // aria-busy + aria-label already announce the state to AT; the visible
         // "Sending" + spinner keep the button from looking emptied out.
         <>
-          <span
-            aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"
-          />
+          <Spinner className="h-4 w-4 border-white" />
           Sending
         </>
       ) : (

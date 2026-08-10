@@ -1,12 +1,12 @@
-import { ImageResponse } from "next/og";
+// The Open Graph card's visual tree. Bundled and rendered by
+// scripts/generate-og-image.mjs — not run directly, and not part of the
+// Next.js app (see that file for why this moved out of app/opengraph-image.tsx).
 import { siteConfig } from "@/lib/seo";
 
-export const alt = `${siteConfig.name} — ${siteConfig.jobTitle}`;
-export const contentType = "image/png";
 export const size = { width: 1200, height: 630 };
 
-export default function OpengraphImage() {
-  return new ImageResponse(
+export default function OgImage() {
+  return (
     <div
       style={{
         height: "100%",
@@ -82,7 +82,6 @@ export default function OpengraphImage() {
           </div>
         ))}
       </div>
-    </div>,
-    { ...size },
+    </div>
   );
 }

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Button from "@/components/button";
 
 export const metadata: Metadata = {
   title: "Page not found",
@@ -25,12 +25,9 @@ export default function NotFound() {
         The page you&apos;re looking for doesn&apos;t exist or may have moved.
         Let&apos;s get you back on track.
       </p>
-      <Link
-        href="/"
-        className="group mt-8 inline-flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-white outline-none transition hover:scale-110 hover:bg-gray-950 focus-ring active:scale-105 dark:bg-white/10"
-      >
+      <Button href="/" className="mt-8">
         Back to home
-      </Link>
+      </Button>
     </main>
   );
 }

@@ -1,9 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@opennextjs/cloudflare", async () =>
+  (await import("@/test-utils/mocks")).cloudflareAssetsMock(),
+);
 
 import { GET as getResume } from "./resume/route";
+import { GET as getResumeDevopsEngineer } from "./resume/devops_engineer/route";
+import { GET as getResumeFullStack } from "./resume/full_stack/route";
+import { GET as getResumeSoftwareEngineer } from "./resume/software_engineer/route";
 import { GET as getCoverLetter } from "./cover_letter/route";
 import { GET as getExperienceLetter } from "./experience_letter/route";
-import { coverLetterName, experienceLetterName, resumeName } from "@/lib/data";
+import {
+  coverLetterName,
+  experienceLetterName,
+  resumeName,
+  resumeDevopsEngineerName,
+  resumeFullStackName,
+  resumeSoftwareEngineerName,
+} from "@/lib/data";
 
 // Exercises the thin route handlers themselves — servePdf's own unit test calls
 // the helper directly, leaving these route files (which wire each filename to
@@ -11,6 +25,17 @@ import { coverLetterName, experienceLetterName, resumeName } from "@/lib/data";
 describe("document route handlers", () => {
   const cases = [
     ["resume", getResume, resumeName],
+    [
+      "resume/devops_engineer",
+      getResumeDevopsEngineer,
+      resumeDevopsEngineerName,
+    ],
+    ["resume/full_stack", getResumeFullStack, resumeFullStackName],
+    [
+      "resume/software_engineer",
+      getResumeSoftwareEngineer,
+      resumeSoftwareEngineerName,
+    ],
     ["cover_letter", getCoverLetter, coverLetterName],
     ["experience_letter", getExperienceLetter, experienceLetterName],
   ] as const;
