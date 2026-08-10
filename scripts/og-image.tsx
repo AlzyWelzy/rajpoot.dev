@@ -1,6 +1,7 @@
 // The Open Graph card's visual tree. Bundled and rendered by
-// scripts/generate-og-image.mjs — not run directly, and not part of the
-// Next.js app (see that file for why this moved out of app/opengraph-image.tsx).
+// scripts/generate-static-images.mjs — not run directly, and not part of
+// the Next.js app (see that file for why this isn't a plain
+// app/opengraph-image.tsx route anymore).
 import { siteConfig } from "@/lib/seo";
 
 export const size = { width: 1200, height: 630 };
@@ -46,7 +47,7 @@ export default function OgImage() {
         >
           MR
         </div>
-        <div>rajpoot.dev</div>
+        <div>{new URL(siteConfig.url).host}</div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>

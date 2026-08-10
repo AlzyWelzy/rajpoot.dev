@@ -13,7 +13,10 @@ export const siteConfig = {
     "Backend developer building scalable, secure, AI-powered systems and robust APIs.",
   description:
     "Manvendra Rajpoot is a backend developer specializing in AI automation, robust API design, and cloud engineering. He builds scalable, secure, multi-tenant systems with Python, Django, DRF, FastAPI, PostgreSQL, Redis, Docker, and Kubernetes. Explore projects, experience, and get in touch.",
-  url: "https://www.rajpoot.dev",
+  // Interim testing domain while the Cloudflare migration and further work
+  // (Turnstile, framework evaluation) continue on a branch — main/rajpoot.dev
+  // are untouched. Flip back to "https://www.rajpoot.dev" at final cutover.
+  url: "https://rajpoot.me",
   ogImage: "/opengraph-image.png",
   email: "manvendra@rajpoot.dev",
   locale: "en_US",
@@ -67,7 +70,7 @@ export const siteConfig = {
     "DevOps Engineer",
     "SaaS Developer",
     "Software Developer India",
-    "rajpoot.dev",
+    "rajpoot.me",
   ],
 } as const;
 
