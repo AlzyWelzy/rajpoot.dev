@@ -1,5 +1,14 @@
 import { contentUpdated } from "./generated/content-updated";
 
+// The one field in this file that's genuinely environment-dependent rather
+// than site content — which domain is actually serving this build. Set via
+// NEXT_PUBLIC_SITE_URL (needed at build time: Next inlines NEXT_PUBLIC_*
+// values into the static output, so it has to be present wherever `next
+// build`/`pnpm deploy` runs, not just as a runtime secret). Falls back to
+// the current interim domain so local dev and one-off builds don't need it
+// set explicitly.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://rajpoot.me";
+
 export const siteConfig = {
   name: "Manvendra Rajpoot",
   shortName: "Manvendra",
@@ -13,10 +22,7 @@ export const siteConfig = {
     "Backend developer building scalable, secure, AI-powered systems and robust APIs.",
   description:
     "Manvendra Rajpoot is a backend developer specializing in AI automation, robust API design, and cloud engineering. He builds scalable, secure, multi-tenant systems with Python, Django, DRF, FastAPI, PostgreSQL, Redis, Docker, and Kubernetes. Explore projects, experience, and get in touch.",
-  // Interim testing domain while the Cloudflare migration and further work
-  // (Turnstile, framework evaluation) continue on a branch — main/rajpoot.dev
-  // are untouched. Flip back to "https://www.rajpoot.dev" at final cutover.
-  url: "https://rajpoot.me",
+  url: siteUrl,
   ogImage: "/opengraph-image.png",
   email: "manvendra@rajpoot.dev",
   locale: "en_US",
@@ -70,7 +76,7 @@ export const siteConfig = {
     "DevOps Engineer",
     "SaaS Developer",
     "Software Developer India",
-    "rajpoot.me",
+    new URL(siteUrl).host,
   ],
 } as const;
 

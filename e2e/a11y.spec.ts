@@ -8,6 +8,13 @@ test.describe("accessibility", () => {
     test(`homepage has no serious axe violations (${theme})`, async ({
       page,
     }) => {
+      // The Turnstile widget in the contact section polls Cloudflare in the
+      // background, which never lets networkidle fire below. This test
+      // doesn't exercise the contact form, so block it rather than weaken
+      // the wait for everything else.
+      await page.route("https://challenges.cloudflare.com/**", (route) =>
+        route.abort(),
+      );
       await page.emulateMedia({ reducedMotion: "reduce" });
       await page.goto("/");
       await page.evaluate(

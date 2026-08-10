@@ -94,11 +94,7 @@ _visible_, never to hidden.
 - **No region pinning, unlike the old Vercel setup.** Workers run at whatever
   Cloudflare PoP is closest to each request, globally, by default — there is
   no per-region function/cache segmentation to reason about the way Vercel's
-  `regions: ["fra1"]` required. One consequence carries over though: **the
-  contact server action's Upstash round trip now runs from whichever edge PoP
-  handled that request**, not a single pinned region — if Upstash latency
-  regresses, check where the database actually lives relative to the visitor,
-  not a single fixed region.
+  `regions: ["fra1"]` required.
 - **The PDFs carry `X-Robots-Tag: noindex` in two places.**
   `lib/serve-pdf.ts` sets it for `/resume` and friends; a `/:file(.*\.pdf)`
   rule in `next.config.mjs` covers the raw `public/` filenames, which bypass
@@ -139,18 +135,27 @@ _visible_, never to hidden.
 `actions/sendEmail.ts`. The order of operations matters and is deliberate:
 
 1. Honeypot check — return a **fake success** so bots learn nothing.
-2. Validation — cheap and synchronous, before spending a rate-limit token.
-3. Rate limit — Upstash when configured, per-instance in-memory fallback
-   otherwise.
-4. `E2E_TESTING=1` short-circuit — validates fully, sends nothing.
+2. Validation — cheap and synchronous, before spending a siteverify round trip.
+3. Turnstile verification — `success`, `action`, and `hostname` must all match
+   (see below). No numeric rate limiting; Turnstile is the sole gate.
+4. `E2E_TESTING=1` short-circuit — validates fully (including a real
+   Turnstile round trip against Cloudflare's testing sitekey/secret pair, see
+   `playwright.config.ts`), sends nothing.
 5. Render `email/contact-form-email.ts` and send both parts via Resend; on
    failure log a structured event and return a generic message. Provider error
    text must never reach the client.
 
-Two rate-limit budgets exist on purpose. Requests with a usable IP header get
-5 per 10 minutes; requests without one all share a single `"anonymous"` key, so
-they get a much wider window — applying the per-IP budget there would let one
-script lock out every other header-less visitor.
+**Turnstile tokens are single-use and the contact section never unmounts.**
+`components/contact.tsx` calls `window.turnstile.reset()` after every submit
+attempt (success or failure) so the next one gets a fresh token — a page
+navigation would get this for free, but this is a single-page app section
+that stays mounted.
+
+**The hostname check defaults to `siteConfig.url`'s host, not a hardcoded
+list.** `expectedHostnames` in `actions/sendEmail.ts` derives from
+`NEXT_PUBLIC_SITE_URL` (bare + `www.` variant) plus `localhost`/`127.0.0.1`
+for dev and E2E. Override with `TURNSTILE_HOSTNAMES` (comma-separated) if a
+deploy ever needs something more specific — don't hardcode a domain here.
 
 Failures are reported through `lib/observability.ts` as single-line JSON with a
 stable `event` field, because a log drain can alert on that and free text can't.
@@ -168,15 +173,18 @@ the cause.
 
 Everything is optional; the site builds and runs without any of it.
 
-| Key                                 | Effect if unset                                             |
-| ----------------------------------- | ----------------------------------------------------------- |
-| `RESEND_API_KEY`                    | Form validates, then returns a friendly error               |
-| `RESEND_FROM`                       | Falls back to the Resend sandbox sender                     |
-| `UPSTASH_REDIS_REST_URL` / `_TOKEN` | Per-instance in-memory rate limit + a warning event         |
-| `NEXT_PUBLIC_CF_BEACON_TOKEN`       | Cloudflare Web Analytics beacon script not rendered         |
-| `SHOW_TESTIMONIALS`                 | Testimonials section hidden (default)                       |
-| `E2E_TESTING`                       | Set by Playwright at runtime; skips the actual send         |
-| `E2E_SKIP_BUILD`                    | Set by CI; reuse a `.next` restored from the build artifact |
+| Key                              | Effect if unset                                                    |
+| -------------------------------- | ------------------------------------------------------------------ |
+| `RESEND_API_KEY`                 | Form validates and passes Turnstile, then returns a friendly error |
+| `RESEND_FROM`                    | Falls back to the Resend sandbox sender                            |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Widget not rendered; every submission fails verification           |
+| `TURNSTILE_SECRET`               | Every submission fails verification (warns once, misconfigured)    |
+| `TURNSTILE_HOSTNAMES`            | Falls back to `NEXT_PUBLIC_SITE_URL`'s host + localhost/127.0.0.1  |
+| `NEXT_PUBLIC_SITE_URL`           | Falls back to the current interim domain (`https://rajpoot.me`)    |
+| `NEXT_PUBLIC_CF_BEACON_TOKEN`    | Cloudflare Web Analytics beacon script not rendered                |
+| `SHOW_TESTIMONIALS`              | Testimonials section hidden (default)                              |
+| `E2E_TESTING`                    | Set by Playwright at runtime; skips the actual send                |
+| `E2E_SKIP_BUILD`                 | Set by CI; reuse a `.next` restored from the build artifact        |
 
 ## Generated files
 

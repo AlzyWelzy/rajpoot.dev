@@ -74,16 +74,18 @@ The resume / cover-letter PDFs served at `/resume` (and its role variants at `/r
 
 Copy [`.env.example`](.env.example) to `.env.local` and fill in what you need (`cp .env.example .env.local`). In production, set these via `wrangler secret put <NAME>` or the Cloudflare dashboard.
 
-| Key                           | Purpose                                                                                                                                                                    |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `RESEND_API_KEY`              | Sending messages from the contact form via Resend                                                                                                                          |
-| `RESEND_FROM`                 | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
-| `UPSTASH_REDIS_REST_URL`      | (Optional) Upstash Redis URL — enables IP rate limiting on the contact form                                                                                                |
-| `UPSTASH_REDIS_REST_TOKEN`    | (Optional) Upstash Redis token — required alongside the URL for rate limiting                                                                                              |
-| `NEXT_PUBLIC_CF_BEACON_TOKEN` | (Optional, build-time) Cloudflare Web Analytics site token. Beacon script isn't rendered if unset.                                                                         |
-| `SHOW_TESTIMONIALS`           | (Optional, build-time) Set to `true` to render the testimonials section. Hidden by default until there are enough real endorsements.                                       |
+| Key                              | Purpose                                                                                                                                                                    |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`                 | Sending messages from the contact form via Resend                                                                                                                          |
+| `RESEND_FROM`                    | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key — gates the contact form. Without it the widget doesn't render and every submission fails verification; there is no fallback.                |
+| `TURNSTILE_SECRET`               | Turnstile secret key, verified server-side via siteverify. Required alongside the site key.                                                                                |
+| `TURNSTILE_HOSTNAMES`            | (Optional) Comma-separated hostnames siteverify must match. Defaults to `NEXT_PUBLIC_SITE_URL`'s host plus localhost/127.0.0.1.                                            |
+| `NEXT_PUBLIC_SITE_URL`           | (Optional, build-time) Canonical URL for this deploy. Falls back to the current interim domain.                                                                            |
+| `NEXT_PUBLIC_CF_BEACON_TOKEN`    | (Optional, build-time) Cloudflare Web Analytics site token. Beacon script isn't rendered if unset.                                                                         |
+| `SHOW_TESTIMONIALS`              | (Optional, build-time) Set to `true` to render the testimonials section. Hidden by default until there are enough real endorsements.                                       |
 
-Without the Upstash vars, production falls back to a best-effort per-instance in-memory rate limit and logs a warning — configure Upstash for real protection.
+Unlike the other optional vars above, Turnstile has no fallback: without both `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET`, the contact form always returns a "verification failed" error.
 
 ## Contributing
 

@@ -3,6 +3,16 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = 3100;
 const baseURL = `http://localhost:${PORT}`;
 
+// Cloudflare's own publicly documented testing sitekey/secret pair — not
+// secrets, safe to commit. The sitekey always renders invisibly and always
+// passes; the matching secret makes siteverify always return success. Used
+// so E2E can exercise the real contact-form → Turnstile → siteverify path
+// end to end without flakiness from waiting on a real challenge, and without
+// needing the production widget's real credentials in CI.
+// https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+const TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000BB";
+const TURNSTILE_TEST_SECRET = "1x0000000000000000000000000000000AA";
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -43,10 +53,15 @@ export default defineConfig({
   // once and share it with the Lighthouse job. E2E_SKIP_BUILD=1 reuses a
   // `.next` restored from that shared artifact.
   webServer: {
+    // TURNSTILE_SECRET is only needed at runtime (`pnpm start`), but the
+    // site key has to be present at build time too — Next inlines
+    // NEXT_PUBLIC_* values into the static output. When E2E_SKIP_BUILD=1,
+    // that build already happened in CI's shared `build` job, which sets
+    // the same site key for its `pnpm build` step (see ci.yml).
     command:
       process.env.E2E_SKIP_BUILD === "1"
-        ? `E2E_TESTING=1 pnpm start --port ${PORT}`
-        : `pnpm build && E2E_TESTING=1 pnpm start --port ${PORT}`,
+        ? `TURNSTILE_SECRET=${TURNSTILE_TEST_SECRET} E2E_TESTING=1 pnpm start --port ${PORT}`
+        : `NEXT_PUBLIC_TURNSTILE_SITE_KEY=${TURNSTILE_TEST_SITE_KEY} pnpm build && TURNSTILE_SECRET=${TURNSTILE_TEST_SECRET} E2E_TESTING=1 pnpm start --port ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,

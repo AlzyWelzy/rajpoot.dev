@@ -136,6 +136,17 @@ export const emailId = siteConfig.email;
 export const EMAIL_MAX_LENGTH = 500;
 export const MESSAGE_MAX_LENGTH = 5000;
 
+// Turnstile: the widget (client) and the server action's siteverify call
+// both need the same action name, so it lives here rather than being
+// restated in each. The site key is public by design (embedded in the
+// rendered HTML); only the secret is sensitive, and that never leaves
+// actions/sendEmail.ts. Without it, the widget doesn't render and every
+// submission fails siteverify server-side with a friendly error — same
+// "everything optional, degrades to an error rather than crashing" pattern
+// as the rest of this form's config (see AGENTS.md's Environment table).
+export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+export const TURNSTILE_ACTION = "contact";
+
 export const documentsName = {
   cover_letter: "Manvendra_Rajpoot_Cover_Letter.pdf",
   resume: "Manvendra_Rajpoot_Resume.pdf",

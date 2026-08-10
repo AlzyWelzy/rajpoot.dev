@@ -33,14 +33,17 @@ test.describe("security headers", () => {
       "form-action 'self'",
       "frame-ancestors 'none'",
       "object-src 'none'",
-      "frame-src 'none'",
       "worker-src 'none'",
       "media-src 'none'",
+      // Open only for Turnstile's own challenge iframe — everything else
+      // still can't be framed in.
+      "frame-src https://challenges.cloudflare.com",
     ]) {
       expect(csp).toContain(directive);
     }
 
-    // No external script origin beyond Cloudflare's analytics beacon.
+    // No external script origin beyond Cloudflare's analytics beacon and
+    // Turnstile's widget script.
     const scriptSrc = csp!
       .split(";")
       .map((d) => d.trim())
@@ -49,7 +52,10 @@ test.describe("security headers", () => {
     const externalOrigins = scriptSrc!
       .split(/\s+/)
       .filter((token) => token.startsWith("http"));
-    expect(externalOrigins).toEqual(["https://static.cloudflareinsights.com"]);
+    expect(externalOrigins).toEqual([
+      "https://static.cloudflareinsights.com",
+      "https://challenges.cloudflare.com",
+    ]);
   });
 
   test("upgrade-insecure-requests is suppressed for localhost only", async ({

@@ -126,20 +126,23 @@ const nextConfig = {
         "form-action 'self'",
         // Nothing on this site is meant to be framed, anywhere.
         "frame-ancestors 'none'",
-        "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
+        "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data:",
         "font-src 'self' data:",
         // The beacon script (static.cloudflareinsights.com) and the data it
         // reports to (bare cloudflareinsights.com, no `static.` prefix) are
         // different subdomains — both are needed or the beacon loads but
-        // silently fails to report.
-        "connect-src 'self' https://cloudflareinsights.com",
+        // silently fails to report. challenges.cloudflare.com is Turnstile's
+        // own network traffic for the contact-form widget.
+        "connect-src 'self' https://cloudflareinsights.com https://challenges.cloudflare.com",
         "manifest-src 'self'",
         // Unused sinks, explicitly closed: an injected payload can't reach for
-        // a plugin, iframe, worker, or media element at all.
+        // a plugin, worker, or media element at all. frame-src is the one
+        // exception — Turnstile renders its challenge in an iframe from
+        // challenges.cloudflare.com even in managed/invisible mode.
         "object-src 'none'",
-        "frame-src 'none'",
+        "frame-src https://challenges.cloudflare.com",
         "child-src 'none'",
         "worker-src 'none'",
         "media-src 'none'",

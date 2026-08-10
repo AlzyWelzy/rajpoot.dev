@@ -2,15 +2,30 @@
 
 import { useActionState, useState } from "react";
 import { m } from "motion/react";
+import Script from "next/script";
 import toast from "react-hot-toast";
 
 import SectionHeading from "./section-heading";
 import SubmitBtn from "./submit-btn";
 import { useSectionInView } from "@/lib/hooks";
 import { sendEmail } from "@/actions/sendEmail";
-import { emailId, EMAIL_MAX_LENGTH, MESSAGE_MAX_LENGTH } from "@/lib/data";
+import {
+  emailId,
+  EMAIL_MAX_LENGTH,
+  MESSAGE_MAX_LENGTH,
+  TURNSTILE_SITE_KEY,
+  TURNSTILE_ACTION,
+} from "@/lib/data";
 
 type FormState = { error?: string; success?: boolean } | null;
+
+declare global {
+  interface Window {
+    // Only the one call this component needs; the full Turnstile API surface
+    // is much larger.
+    turnstile?: { reset: (widgetIdOrContainer?: string) => void };
+  }
+}
 
 export default function Contact() {
   const { ref } = useSectionInView("Contact");
@@ -22,6 +37,11 @@ export default function Contact() {
   const [state, formAction] = useActionState<FormState, FormData>(
     async (_prev, formData) => {
       const { error } = await sendEmail(formData);
+      // Turnstile tokens are single-use — reset so the next attempt (retry
+      // after an error, or another message later) gets a fresh one. The
+      // section stays mounted after both outcomes, unlike a page navigation
+      // that would render a new widget for free.
+      window.turnstile?.reset();
       if (error) {
         toast.error(error);
         return { error };
@@ -46,6 +66,15 @@ export default function Contact() {
       transition={{ duration: 1 }}
       viewport={{ once: true }}
     >
+      {TURNSTILE_SITE_KEY && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          strategy="afterInteractive"
+          async
+          defer
+        />
+      )}
+
       <SectionHeading>Contact me</SectionHeading>
 
       <p className="text-gray-700 -mt-6 dark:text-white/80">
@@ -115,6 +144,13 @@ export default function Contact() {
           aria-describedby={state?.error ? "contact-error" : undefined}
           className="h-52 my-3 resize-y rounded-lg borderBlack p-4 outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
         />
+        {TURNSTILE_SITE_KEY && (
+          <div
+            className="cf-turnstile self-center"
+            data-sitekey={TURNSTILE_SITE_KEY}
+            data-action={TURNSTILE_ACTION}
+          />
+        )}
         <SubmitBtn />
 
         {state?.error && (

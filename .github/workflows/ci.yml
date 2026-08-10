@@ -32,6 +32,15 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Build
+        env:
+          # Cloudflare's publicly documented always-pass testing sitekey —
+          # not a secret. Needed at build time (Next inlines NEXT_PUBLIC_*
+          # values) so this shared artifact's contact form has a working
+          # Turnstile widget for the e2e job (which reuses this build via
+          # E2E_SKIP_BUILD=1) and the lighthouse job. Matches
+          # TURNSTILE_TEST_SITE_KEY in playwright.config.ts — keep both in
+          # sync. https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: "1x00000000000000000000BB"
         run: pnpm build
 
       - name: Upload build output
@@ -109,6 +118,10 @@ jobs:
       - name: Run E2E tests
         env:
           E2E_SKIP_BUILD: "1"
+          # Matches TURNSTILE_TEST_SECRET in playwright.config.ts — the
+          # counterpart to the sitekey baked into this build in the `build`
+          # job above. Also not a secret, see the comment there.
+          TURNSTILE_SECRET: "1x0000000000000000000000000000000AA"
         run: pnpm test:e2e
 
       - name: Upload Playwright report

@@ -1,8 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 // The e2e server runs with E2E_TESTING=1, so the server action executes the
-// full validation/limiter path but never calls Resend — submissions succeed
-// without sending real email.
+// full validation/Turnstile path but never calls Resend — submissions
+// succeed without sending real email. Turnstile itself is real: the widget
+// uses Cloudflare's always-pass testing sitekey (see playwright.config.ts),
+// which still needs a moment to load its script and generate a token before
+// the hidden cf-turnstile-response input is populated.
+async function waitForTurnstileToken(page: Page) {
+  await page.waitForFunction(
+    () =>
+      !!document.querySelector<HTMLInputElement>(
+        'input[name="cf-turnstile-response"]',
+      )?.value,
+    { timeout: 15_000 },
+  );
+}
+
 test.describe("contact form", () => {
   test("submitting a valid message shows success and clears the form", async ({
     page,
@@ -19,6 +32,7 @@ test.describe("contact form", () => {
     await email.pressSequentially("visitor@example.com");
     await expect(email).toHaveValue("visitor@example.com");
     await message.fill("Hello! Great portfolio.");
+    await waitForTurnstileToken(page);
     await page.getByRole("button", { name: /send message/i }).click();
 
     // Success toast appears and the inputs reset only on success. The server
@@ -42,6 +56,7 @@ test.describe("contact form", () => {
     await email.pressSequentially("visitor@example.com");
     await expect(email).toHaveValue("visitor@example.com");
     await message.fill("Submitted with the keyboard shortcut.");
+    await waitForTurnstileToken(page);
     await message.press("ControlOrMeta+Enter");
 
     await expect(page.getByText("Email sent successfully!")).toBeVisible({

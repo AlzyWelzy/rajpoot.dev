@@ -14,8 +14,9 @@
  */
 export type ServerEvent =
   | "contact.send_failed"
-  | "contact.rate_limited"
-  | "contact.ratelimit_misconfigured"
+  | "contact.turnstile_misconfigured"
+  | "contact.turnstile_rejected"
+  | "contact.turnstile_error"
   | "contact.honeypot_tripped";
 
 export type LogLevel = "warn" | "error";

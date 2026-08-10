@@ -12,6 +12,13 @@ async function openWithTheme(
   page: import("@playwright/test").Page,
   theme: string,
 ) {
+  // The Turnstile widget in the contact section polls Cloudflare in the
+  // background, which never lets networkidle fire below. These tests don't
+  // exercise the contact form, so block it rather than weaken the wait for
+  // everything else.
+  await page.route("https://challenges.cloudflare.com/**", (route) =>
+    route.abort(),
+  );
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.evaluate((t) => window.localStorage.setItem("theme", t), theme);
