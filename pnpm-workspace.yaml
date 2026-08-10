@@ -4,7 +4,10 @@
 # against the lockfile's recorded overrides.
 #
 # overrides: force next's vulnerable nested sharp (<0.35.0) and postcss
-# (<=8.5.17) up to patched versions so `pnpm audit --prod` stays clean.
+# (<=8.5.17) up to patched versions so `pnpm audit --prod` stays clean. nanoid
+# is pinned directly too: postcss's own nanoid dependency varies by patch
+# version (8.5.25 pins a vulnerable 3.3.16, 8.5.26 a patched 3.3.18), so
+# floating on postcss alone isn't reliable — see GHSA-2v37-7h3g-55p8.
 # allowBuilds: native postinstall scripts pnpm 11 requires explicit approval for.
 allowBuilds:
   esbuild: true
@@ -15,3 +18,4 @@ minimumReleaseAgeExclude:
 overrides:
   sharp: ^0.35.3
   postcss: ^8.5.23
+  nanoid: ^3.3.17
