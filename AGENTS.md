@@ -186,6 +186,26 @@ Everything is optional; the site builds and runs without any of it.
 | `E2E_TESTING`                    | Set by Playwright at runtime; skips the actual send                |
 | `E2E_SKIP_BUILD`                 | Set by CI; reuse a `.next` restored from the build artifact        |
 
+## Deployment
+
+`.github/workflows/deploy-cloudflare.yml` auto-deploys `rajpoot.me` on every
+push to `rewrite/deploy-to-cloudflare` — build, `wrangler deploy`, then a
+full Cloudflare cache purge so the change is visible immediately rather than
+waiting out whatever `s-maxage` the changed routes carry. Deliberately
+independent of `ci.yml`'s lint/test/e2e/lighthouse checks (those still run
+via the open PR's `pull_request` trigger) so a push shows up on the live
+site quickly instead of waiting on the full suite — acceptable while this is
+an interim testing domain, not the production cutover target. Re-evaluate
+this trade-off (gate deploy on tests passing) once this points at
+`rajpoot.dev` for real.
+
+Needs `CLOUDFLARE_API_TOKEN` (repo secret — Workers Scripts:Edit account-wide,
+Cache Purge:Edit scoped to the `rajpoot.me` zone) plus the non-sensitive repo
+variables `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_ZONE_ID`, `SITE_URL`,
+`TURNSTILE_SITE_KEY`. Runtime secrets (`TURNSTILE_SECRET`, `RESEND_API_KEY`,
+...) live on the Worker itself via `wrangler secret put` and persist across
+deploys — the workflow never touches them.
+
 ## Generated files
 
 `lib/generated/content-updated.ts` and the `Expires:` line in
