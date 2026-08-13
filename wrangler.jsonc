@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Deliberately distinct from the existing Next.js Worker
+  // (`rajpoot-dev-portfolio`) so this rewrite can be deployed and verified
+  // independently before the `rajpoot.me` Custom Domain is rebound to it.
+  "name": "rajpoot-astro-portfolio",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-08-13",
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

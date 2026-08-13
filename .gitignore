@@ -16,12 +16,15 @@
 # lighthouse ci
 /.lighthouseci/
 
-# next.js
-/.next/
-/out/
+# astro
+/dist/
+/.astro/
 
-# production
-/build
+# cloudflare
+/.wrangler/
+.dev.vars
+.dev.vars.*
+worker-configuration.d.ts
 
 # misc
 .DS_Store
@@ -35,12 +38,8 @@ yarn-error.log*
 # local env files
 .env*.local
 
-# vercel
-.vercel
-
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # enviroment variables
 .env

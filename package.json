@@ -1,27 +1,31 @@
 {
   "name": "portfolio",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@11.13.1",
   "engines": {
     "node": ">=24"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "pnpm sync:meta && next build",
+    "dev": "astro dev",
+    "build": "pnpm sync:meta && astro build",
     "sync:meta": "node scripts/sync-build-meta.mjs",
-    "start": "next start",
+    "generate:images": "node scripts/generate-static-images.mjs",
+    "preview": "astro build && wrangler dev",
     "lint": "eslint .",
-    "typecheck": "next typegen && tsc --noEmit --incremental false",
+    "typecheck": "astro check --minimumSeverity error",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "deploy": "astro build && wrangler deploy",
+    "cf-typegen": "wrangler types",
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx,mjs,js,jsx}": [
+    "*.{ts,mjs,js,astro,svelte}": [
       "eslint --fix",
       "prettier --write"
     ],
@@ -30,40 +34,42 @@
     ]
   },
   "dependencies": {
-    "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.38.2",
-    "@vercel/analytics": "^2.0.1",
-    "@vercel/speed-insights": "^2.0.0",
+    "@astrojs/cloudflare": "^14.2.1",
+    "@astrojs/svelte": "^9.0.1",
+    "astro": "^7.2.1",
     "clsx": "^2.1.1",
-    "motion": "^13.0.0",
-    "next": "^16.3.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "react-hot-toast": "^2.6.0",
-    "react-icons": "^5.7.0",
-    "react-intersection-observer": "^11.0.0",
-    "resend": "^6.18.1",
-    "sharp": "^0.35.3"
+    "resend": "^6.19.0",
+    "svelte": "^5.56.9"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.12.1",
-    "@playwright/test": "^1.62.0",
-    "@tailwindcss/postcss": "^4.3.3",
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
-    "@testing-library/react": "^16.3.2",
+    "@testing-library/svelte": "^5.4.2",
     "@types/node": "^26.2.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
+    "@vercel/og": "^1.0.1",
     "@vitest/coverage-v8": "^4.1.10",
-    "eslint": "^9.39.5",
-    "eslint-config-next": "^16.3.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.8.1",
+    "eslint-plugin-astro": "^3.1.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-svelte": "^3.23.0",
+    "globals": "^17.11.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lint-staged": "^17.3.0",
-    "postcss": "^8.5.26",
+    "lucide-static": "^1.31.0",
     "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-svelte": "^4.1.1",
+    "simple-icons": "^16.28.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.10",
+    "wrangler": "^4.123.0"
   }
 }

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-// The security headers are defined in next.config.mjs and are easy to break
+// The security headers are defined in public/_headers and are easy to break
 // silently — nothing in the UI changes when a directive is dropped. These
 // assertions are the only thing standing between a bad edit and a live
 // regression.
@@ -16,7 +16,6 @@ test.describe("security headers", () => {
     expect(headers["cross-origin-resource-policy"]).toBe("same-origin");
     expect(headers["strict-transport-security"]).toContain("max-age=");
     expect(headers["permissions-policy"]).toContain("geolocation=()");
-    // Next must not advertise itself.
     expect(headers["x-powered-by"]).toBeUndefined();
   });
 
@@ -33,14 +32,17 @@ test.describe("security headers", () => {
       "form-action 'self'",
       "frame-ancestors 'none'",
       "object-src 'none'",
-      "frame-src 'none'",
       "worker-src 'none'",
       "media-src 'none'",
+      // Open only for Turnstile's own challenge iframe — everything else
+      // still can't be framed in.
+      "frame-src https://challenges.cloudflare.com",
     ]) {
       expect(csp).toContain(directive);
     }
 
-    // No external script origin beyond Vercel's analytics bundle.
+    // No external script origin beyond Cloudflare's analytics beacon and
+    // Turnstile's widget script.
     const scriptSrc = csp!
       .split(";")
       .map((d) => d.trim())
@@ -49,24 +51,20 @@ test.describe("security headers", () => {
     const externalOrigins = scriptSrc!
       .split(/\s+/)
       .filter((token) => token.startsWith("http"));
-    expect(externalOrigins).toEqual(["https://va.vercel-scripts.com"]);
+    expect(externalOrigins).toEqual([
+      "https://static.cloudflareinsights.com",
+      "https://challenges.cloudflare.com",
+    ]);
   });
 
-  test("upgrade-insecure-requests is suppressed for localhost only", async ({
-    request,
-  }) => {
-    // Dropping it on localhost is what keeps WebKit from rewriting every asset
-    // URL to https during these very tests. It must still be present for any
-    // real host, which is what actually ships.
-    const local = await request.get("/");
-    expect(local.headers()["content-security-policy"]).not.toContain(
-      "upgrade-insecure-requests",
-    );
-
-    const production = await request.get("/", {
-      headers: { host: "www.rajpoot.dev" },
-    });
-    expect(production.headers()["content-security-policy"]).toContain(
+  test("upgrade-insecure-requests is never set", async ({ request }) => {
+    // Deliberately omitted (see public/_headers): every directive already
+    // allows only 'self' or explicit https:// origins, so there is no http:
+    // source this policy could ever request — the directive would be pure
+    // redundancy, and dropping it sidesteps WebKit rewriting asset URLs to
+    // https even on localhost.
+    const res = await request.get("/");
+    expect(res.headers()["content-security-policy"]).not.toContain(
       "upgrade-insecure-requests",
     );
   });
@@ -82,7 +80,7 @@ test.describe("redirects", () => {
   for (const [path, destination] of shortlinks) {
     test(`${path} permanently redirects off-site`, async ({ request }) => {
       const res = await request.get(path, { maxRedirects: 0 });
-      expect(res.status()).toBe(308);
+      expect(res.status()).toBe(301);
       expect(res.headers()["location"]).toContain(destination);
     });
   }

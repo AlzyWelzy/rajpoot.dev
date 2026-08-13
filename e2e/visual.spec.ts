@@ -2,6 +2,10 @@ import { expect, test } from "@playwright/test";
 
 // Visual baselines are committed for Linux only (what CI runs on); locally
 // the comparisons are skipped via `ignoreSnapshots` in playwright.config.ts.
+// No baselines exist yet for this Astro rewrite — the first CI run against
+// this branch should be allowed to write them (`--update-snapshots`), same
+// as the original workflow documented below.
+//
 // To (re)generate baselines, run the suite in the Playwright Docker image:
 //   docker run --rm -v "$PWD":/work -v /work/node_modules -w /work \
 //     mcr.microsoft.com/playwright:v<playwright-version>-noble \
@@ -12,6 +16,13 @@ async function openWithTheme(
   page: import("@playwright/test").Page,
   theme: string,
 ) {
+  // The Turnstile widget in the contact section polls Cloudflare in the
+  // background, which never lets networkidle fire below. These tests don't
+  // exercise the contact form, so block it rather than weaken the wait for
+  // everything else.
+  await page.route("https://challenges.cloudflare.com/**", (route) =>
+    route.abort(),
+  );
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.evaluate((t) => window.localStorage.setItem("theme", t), theme);

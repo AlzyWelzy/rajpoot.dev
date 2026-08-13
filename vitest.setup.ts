@@ -1,10 +1,9 @@
 // Adds jest-dom matchers (toBeInTheDocument, toHaveClass, ...) to Vitest's
-// expect for the jsdom component-test project.
+// expect for the jsdom "dom" test project.
 import "@testing-library/jest-dom/vitest";
 
-// jsdom doesn't implement ResizeObserver, which the header uses to re-measure
-// the active-section pill when the nav wraps. Without it the component would
-// silently take its "unsupported" branch in every test.
+// jsdom doesn't implement ResizeObserver, which Header.svelte uses to
+// re-measure the active-section pill when the nav wraps.
 if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = class {
     observe() {}
@@ -13,7 +12,8 @@ if (typeof globalThis.ResizeObserver === "undefined") {
   } as unknown as typeof ResizeObserver;
 }
 
-// jsdom doesn't implement matchMedia, which theme-context relies on.
+// jsdom doesn't implement matchMedia, which the theme store reads at import
+// time to register its prefers-color-scheme listener.
 if (typeof window !== "undefined" && !window.matchMedia) {
   window.matchMedia = (query: string): MediaQueryList =>
     ({

@@ -1,0 +1,185 @@
+---
+import Header from "@/components/Header.svelte";
+import Footer from "@/components/Footer.astro";
+import ThemeSwitch from "@/components/ThemeSwitch.svelte";
+import ScrollToTop from "@/components/ScrollToTop.astro";
+import ReadingProgress from "@/components/ReadingProgress.astro";
+import Toast from "@/components/Toast.svelte";
+import JsonLd from "@/components/JsonLd.astro";
+import { siteConfig } from "@/lib/seo";
+import { links } from "@/lib/data";
+import "@/styles/global.css";
+
+type Props = {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+};
+
+const {
+  title = `${siteConfig.name} — ${siteConfig.roleShort} | Portfolio`,
+  description = siteConfig.description,
+  noindex = false,
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, siteConfig.url);
+const ogImageUrl = new URL(siteConfig.ogImage, siteConfig.url);
+
+const themeInitScript = `
+(function() {
+  try {
+    var stored = localStorage.getItem('theme');
+    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var theme = stored || (prefersDark ? 'dark' : 'light');
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+    document.documentElement.style.colorScheme = theme;
+  } catch (_) {}
+})();
+`.trim();
+
+const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#fbe2e3"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#0b1020"
+    />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="application-name" content={`${siteConfig.name} Portfolio`} />
+    <meta name="keywords" content={siteConfig.keywords.join(", ")} />
+    <meta name="author" content={siteConfig.name} />
+    <meta name="category" content="technology" />
+    <link rel="canonical" href={canonicalUrl} />
+
+    {
+      noindex ? (
+        <meta name="robots" content="noindex, follow" />
+      ) : (
+        <meta
+          name="robots"
+          content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        />
+      )
+    }
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={siteConfig.locale} />
+    <meta property="og:url" content={siteConfig.url} />
+    <meta property="og:site_name" content={`${siteConfig.name} — Portfolio`} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={siteConfig.twitter} />
+    <meta name="twitter:creator" content={siteConfig.twitter} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={siteConfig.shortName} />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta
+      name="format-detection"
+      content="telephone=no,date=no,address=no,email=no"
+    />
+
+    <script is:inline set:html={themeInitScript} />
+    <JsonLd />
+  </head>
+  <body
+    class="relative pt-28 bg-gray-50 text-gray-950 sm:pt-36 dark:bg-gray-900 dark:text-gray-50/90"
+  >
+    <div
+      aria-hidden="true"
+      class="theme-surface bg-[#fbe2e3] absolute -top-24 -z-10 right-44 h-125 w-125 rounded-full blur-3xl sm:w-275 dark:bg-[#946263]"
+    >
+    </div>
+    <div
+      aria-hidden="true"
+      class="theme-surface bg-[#dbd7fb] absolute -top-4 -z-10 -left-140 h-125 w-200 rounded-full blur-3xl sm:w-275 md:-left-132 lg:-left-112 xl:-left-60 2xl:-left-20 dark:bg-[#676394]"
+    >
+    </div>
+
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-1000 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:text-gray-900 focus:shadow dark:focus:bg-gray-900 dark:focus:text-white"
+    >
+      Skip to content
+    </a>
+    <ReadingProgress />
+    <Header client:load links={links} />
+    <slot />
+    <Footer />
+    <Toast client:idle />
+    <ThemeSwitch client:load />
+    <ScrollToTop />
+
+    {
+      cfBeaconToken && (
+        // Cloudflare Web Analytics: pageviews + Core Web Vitals only, no
+        // custom events. Dashboard-only (no query API) — see the Cloudflare
+        // dashboard's Web Analytics section for the token.
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: cfBeaconToken, spa: true })}
+        />
+      )
+    }
+
+    <script>
+      import {
+        activeSectionState,
+        isNavigating,
+      } from "@/lib/stores/active-section.svelte";
+      import type { SectionName } from "@/lib/types";
+
+      const ROOT_MARGIN = "-25% 0px -55% 0px";
+
+      const sections = Array.from(
+        document.querySelectorAll<HTMLElement>("section[id]"),
+      );
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (isNavigating()) return;
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              const name = (entry.target as HTMLElement).dataset.sectionName as
+                SectionName | undefined;
+              if (name) activeSectionState.value = name;
+            }
+          }
+        },
+        { rootMargin: ROOT_MARGIN, threshold: 0 },
+      );
+
+      for (const section of sections) observer.observe(section);
+    </script>
+  </body>
+</html>

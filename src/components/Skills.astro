@@ -1,0 +1,23 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import { skillsData } from "@/lib/data";
+---
+
+<section
+  id="skills"
+  data-section-name="Skills"
+  tabindex="-1"
+  aria-label="Skills"
+  class="mb-28 max-w-212 scroll-mt-28 text-center outline-none sm:mb-40"
+>
+  <SectionHeading>My skills</SectionHeading>
+  <ul class="flex flex-wrap justify-center gap-2 text-lg text-gray-800">
+    {
+      skillsData.map((skill) => (
+        <li class="chip-reveal bg-white borderBlack rounded-xl px-5 py-3 dark:bg-white/10 dark:text-white/80">
+          {skill}
+        </li>
+      ))
+    }
+  </ul>
+</section>

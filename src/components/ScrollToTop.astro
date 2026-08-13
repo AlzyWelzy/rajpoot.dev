@@ -1,0 +1,23 @@
+---
+import Icon from "@/components/Icon.astro";
+---
+
+<!--
+  Floating button (bottom-left, mirroring the bottom-right ThemeSwitch) that
+  fades in once the user has scrolled past ~300-500px and smooth-scrolls
+  back to the top — saving a long manual scroll on this single-page site.
+
+  Pure CSS scroll-driven animation drives the fade; the link itself is a
+  plain anchor to #home (html { scroll-behavior: smooth } in global.css
+  handles the smooth scroll) — no client JS at all. Browsers without
+  `animation-timeline: scroll()` support just show the button always, which
+  is a harmless, still-fully-functional fallback.
+-->
+<a
+  href="#home"
+  aria-label="Scroll back to top"
+  title="Back to top"
+  class="scroll-to-top-reveal fixed bottom-6 left-5 z-50 flex h-12 w-12 items-center justify-center rounded-full border border-white/40 bg-white/80 shadow-2xl backdrop-blur-sm transition-all hover:scale-115 active:scale-105 focus-ring dark:bg-gray-950"
+>
+  <Icon name="arrow-up" class="h-[1em] w-[1em]" />
+</a>

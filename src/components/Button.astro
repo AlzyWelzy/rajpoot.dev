@@ -1,0 +1,38 @@
+---
+import clsx from "clsx";
+
+type Variant = "primary" | "secondary";
+
+type Props = {
+  variant?: Variant;
+  href?: string;
+  class?: string;
+};
+
+// Structural properties only; each variant supplies its own hover/active
+// scale amounts and colors below, so they aren't shared here.
+const baseClasses =
+  "inline-flex items-center gap-2 rounded-full px-7 py-3 outline-none transition focus-ring";
+
+const variantClasses: Record<Variant, string> = {
+  primary:
+    "group bg-gray-900 text-white hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10",
+  secondary:
+    "border border-black/15 font-medium text-gray-800 hover:scale-105 hover:bg-black/5 active:scale-100 dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10",
+};
+
+const { variant = "primary", href, class: className } = Astro.props;
+const classes = clsx(baseClasses, variantClasses[variant], className);
+---
+
+{
+  href !== undefined ? (
+    <a href={href} class={classes}>
+      <slot />
+    </a>
+  ) : (
+    <button type="button" class={classes}>
+      <slot />
+    </button>
+  )
+}

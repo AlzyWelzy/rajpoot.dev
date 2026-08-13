@@ -1,0 +1,39 @@
+# Cloudflare Workers Static Assets applies these to matching static
+# responses with zero Worker involvement (confirmed via a real deploy) —
+# the Astro build itself already appends an immutable Cache-Control rule for
+# /_astro/* below this file's content at build time.
+#
+# script-src/style-src keep 'unsafe-inline': Astro's per-island hydration
+# bootstrap and Svelte's transition directives (Toast's fly/fade, Header's
+# measured pill position) both use inline scripts/styles whose contents
+# change per build, so removing 'unsafe-inline' needs per-request nonces —
+# which would force dynamic rendering and give up this site's fully static
+# output. The CSP still restricts *sources* instead: no external script
+# origin beyond Cloudflare Web Analytics and Turnstile, everything not
+# actively used pinned to 'none' rather than inheriting default-src.
+#
+# upgrade-insecure-requests is deliberately omitted: every directive below
+# already allows only 'self' or explicit https:// origins, so there is no
+# http: source this policy could ever request in the first place — the
+# directive would be pure redundancy. Dropping it also sidesteps a real
+# cross-browser gotcha (WebKit upgrades even http://localhost, breaking a
+# plain-http local preview) without needing a second build variant.
+/*
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://cloudflareinsights.com https://challenges.cloudflare.com; manifest-src 'self'; object-src 'none'; frame-src https://challenges.cloudflare.com; child-src 'none'; worker-src 'none'; media-src 'none'
+  X-DNS-Prefetch-Control: on
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+# The PDFs live in public/, so they are also reachable at their raw
+# filenames directly — which bypasses the X-Robots-Tag lib/serve-pdf.ts sets
+# on /resume, /cover_letter and /experience_letter. Without this rule the
+# standalone documents can be indexed and compete with the homepage.
+# Deliberately a header and not a robots.txt Disallow: a blocked URL is
+# never fetched, so the crawler never sees the noindex and can still list it.
+/*.pdf
+  X-Robots-Tag: noindex

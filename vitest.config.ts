@@ -1,11 +1,13 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
+  plugins: [svelte()],
   resolve: {
     alias: {
       // Mirror the tsconfig "@/*" path alias so tests can import like the app.
-      "@": fileURLToPath(new URL(".", import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
   test: {
@@ -15,20 +17,27 @@ export default defineConfig({
       reportsDirectory: "coverage",
       // v4 reports every included source file by default (not only imported
       // ones), so the numbers match what CI computes and nothing hides at 0%.
+      //
+      // Deliberately scoped to logic-bearing modules only. The interactive
+      // Svelte islands (Header, Contact, Toast) and the Action's thin
+      // defineAction wrapper are UI/wiring, not logic — Playwright's
+      // contact-form E2E test is the real safety net for those (a unit test
+      // that mounts a component once and asserts nothing was the exact
+      // anti-pattern this threshold used to encourage; see below).
       include: [
-        "actions/**/*.{ts,tsx}",
-        "app/**/*.{ts,tsx}",
-        "components/**/*.{ts,tsx}",
-        "context/**/*.{ts,tsx}",
-        "email/**/*.{ts,tsx}",
-        "lib/**/*.{ts,tsx}",
+        "src/email/**/*.ts",
+        "src/lib/**/*.ts",
+        "src/lib/stores/**/*.svelte.ts",
       ],
       exclude: [
         "**/*.test.*",
         "**/*.d.ts",
         // Type-only module: its runtime footprint is a single re-export used
         // solely in type positions, so there is nothing to execute.
-        "lib/types.ts",
+        "src/lib/types.ts",
+        "src/lib/generated/**",
+        "src/lib/icons.ts",
+        "src/test-utils/**",
       ],
       // A floor, not a target. At 100% the thresholds started writing the
       // tests: whole spec files existed only to render a component once and
@@ -50,18 +59,22 @@ export default defineConfig({
           // Pure-logic unit tests run in Node; no DOM needed.
           name: "unit",
           environment: "node",
-          include: ["**/*.test.ts"],
-          exclude: ["node_modules/**", ".next/**", "e2e/**", "**/*.spec.ts"],
+          include: ["src/**/*.test.ts"],
+          exclude: ["node_modules/**", "e2e/**", "**/*.dom.test.ts"],
         },
       },
       {
         extends: true,
+        // Without this, Svelte's package "exports" resolve to its
+        // server-rendering build even under jsdom, and @testing-library/
+        // svelte's `mount()` throws "not available on the server".
+        resolve: { conditions: ["browser"] },
         test: {
-          // Component/context tests need a DOM.
-          name: "component",
+          // Svelte stores/components that touch window/document need a DOM.
+          name: "dom",
           environment: "jsdom",
-          include: ["**/*.test.tsx"],
-          exclude: ["node_modules/**", ".next/**", "e2e/**"],
+          include: ["src/**/*.dom.test.ts"],
+          exclude: ["node_modules/**", "e2e/**"],
           setupFiles: ["./vitest.setup.ts"],
         },
       },

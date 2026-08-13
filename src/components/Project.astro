@@ -1,0 +1,99 @@
+---
+import Icon from "@/components/Icon.astro";
+import type { ProjectType } from "@/lib/types";
+
+type Props = ProjectType;
+
+const {
+  title,
+  description,
+  tags,
+  logo,
+  liveUrl,
+  liveLabel = "Live",
+  githubUrl,
+} = Astro.props;
+---
+
+<article
+  class="card-reveal group mb-6 overflow-hidden rounded-2xl border border-black/5 bg-gray-100 shadow-sm transition last:mb-0 hover:-translate-y-1 hover:shadow-md dark:border-white/10 dark:bg-white/4"
+>
+  <div
+    class="relative aspect-video w-full overflow-hidden border-b border-black/5 bg-linear-to-br from-[#241659] to-[#0b1020] dark:border-white/10"
+  >
+    {
+      logo ? (
+        <div class="flex h-full w-full items-center justify-center">
+          <img
+            src={logo}
+            alt={`${title} logo`}
+            width="120"
+            height="120"
+            loading="lazy"
+            decoding="async"
+            class="h-28 w-28 drop-shadow-xl transition duration-500 group-hover:scale-110"
+          />
+        </div>
+      ) : (
+        <div
+          aria-hidden="true"
+          class="flex h-full w-full items-center justify-center"
+        >
+          <Icon
+            name="code"
+            class="h-18 w-18 text-white/80 transition duration-500 group-hover:scale-110"
+          />
+        </div>
+      )
+    }
+  </div>
+
+  <div class="p-6 sm:p-7">
+    <h3 class="text-2xl font-semibold">{title}</h3>
+    <p class="mt-2 leading-relaxed text-gray-700 dark:text-white/70">
+      {description}
+    </p>
+
+    <ul
+      class="mt-4 flex flex-wrap gap-2"
+      aria-label={`Technologies used in ${title}`}
+    >
+      {
+        tags.map((tag) => (
+          <li class="rounded-full bg-black/70 px-3 py-1 text-[0.7rem] uppercase tracking-wider text-white dark:bg-white/10 dark:text-white/70">
+            {tag}
+          </li>
+        ))
+      }
+    </ul>
+
+    {
+      (liveUrl || githubUrl) && (
+        <div class="mt-5 flex flex-wrap gap-2.5">
+          {liveUrl && (
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Open ${title} — ${liveLabel} (opens in a new tab)`}
+              class="inline-flex items-center gap-1.5 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white outline-none transition hover:scale-105 hover:bg-gray-950 active:scale-100 focus-ring dark:bg-white/15 dark:hover:bg-white/25"
+            >
+              <Icon name="external-link" class="h-4 w-4" /> {liveLabel}
+            </a>
+          )}
+          {githubUrl && (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${title} source code on GitHub (opens in a new tab)`}
+              class="inline-flex items-center gap-1.5 rounded-full border border-black/15 px-4 py-2 text-sm font-medium text-gray-800 outline-none transition hover:scale-105 hover:bg-black/5 active:scale-100 focus-ring dark:border-white/20 dark:text-white/80 dark:hover:bg-white/10"
+            >
+              <Icon name="github" class="h-4 w-4" /> Code
+            </a>
+          )}
+        </div>
+      )
+    }
+  </div>
+</article>

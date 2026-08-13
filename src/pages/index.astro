@@ -1,0 +1,41 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Intro from "@/components/Intro.astro";
+import SectionDivider from "@/components/SectionDivider.astro";
+import About from "@/components/About.astro";
+import Projects from "@/components/Projects.astro";
+import Skills from "@/components/Skills.astro";
+import Experience from "@/components/Experience.astro";
+import Testimonials from "@/components/Testimonials.astro";
+import Contact from "@/components/Contact.svelte";
+import { siteConfig } from "@/lib/seo";
+
+// Testimonials are gated behind a build-time env flag until there's a
+// stronger set of real endorsements. Hidden by default; set
+// SHOW_TESTIMONIALS=true to render the section. It has its own vertical
+// spacing and no surrounding divider, so hiding it cleanly restores the
+// Experience → Contact flow without any layout gap.
+const showTestimonials = import.meta.env.SHOW_TESTIMONIALS === "true";
+
+// Absolute (not templated) so the homepage title reads as the headline
+// rather than "<page> | <name>". Built from siteConfig so the role wording
+// can't drift from the hero, the OG card and the JSON-LD.
+const title = `${siteConfig.name} — ${siteConfig.roleShort} | Portfolio`;
+---
+
+<BaseLayout {title} description={siteConfig.description}>
+  <main
+    id="main"
+    tabindex="-1"
+    class="flex flex-col items-center px-4 outline-none"
+  >
+    <Intro />
+    <SectionDivider />
+    <About />
+    <Projects />
+    <Skills />
+    <Experience />
+    {showTestimonials && <Testimonials />}
+    <Contact client:visible />
+  </main>
+</BaseLayout>

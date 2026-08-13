@@ -1,16 +1,14 @@
 # build outputs & caches
-.next/
-out/
-build/
+dist/
+.astro/
+.wrangler/
 coverage/
 playwright-report/
 test-results/
 .lighthouseci/
-.vercel/
 
 # generated
 pnpm-lock.yaml
-next-env.d.ts
 
 # assets & documents (not source)
 public/

@@ -34,21 +34,27 @@ export default defineConfig({
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
   ],
-  // Run the production build so tests exercise what actually ships.
-  // E2E_TESTING is a *runtime* flag only: it tells the contact-form action to
-  // validate but not actually send. The CSP's upgrade-insecure-requests
-  // directive (which WebKit applies even to localhost, breaking plain-http
-  // asset loads) is dropped by host match in next.config.mjs instead, so the
-  // build itself is an ordinary production build — which is what lets CI build
-  // once and share it with the Lighthouse job. E2E_SKIP_BUILD=1 reuses a
-  // `.next` restored from that shared artifact.
+  // Run the real production build through wrangler dev (real workerd, not a
+  // Node dev server) so tests exercise what actually ships. E2E_TESTING and
+  // TURNSTILE_SECRET are Worker vars, injected ad hoc via --var rather than
+  // baked into .dev.vars, so this never depends on (or silently disturbs) a
+  // developer's real local Turnstile secret. E2E_SKIP_BUILD=1 reuses a
+  // `dist/` restored from a shared CI artifact instead of rebuilding.
   webServer: {
     command:
       process.env.E2E_SKIP_BUILD === "1"
-        ? `E2E_TESTING=1 pnpm start --port ${PORT}`
-        : `pnpm build && E2E_TESTING=1 pnpm start --port ${PORT}`,
+        ? `wrangler dev --port ${PORT} --var E2E_TESTING:1 --var TURNSTILE_SECRET:1x0000000000000000000000000000000AA`
+        : `astro build && wrangler dev --port ${PORT} --var E2E_TESTING:1 --var TURNSTILE_SECRET:1x0000000000000000000000000000000AA`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    env: {
+      // Cloudflare's official always-pass testing sitekey — public and safe
+      // to commit (it's a documented constant, not a secret). The contact
+      // form's Turnstile-dependent tests must not depend on this machine's
+      // real widget credentials, or they'd need a real interactive
+      // challenge to ever resolve in headless automation.
+      PUBLIC_TURNSTILE_SITE_KEY: "1x00000000000000000000BB",
+    },
   },
 });

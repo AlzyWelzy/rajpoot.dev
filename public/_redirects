@@ -1,0 +1,11 @@
+/linkedin          https://linkedin.com/in/AlzyWelzy                301
+/github            https://github.com/AlzyWelzy                    301
+/twitter           https://x.com/AlzyWelzy                         301
+/instagram         https://www.instagram.com/alzywelzyy/           301
+/facebook          https://www.facebook.com/AlzyWelzyy             301
+/esyconnect        https://esyconnect.com/candidate/alzywelzy/     301
+
+# The blog lives on its own subdomain; send /blog and any sub-path there.
+# The exact-path rule is listed first (no splat) so it isn't shadowed.
+/blog              https://blog.rajpoot.dev             301
+/blog/*            https://blog.rajpoot.dev/:splat       301

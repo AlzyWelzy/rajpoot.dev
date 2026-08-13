@@ -1,0 +1,157 @@
+---
+import Icon from "@/components/Icon.astro";
+import { siteConfig } from "@/lib/seo";
+---
+
+<section
+  id="home"
+  data-section-name="Home"
+  tabindex="-1"
+  aria-label="Introduction"
+  class="mb-28 max-w-200 text-center outline-none sm:mb-0 scroll-mt-28"
+>
+  <div class="flex items-center justify-center">
+    <div class="relative">
+      <div class="intro-avatar-in">
+        <img
+          src="/profile.webp"
+          alt={`${siteConfig.name} — ${siteConfig.jobTitle}`}
+          width="96"
+          height="96"
+          loading="eager"
+          fetchpriority="high"
+          class="h-24 w-24 rounded-full object-cover border-[0.35rem] border-white shadow-xl"
+        />
+      </div>
+
+      <span
+        class="intro-wave-in absolute bottom-0 right-0 text-4xl"
+        aria-hidden="true"
+      >
+        👋
+      </span>
+    </div>
+  </div>
+
+  {
+    siteConfig.availability.open && (
+      <p class="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full border border-green-600/30 bg-green-100 px-3.5 py-1.5 text-sm font-medium text-green-800 dark:border-green-400/25 dark:bg-green-400/10 dark:text-green-300">
+        <span class="relative flex h-2 w-2" aria-hidden="true">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75 motion-reduce:animate-none" />
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+        </span>
+        {siteConfig.availability.label}
+      </p>
+    )
+  }
+
+  <h1 class="mb-10 mt-4 px-4 text-2xl font-medium leading-normal! sm:text-4xl">
+    <span class="font-bold">Hello, I'm {siteConfig.shortName}.</span> I'm a <span
+      class="font-bold">{siteConfig.jobTitle.toLowerCase()}</span
+    > specializing in <span class="italic"
+      >AI automation &amp; <span class="underline whitespace-nowrap"
+        >cloud engineering.</span
+      ></span
+    >
+  </h1>
+
+  <div
+    class="flex flex-col sm:flex-row items-center justify-center gap-2 px-4 text-lg font-medium"
+  >
+    <a
+      href="#contact"
+      id="intro-contact-link"
+      class="group bg-gray-900 text-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 transition"
+    >
+      Get in touch
+      <Icon
+        name="arrow-right"
+        class="h-[1em] w-[1em] opacity-70 group-hover:translate-x-1 transition"
+      />
+    </a>
+
+    <a
+      aria-label="Download Manvendra Rajpoot's resume (PDF)"
+      class="group bg-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus-ring hover:scale-110 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10"
+      href="/resume"
+      target="_blank"
+      rel="noopener"
+      download
+    >
+      Download CV
+      <Icon
+        name="download"
+        class="h-[1em] w-[1em] opacity-60 group-hover:translate-y-1 transition"
+      />
+    </a>
+
+    <a
+      aria-label="LinkedIn profile"
+      class="bg-white p-4 text-gray-700 hover:text-gray-950 flex items-center gap-2 rounded-full focus-ring hover:scale-115 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
+      href="/linkedin"
+      target="_blank"
+      rel="noopener"
+    >
+      <Icon name="linkedin" class="h-[1em] w-[1em]" />
+    </a>
+
+    <a
+      aria-label="GitHub profile"
+      class="bg-white p-4 text-gray-700 flex items-center gap-2 text-[1.35rem] rounded-full focus-ring hover:scale-115 hover:text-gray-950 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10 dark:text-white/60"
+      href="/github"
+      target="_blank"
+      rel="noopener"
+    >
+      <Icon name="github" class="h-[1em] w-[1em]" />
+    </a>
+  </div>
+</section>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes intro-avatar-in {
+      from {
+        opacity: 0;
+        transform: scale(0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    @keyframes intro-wave-in {
+      from {
+        opacity: 0;
+        transform: scale(0);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+    .intro-avatar-in {
+      animation: intro-avatar-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .intro-wave-in {
+      animation: intro-wave-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+    }
+  }
+</style>
+
+<script>
+  import {
+    activeSectionState,
+    beginNavigation,
+  } from "@/lib/stores/active-section.svelte";
+
+  // The only interactive behavior on this otherwise-static section: make the
+  // nav's active pill jump to "Contact" immediately on click instead of
+  // waiting for the scroll-spy to catch up mid-scroll. No island needed —
+  // this is a one-off event listener, not anything that re-renders.
+  document
+    .getElementById("intro-contact-link")
+    ?.addEventListener("click", () => {
+      activeSectionState.value = "Contact";
+      beginNavigation();
+    });
+</script>

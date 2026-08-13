@@ -1,10 +1,13 @@
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
-import nextTypescript from "eslint-config-next/typescript";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import astro from "eslint-plugin-astro";
+import svelte from "eslint-plugin-svelte";
 
-const eslintConfig = [
+export default tseslint.config(
   {
     ignores: [
-      ".next/**",
+      "dist/**",
+      ".astro/**",
       "node_modules/**",
       "public/**",
       "e2e/**",
@@ -12,16 +15,35 @@ const eslintConfig = [
       "playwright-report/**",
       "test-results/**",
       "coverage/**",
+      ".wrangler/**",
+      "worker-configuration.d.ts",
     ],
   },
-  ...nextCoreWebVitals,
-  ...nextTypescript,
+  ...tseslint.configs.recommended,
+  ...astro.configs["flat/recommended"],
+  ...astro.configs["flat/jsx-a11y-recommended"],
+  ...svelte.configs["flat/recommended"],
   {
-    rules: {
-      "react/no-unescaped-entities": "off",
-      "@next/next/no-img-element": "error",
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
     },
   },
-];
-
-export default eslintConfig;
+  {
+    files: ["**/*.svelte", "**/*.svelte.ts"],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+  {
+    rules: {
+      // Astro Actions' handler signature intentionally leaves some
+      // parameters unused (e.g. context) depending on the action.
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
+    },
+  },
+);
