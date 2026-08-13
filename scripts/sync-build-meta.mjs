@@ -3,7 +3,7 @@
  * Keeps two hand-maintained dates honest. Runs from `pnpm build` (and can be
  * run on its own with `pnpm sync:meta`).
  *
- *  1. lib/generated/content-updated.ts — the date content last actually
+ *  1. src/lib/generated/content-updated.ts — the date content last actually
  *     changed, from git. Feeds the sitemap's `lastmod` and JSON-LD's
  *     `dateModified`, which used to be a constant someone had to remember to
  *     bump and therefore drifted.
@@ -27,18 +27,18 @@ import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const GENERATED_PATH = join(root, "lib/generated/content-updated.ts");
+const GENERATED_PATH = join(root, "src/lib/generated/content-updated.ts");
 const SECURITY_TXT_PATH = join(root, "public/.well-known/security.txt");
 
 // Files whose changes count as a content update. Deliberately excludes config,
 // tests, and CI: a dependency bump is not a reason to tell Google the page
-// changed. lib/generated is excluded too, or it would keep re-triggering
+// changed. src/lib/generated is excluded too, or it would keep re-triggering
 // itself.
 const CONTENT_PATHS = [
-  "lib/data.ts",
-  "lib/seo.ts",
-  "app/page.tsx",
-  "components",
+  "src/lib/data.ts",
+  "src/lib/seo.ts",
+  "src/pages/index.astro",
+  "src/components",
   "public",
 ];
 
