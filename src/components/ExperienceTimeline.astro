@@ -4,31 +4,29 @@ import { experiencesData } from "@/lib/data";
 ---
 
 <!--
-  Hand-rolled vertical timeline: a center line with alternating cards on
-  desktop, a left rail with stacked cards on mobile. Static markup — no
-  scroll listeners, no client JS — themed via the --timeline-* variables in
-  global.css.
+  Single-column timeline: a left rail with icon nodes, cards stacked below
+  each other. The old zig-zag alternating layout left huge empty rectangles
+  down the page (each card only fills half the row, and the row height is
+  set by whichever side is taller) — this reads as a continuous, compact
+  column instead. Static markup — no scroll listeners, no client JS — themed
+  via the --timeline-* variables in global.css.
 -->
-<ol class="relative mx-auto mt-12 max-w-185">
+<ol class="relative mx-auto mt-12 max-w-165">
   <div
     aria-hidden="true"
-    class="absolute left-5 top-0 h-full w-px bg-[color:var(--timeline-arrow)] opacity-40 sm:left-1/2 sm:-translate-x-1/2"
+    class="absolute left-5 top-0 h-full w-px bg-[color:var(--timeline-arrow)] opacity-40"
   >
   </div>
   {
-    experiencesData.map((item, index) => (
-      <li class="relative mb-10 pl-14 last:mb-0 sm:pl-0">
+    experiencesData.map((item) => (
+      <li class="relative mb-8 pl-14 last:mb-0">
         <span
           aria-hidden="true"
-          class="absolute left-5 top-3 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full text-[1.35rem] ring-1 ring-black/5 bg-[color:var(--timeline-icon-bg)] text-[color:var(--timeline-text)] sm:left-1/2"
+          class="absolute left-5 top-3 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full text-[1.35rem] ring-1 ring-black/5 bg-[color:var(--timeline-icon-bg)] text-[color:var(--timeline-text)]"
         >
           <Icon name={item.icon} class="h-5 w-5" />
         </span>
-        <article
-          class={`rounded-lg border border-black/5 bg-[color:var(--timeline-bg)] px-8 py-5 text-left shadow-sm sm:w-[calc(50%-3.25rem)] ${
-            index % 2 === 0 ? "sm:mr-auto" : "sm:ml-auto"
-          }`}
-        >
+        <article class="rounded-lg border border-black/5 bg-[color:var(--timeline-bg)] px-8 py-5 text-left shadow-sm">
           <h3 class="font-semibold text-[color:var(--timeline-text)]">
             {item.title}
           </h3>
