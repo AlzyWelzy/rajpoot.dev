@@ -72,8 +72,13 @@ jobs:
       - name: Generate Cloudflare runtime types
         # worker-configuration.d.ts (the `cloudflare:workers` module + `Env`
         # interface declarations) is gitignored and regenerated on demand —
-        # `astro check` needs it on disk first.
-        run: pnpm cf-typegen
+        # `astro check` needs it on disk first. `wrangler types` infers the
+        # Env interface's shape from the *names* present in .dev.vars (a
+        # gitignored, developer-local file), not from real values — so a
+        # fresh CI checkout needs a stand-in with the same key names.
+        run: |
+          cp .env.example .dev.vars
+          pnpm cf-typegen
 
       - name: Typecheck
         run: pnpm typecheck
