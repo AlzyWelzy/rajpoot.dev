@@ -23,7 +23,9 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Generate snapshots
-        run: CI=1 pnpm exec playwright test e2e/visual.spec.ts --update-snapshots
+        run: |
+          rm -rf e2e/visual.spec.ts-snapshots
+          CI=1 pnpm exec playwright test e2e/visual.spec.ts --update-snapshots
         env:
           PUBLIC_TURNSTILE_SITE_KEY: "1x00000000000000000000BB"
 
