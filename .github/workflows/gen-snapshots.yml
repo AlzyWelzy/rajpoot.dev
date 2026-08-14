@@ -1,7 +1,12 @@
 name: Generate visual baseline snapshots (throwaway)
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch only becomes dispatchable once a workflow file exists
+  # on the default branch, which this deliberately never will — trigger via
+  # push instead so it runs immediately on this branch.
+  push:
+    branches: [rewrite/astro-cloudflare]
+    paths: [.github/workflows/gen-snapshots.yml]
 
 permissions:
   contents: read
