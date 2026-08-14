@@ -141,6 +141,7 @@
         class="cf-turnstile self-center"
         data-sitekey={TURNSTILE_SITE_KEY}
         data-action={TURNSTILE_ACTION}
+        data-appearance="interaction-only"
       ></div>
     {/if}
 
