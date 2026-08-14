@@ -79,8 +79,13 @@
   data-section-name="Contact"
   tabindex="-1"
   aria-label="Contact"
-  class="fade-reveal mb-20 sm:mb-28 w-[min(100%,38rem)] text-center outline-none scroll-mt-28"
+  class="fade-reveal relative mb-20 sm:mb-28 w-[min(100%,38rem)] text-center outline-none scroll-mt-28"
 >
+  <div
+    aria-hidden="true"
+    class="theme-surface absolute top-1/2 left-1/2 -z-10 h-100 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#dbd7fb] opacity-60 blur-3xl dark:bg-[#676394] dark:opacity-40"
+  ></div>
+
   <h2 class="text-3xl font-medium capitalize mb-8 text-center">Contact me</h2>
 
   <p class="text-gray-700 -mt-6 dark:text-white/80">
@@ -121,7 +126,7 @@
       bind:value={email}
       aria-invalid={error ? true : undefined}
       aria-describedby={error ? "contact-error" : undefined}
-      class="h-14 px-4 rounded-lg borderBlack outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
+      class="h-14 px-4 rounded-lg borderBlack bg-white shadow-sm outline-none transition-all focus-ring focus:shadow-md dark:bg-white/80 dark:focus:bg-white"
     />
     <label for="message" class="sr-only">Your message</label>
     <textarea
@@ -134,7 +139,7 @@
       onkeydown={onMessageKeydown}
       aria-invalid={error ? true : undefined}
       aria-describedby={error ? "contact-error" : undefined}
-      class="h-52 my-3 resize-y rounded-lg borderBlack p-4 outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
+      class="h-52 my-3 resize-y rounded-lg borderBlack bg-white p-4 shadow-sm outline-none transition-all focus-ring focus:shadow-md dark:bg-white/80 dark:focus:bg-white"
     ></textarea>
     {#if TURNSTILE_SITE_KEY}
       <div

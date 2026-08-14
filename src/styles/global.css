@@ -18,7 +18,7 @@
     --line-color: #e5e7eb;
     color-scheme: light;
 
-    --timeline-bg: #f3f4f6;
+    --timeline-bg: #ffffff;
     --timeline-arrow: #9ca3af;
     --timeline-icon-bg: #ffffff;
     --timeline-text: #111827;
@@ -98,7 +98,7 @@
 
 @keyframes chip-rise {
   from {
-    opacity: 0;
+    opacity: 0.4;
     transform: translateY(24px);
   }
   to {
@@ -120,7 +120,7 @@
 
 @keyframes section-rise {
   from {
-    opacity: 0;
+    opacity: 0.4;
     transform: translateY(100px);
   }
   to {
@@ -131,7 +131,7 @@
 
 @keyframes fade-reveal {
   from {
-    opacity: 0;
+    opacity: 0.4;
   }
   to {
     opacity: 1;
@@ -140,7 +140,7 @@
 
 @keyframes card-rise {
   from {
-    opacity: 0;
+    opacity: 0.4;
     transform: translateY(24px) scale(0.98);
   }
   to {
