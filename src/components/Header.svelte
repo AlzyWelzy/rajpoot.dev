@@ -77,7 +77,7 @@
       <span
         aria-hidden="true"
         data-testid="active-pill"
-        class="pointer-events-none absolute left-0 top-0 -z-10 rounded-full bg-gray-100 shadow-sm ring-1 ring-inset ring-black/5 transition-[transform,width,height,opacity] duration-300 ease-out motion-reduce:transition-none dark:bg-slate-700/60 dark:shadow-black/20 dark:ring-white/10"
+        class="from-indigo-500/15 to-purple-500/15 pointer-events-none absolute left-0 top-0 -z-10 rounded-full bg-linear-to-r shadow-sm ring-1 ring-inset ring-black/5 transition-[transform,width,height,opacity] duration-300 ease-out motion-reduce:transition-none dark:from-indigo-400/15 dark:to-purple-400/15 dark:shadow-black/20 dark:ring-white/10"
         style={pill
           ? `transform: translate3d(${pill.left}px, ${pill.top}px, 0); width: ${pill.width}px; height: ${pill.height}px; opacity: 1;`
           : "opacity: 0;"}

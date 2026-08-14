@@ -86,7 +86,19 @@
     class="theme-surface absolute top-1/2 left-1/2 -z-10 h-100 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#dbd7fb] opacity-60 blur-3xl dark:bg-[#676394] dark:opacity-40"
   ></div>
 
-  <h2 class="text-3xl font-medium capitalize mb-8 text-center">Contact me</h2>
+  <!-- Mirrors SectionHeading.astro rather than importing it: this is a Svelte
+       island, and an .astro component can't be rendered from inside one. -->
+  <div class="mb-8 flex flex-col items-center">
+    <h2
+      class="font-display text-center text-3xl font-bold tracking-tight capitalize sm:text-4xl"
+    >
+      Contact me
+    </h2>
+    <span
+      aria-hidden="true"
+      class="from-indigo-500 via-purple-500 to-pink-500 mt-3 h-1 w-14 rounded-full bg-linear-to-r"
+    ></span>
+  </div>
 
   <p class="text-gray-700 -mt-6 dark:text-white/80">
     Have a role, a project, or just want to say hi? Drop me a line below, or
@@ -155,7 +167,7 @@
       disabled={pending}
       aria-label={pending ? "Sending message…" : "Send message"}
       aria-busy={pending}
-      class="group flex items-center justify-center gap-2 h-12 w-32 bg-gray-900 text-white rounded-full outline-none transition-all focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
+      class="group from-indigo-600 via-purple-600 to-pink-600 flex h-12 w-32 items-center justify-center gap-2 rounded-full bg-linear-to-r text-white outline-none transition-all hover:scale-110 hover:shadow-[0_0_2rem_-0.25rem] hover:shadow-purple-500/60 focus-ring active:scale-105 disabled:scale-100 disabled:opacity-65 disabled:shadow-none"
     >
       {#if pending}
         <!-- aria-busy + aria-label already announce the state to AT; the

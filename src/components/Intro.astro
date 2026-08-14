@@ -8,7 +8,7 @@ import { siteConfig } from "@/lib/seo";
   data-section-name="Home"
   tabindex="-1"
   aria-label="Introduction"
-  class="mb-28 max-w-200 text-center outline-none sm:mb-0 scroll-mt-28"
+  class="mb-20 max-w-200 text-center outline-none sm:mb-24 scroll-mt-28"
 >
   <div class="flex items-center justify-center">
     <div class="relative">
@@ -45,11 +45,16 @@ import { siteConfig } from "@/lib/seo";
     )
   }
 
-  <h1 class="mb-10 mt-4 px-4 text-2xl font-medium leading-normal! sm:text-4xl">
-    <span class="font-bold">Hello, I'm {siteConfig.shortName}.</span> I'm a <span
-      class="font-bold">{siteConfig.jobTitle.toLowerCase()}</span
-    > specializing in <span class="italic"
-      >AI automation &amp; <span class="underline whitespace-nowrap"
+  <h1
+    class="font-display mb-10 mt-4 px-4 text-3xl leading-tight! font-semibold tracking-tight sm:text-5xl md:text-6xl"
+  >
+    <span class="font-extrabold">Hello, I'm {siteConfig.shortName}.</span> I'm a <span
+      class="font-extrabold">{siteConfig.jobTitle.toLowerCase()}</span
+    >{" "}
+    specializing in <span
+      class="from-indigo-600 via-purple-600 to-pink-600 bg-linear-to-r bg-clip-text text-transparent italic dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400"
+      >AI automation &amp; <span
+        class="decoration-purple-600 underline decoration-2 underline-offset-4 whitespace-nowrap dark:decoration-purple-400"
         >cloud engineering.</span
       ></span
     >
@@ -61,7 +66,7 @@ import { siteConfig } from "@/lib/seo";
     <a
       href="#contact"
       id="intro-contact-link"
-      class="group bg-gray-900 text-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 transition"
+      class="group from-indigo-600 via-purple-600 to-pink-600 flex items-center gap-2 rounded-full bg-linear-to-r px-7 py-3 text-white outline-none transition hover:scale-110 hover:shadow-[0_0_2rem_-0.25rem] hover:shadow-purple-500/60 focus-ring active:scale-105"
     >
       Get in touch
       <Icon
