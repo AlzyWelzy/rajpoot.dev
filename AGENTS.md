@@ -17,6 +17,17 @@ The site was rewritten from Next.js + React in place on this branch. React,
 zero-JS HTML, and only genuinely interactive pieces (nav, contact form, theme
 toggle, toasts) hydrate as Svelte islands.
 
+**Astro, not SvelteKit.** The site is ~95% static prose (About, Skills,
+Experience, Footer) with a handful of stateful widgets scattered through it.
+Astro's islands architecture ships zero JS by default and hydrates only the
+specific components marked `client:*`; SvelteKit hydrates at the page level
+(client-side routing, app-shaped) — the wrong grain here, since it would pay
+full-page hydration cost for a page that's mostly static markup. Svelte was
+picked for the islands themselves (not React) because it compiles to
+near-vanilla DOM updates with no virtual-DOM diffing — see the "Default to
+plain `.astro`" rule below for where the Astro/Svelte boundary actually
+falls.
+
 ## Commands
 
 ```bash
