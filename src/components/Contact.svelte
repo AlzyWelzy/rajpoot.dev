@@ -79,26 +79,9 @@
   data-section-name="Contact"
   tabindex="-1"
   aria-label="Contact"
-  class="fade-reveal relative mb-20 sm:mb-28 w-[min(100%,38rem)] text-center outline-none scroll-mt-28"
+  class="fade-reveal mb-20 sm:mb-28 w-[min(100%,38rem)] text-center outline-none scroll-mt-28"
 >
-  <div
-    aria-hidden="true"
-    class="theme-surface absolute top-1/2 left-1/2 -z-10 h-100 w-100 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#dbd7fb] opacity-60 blur-3xl dark:bg-[#676394] dark:opacity-40"
-  ></div>
-
-  <!-- Mirrors SectionHeading.astro rather than importing it: this is a Svelte
-       island, and an .astro component can't be rendered from inside one. -->
-  <div class="mb-8 flex flex-col items-center">
-    <h2
-      class="font-display text-center text-3xl font-bold tracking-tight capitalize sm:text-4xl"
-    >
-      Contact me
-    </h2>
-    <span
-      aria-hidden="true"
-      class="from-indigo-500 via-purple-500 to-pink-500 mt-3 h-1 w-14 rounded-full bg-linear-to-r"
-    ></span>
-  </div>
+  <h2 class="text-3xl font-medium capitalize mb-8 text-center">Contact me</h2>
 
   <p class="text-gray-700 -mt-6 dark:text-white/80">
     Have a role, a project, or just want to say hi? Drop me a line below, or
@@ -138,7 +121,7 @@
       bind:value={email}
       aria-invalid={error ? true : undefined}
       aria-describedby={error ? "contact-error" : undefined}
-      class="h-14 px-4 rounded-lg borderBlack bg-white shadow-sm outline-none transition-all focus-ring focus:shadow-md dark:bg-white/80 dark:focus:bg-white"
+      class="h-14 px-4 rounded-lg borderBlack outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
     />
     <label for="message" class="sr-only">Your message</label>
     <textarea
@@ -151,7 +134,7 @@
       onkeydown={onMessageKeydown}
       aria-invalid={error ? true : undefined}
       aria-describedby={error ? "contact-error" : undefined}
-      class="h-52 my-3 resize-y rounded-lg borderBlack bg-white p-4 shadow-sm outline-none transition-all focus-ring focus:shadow-md dark:bg-white/80 dark:focus:bg-white"
+      class="h-52 my-3 resize-y rounded-lg borderBlack p-4 outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
     ></textarea>
     {#if TURNSTILE_SITE_KEY}
       <div
@@ -167,7 +150,7 @@
       disabled={pending}
       aria-label={pending ? "Sending message…" : "Send message"}
       aria-busy={pending}
-      class="group from-indigo-600 via-purple-600 to-pink-600 flex h-12 w-32 items-center justify-center gap-2 rounded-full bg-linear-to-r text-white outline-none transition-all hover:scale-110 hover:shadow-[0_0_2rem_-0.25rem] hover:shadow-purple-500/60 focus-ring active:scale-105 disabled:scale-100 disabled:opacity-65 disabled:shadow-none"
+      class="group flex items-center justify-center gap-2 h-12 w-32 bg-gray-900 text-white rounded-full outline-none transition-all focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
     >
       {#if pending}
         <!-- aria-busy + aria-label already announce the state to AT; the

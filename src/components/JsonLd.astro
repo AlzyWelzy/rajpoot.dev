@@ -8,7 +8,7 @@ const profileId = `${siteConfig.url}/#profilepage`;
 
 const KNOWN_LANGS = ["Python", "TypeScript", "JavaScript"];
 
-const skills = skillsData.flatMap((group) => [...group.skills]);
+const skills = [...skillsData];
 
 // Each project as a structured node, authored by the Person, so search
 // engines can associate the portfolio's work with its owner.

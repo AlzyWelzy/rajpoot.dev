@@ -1,19 +1,10 @@
 @import "tailwindcss";
 
-/* Weight-axis-only variable font (not the full opsz+wdth+wght axes) — the
-   smallest Bricolage Grotesque subset Fontsource ships. Headings only, so
-   this never blocks body text or LCP; font-display: swap is set per
-   @font-face rule in the imported file. */
-@import "@fontsource-variable/bricolage-grotesque/wght.css";
-
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --color-brand: #0f172a;
   --color-brand-foreground: #f8fafc;
-
-  --font-display:
-    "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
 
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(
@@ -27,7 +18,7 @@
     --line-color: #e5e7eb;
     color-scheme: light;
 
-    --timeline-bg: #ffffff;
+    --timeline-bg: #f3f4f6;
     --timeline-arrow: #9ca3af;
     --timeline-icon-bg: #ffffff;
     --timeline-text: #111827;
@@ -105,6 +96,11 @@
    layered utilities without needing !important.
    --------------------------------------------------------------------------- */
 
+/* The reveal keyframes start at 0.4 rather than 0 opacity: axe-core and
+   Lighthouse evaluate contrast without scrolling, so a literal 0 makes every
+   below-the-fold element register as a serious zero-contrast violation. 0.4
+   keeps the reveal visible as an effect while never rendering real content
+   invisible. divider-rise stays at 0 — it's a decorative bar with no text. */
 @keyframes chip-rise {
   from {
     opacity: 0.4;
