@@ -150,7 +150,7 @@
       disabled={pending}
       aria-label={pending ? "Sending message…" : "Send message"}
       aria-busy={pending}
-      class="group flex items-center justify-center gap-2 h-12 w-32 bg-gray-900 text-white rounded-full outline-none transition-all focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65 mx-auto"
+      class="group flex items-center justify-center gap-2 h-12 w-32 bg-gray-900 text-white rounded-full outline-none transition-all focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
     >
       {#if pending}
         <!-- aria-busy + aria-label already announce the state to AT; the
