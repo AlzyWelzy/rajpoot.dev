@@ -230,6 +230,18 @@ found` — see `.github/workflows/ci.yml`'s upload/download steps.
   requests starting at ~717ms for ~1.4 KB, and add only ~0.7 KB inline. This
   is a one-page site whose HTML is already `must-revalidate`, so the caching
   the split bought was largely theoretical.
+- **The testimonials section is intentionally built-but-hidden. It is not
+  dead code — do not delete it.** `Testimonials.astro`, `Testimonial.astro`,
+  `testimonialsData` and the `lu-quote` icon are all live code gated behind
+  `SHOW_TESTIMONIALS`, which is unset (so off) in production. It holds one
+  real, verifiable endorsement quoted from a relieving letter; the component
+  renders a single quote as a featured centred block and switches to a card
+  grid at two or more. Decision reaffirmed 2026-08-15: keep it as is until
+  there is more than one endorsement worth showing. Costs ~1.1 KB of emitted
+  Tailwind rules for classes nothing currently renders — that is the known,
+  accepted price, so don't "optimise" it away by narrowing Tailwind's source
+  scan either, which would break the section the moment the flag is turned
+  on.
 - **Lighthouse audits `/` and only `/`, and that is not an oversight.**
   Adding the 404 route was tried and fails with `ERRORED_DOCUMENT_REQUEST`:
   Lighthouse refuses to audit any document that returns a non-2xx status. No
