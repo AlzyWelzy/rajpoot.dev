@@ -242,6 +242,17 @@ found` — see `.github/workflows/ci.yml`'s upload/download steps.
   accepted price, so don't "optimise" it away by narrowing Tailwind's source
   scan either, which would break the section the moment the flag is turned
   on.
+- **rajpoot.me and rajpoot.dev are both indexed on purpose, and the
+  duplicate-content cost is accepted.** The `main` branch still ships the
+  Next.js site to rajpoot.dev via Vercel while this branch ships Astro to
+  rajpoot.me via Cloudflare. The content is near-identical, both send
+  `index, follow`, and each is canonical to itself — so search engines will
+  pick one and split the ranking signals between them. This was reviewed on
+  2026-08-15 and deliberately left alone: fixing it in rajpoot.me's favour
+  requires a cross-domain canonical or 301 on rajpoot.dev, which is out of
+  scope for this branch, and the reverse (pointing rajpoot.me's canonical at
+  rajpoot.dev) would concede visibility to the slower site. Do not "fix" the
+  canonical tags unilaterally — it is a domain-strategy decision, not a bug.
 - **CI's `deploy` job is the only thing that can publish the Worker, and
   that is now enforced by there being nothing else.** Two stale branches,
   `rewrite/astro-cloudflare` and `rewrite/deploy-to-cloudflare`, each carried
