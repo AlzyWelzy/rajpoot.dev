@@ -22,7 +22,7 @@ export const experiencesData: {
     location: "Jaipur, Rajasthan",
     description:
       "I build and scale a multi-tenant SaaS platform — designing secure multi-factor authentication and access control, AI-powered customer-support features (grammar correction and smart suggestions), and a real-time notification system with email/SMS fallbacks. I built a scalable background-job system for routine emails and reports, hardened API security against unauthorized access, and automated deployments for smoother, faster releases.",
-    icon: "code",
+    icon: "lu-code",
     date: "October 2024 - present",
   },
   {
@@ -30,7 +30,7 @@ export const experiencesData: {
     location: "Chandler, Arizona",
     description:
       "I built an AI-driven invoice-automation tool that extracted and organized invoice data to cut manual work and errors, and developed a Central Authentication System with multi-factor auth, role-based access, and Stripe-powered payments. I set up disaster-recovery plans, tuned database performance for reliability, and automated testing and deployment with a CI/CD pipeline that sped up releases while optimizing cloud resource usage.",
-    icon: "code",
+    icon: "lu-code",
     date: "June 2023 - September 2024",
   },
   {
@@ -38,7 +38,7 @@ export const experiencesData: {
     location: "Online · India",
     description:
       "Pursuing my MCA with a focus on software engineering — deepening my foundations in systems design, algorithms, and scalable architecture while working full-time.",
-    icon: "graduation-cap",
+    icon: "lu-graduation-cap",
     date: "January 2025 - present",
   },
   {
@@ -46,7 +46,7 @@ export const experiencesData: {
     location: "Jhansi, Uttar Pradesh",
     description:
       "Completed my BCA in software engineering, where I built my foundation in programming, databases, and web development and discovered my passion for backend systems.",
-    icon: "graduation-cap",
+    icon: "lu-graduation-cap",
     date: "2021 - 2024",
   },
 ] as const;

@@ -2,6 +2,7 @@
 // Server-rendered in the light-theme state; the inline script below syncs it
 // to the real theme on load (the pre-hydration script in BaseLayout.astro has
 // already set the `dark` class before first paint, so there's no flash).
+import Icon from "@/components/Icon.astro";
 ---
 
 <button
@@ -14,34 +15,20 @@
 >
   <!-- Stacked icons crossfade + rotate on swap so the most-watched part of
        the interaction has motion. Neutralized by reduced-motion. -->
-  <span class="relative block h-4.5 w-4.5" aria-hidden="true">
-    <svg
-      data-icon="sun"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+  <!-- The box is sized in `em` because the icons carry width/height="1em";
+       `absolute inset-0` positions them but does not stretch a replaced
+       element that already has an intrinsic size. -->
+  <span class="relative block h-[1em] w-[1em]" aria-hidden="true">
+    <Icon
+      name="bs-sun"
+      dataIcon="sun"
       class="absolute inset-0 transition-[opacity,transform] duration-300 rotate-0 scale-100 opacity-100"
-    >
-      <circle cx="12" cy="12" r="4"></circle>
-      <path
-        d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
-      ></path>
-    </svg>
-    <svg
-      data-icon="moon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+    />
+    <Icon
+      name="bs-moon"
+      dataIcon="moon"
       class="absolute inset-0 transition-[opacity,transform] duration-300 rotate-90 scale-50 opacity-0"
-    >
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-    </svg>
+    />
   </span>
 </button>
 

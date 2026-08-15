@@ -14,7 +14,9 @@ behaviour is the contact form's Astro Action and six PDF endpoints.
 
 The site was rewritten from Next.js + React in place on this branch, then
 had Svelte removed too. React, `motion`, `react-icons` and Svelte are all
-gone: every page is static HTML, and the four interactive pieces (nav,
+gone as dependencies (the icon markup react-icons produced is inlined as
+static strings — see below): every page is static HTML, and the four
+interactive pieces (nav,
 contact form, theme toggle, toasts) are plain `<script>` blocks in `.astro`
 files. There is no hydration and no `client:*` directive anywhere.
 
@@ -91,17 +93,31 @@ JS at all, not even in an island. Anything scroll-driven must be wrapped in
 the reading-progress bar / scroll-to-top button, to its unconditionally-safe
 default state), never to permanently hidden.
 
-**Icons are build-time-static SVG, not a component library.**
-`src/lib/icons.ts` imports raw `.svg` files from `lucide-static` (generic UI
-icons) and `simple-icons` (brand marks) via Vite's `?raw` suffix, and
-`src/components/Icon.astro` string-injects `class`/`aria-hidden` into the
-source markup. **Do not reach for `astro-icon`** — its default loader shells
-out via `node:child_process` and reads the filesystem at request time to
-detect installed icon collections, which crashes under the real Cloudflare
-Workers runtime (`Internal server error: module is not defined`, confirmed
-under `astro dev`). LinkedIn isn't in either icon package (simple-icons
-dropped it at some point); its path in `icons.ts` is hand-authored, styled to
-match its `simple-icons` siblings.
+**Icons are inline SVG strings mirrored from the Next.js site, not a
+component library.** The Next.js deployment (rajpoot.dev, `main` branch)
+renders its icons through `react-icons` v5.7.0, mixing four packs —
+Bootstrap Icons, Heroicons v1, Font Awesome 5 and Lucide. `src/lib/icons.ts`
+holds that exact markup as plain strings so both deployments show identical
+icons; keys are the react-icons component names in kebab-case (`bs-github`,
+`fa-paper-plane`, …) precisely so the mapping stays auditable. If a glyph
+changes on `main`, re-derive the string from the same react-icons component
+rather than substituting a lookalike from another pack — Lucide's own
+releases drift, so even `lu-*` icons differ between package versions.
+
+`renderIcon()` (same file) string-injects `class`/`aria-hidden` into the
+opening tag and `src/components/Icon.astro` is a thin wrapper over it. That
+injection is anchored on `<svg` with **no trailing space**: the previous set
+came from `lucide-static`, whose files are pretty-printed as `<svg\n class=…`,
+so a `"<svg "` match silently found nothing and nine icons shipped to
+production unstyled — no `aria-hidden`, no sizing class, stuck at their
+intrinsic 24px. `src/lib/icons.test.ts` asserts the injection lands on every
+entry.
+
+**Do not reach for `astro-icon`** — its default loader shells out via
+`node:child_process` and reads the filesystem at request time to detect
+installed icon collections, which crashes under the real Cloudflare Workers
+runtime (`Internal server error: module is not defined`, confirmed under
+`astro dev`).
 
 **Whitespace across an Astro tag boundary is not HTML's whitespace
 model.** Plain HTML collapses `text\n<tag>` to `text <tag>`; Astro's

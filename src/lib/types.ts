@@ -2,7 +2,7 @@ import { links } from "./data";
 
 export type SectionName = (typeof links)[number]["name"];
 
-export type IconName = "code" | "graduation-cap";
+export type IconName = "lu-code" | "lu-graduation-cap";
 
 export type ProjectType = {
   title: string;

@@ -5,17 +5,20 @@ import { siteConfig } from "@/lib/seo";
 // Social entries point at the internal redirect routes (see public/_redirects),
 // so the destination URLs stay defined in one place.
 const socialLinks = [
-  { label: "GitHub", href: "/github", icon: "github" },
-  { label: "LinkedIn", href: "/linkedin", icon: "linkedin" },
-  { label: "X (Twitter)", href: "/twitter", icon: "x" },
-  { label: "Instagram", href: "/instagram", icon: "instagram" },
-  { label: "Facebook", href: "/facebook", icon: "facebook" },
-  { label: "Blog", href: siteConfig.blog, icon: "rss" },
+  { label: "GitHub", href: "/github", icon: "bs-github" },
+  { label: "LinkedIn", href: "/linkedin", icon: "bs-linkedin" },
+  { label: "X (Twitter)", href: "/twitter", icon: "bs-twitter-x" },
+  { label: "Instagram", href: "/instagram", icon: "bs-instagram" },
+  { label: "Facebook", href: "/facebook", icon: "bs-facebook" },
+  { label: "Blog", href: siteConfig.blog, icon: "bs-rss-fill" },
 ] as const;
 
 const iconLinkClasses =
   "flex min-h-11 min-w-11 items-center justify-center rounded-full focus-ring transition hover:scale-115 hover:text-gray-950 active:scale-105 dark:hover:text-white";
-const currentYear = new Date().getFullYear();
+// Built as one string rather than two adjacent `{}` expressions in the
+// markup: Prettier splits those across lines and Astro then drops the
+// whitespace between them, rendering "© 2026Manvendra Rajpoot".
+const copyright = `${new Date().getFullYear()} ${siteConfig.name}`;
 ---
 
 <!-- No role="contentinfo": a top-level <footer> already exposes that landmark. -->
@@ -50,12 +53,9 @@ const currentYear = new Date().getFullYear();
       href={`mailto:${siteConfig.email}`}
       class={iconLinkClasses}
     >
-      <Icon name="mail" class="h-[1em] w-[1em]" />
+      <Icon name="bs-envelope" class="h-[1em] w-[1em]" />
     </a>
   </nav>
 
-  <small class="text-xs">
-    &copy; {currentYear}
-    {siteConfig.name}. All rights reserved.
-  </small>
+  <small class="text-xs">&copy; {copyright}. All rights reserved.</small>
 </footer>

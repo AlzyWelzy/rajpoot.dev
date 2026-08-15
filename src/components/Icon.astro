@@ -1,20 +1,11 @@
 ---
-import { icons, type IconName } from "@/lib/icons";
+import { renderIcon, type IconName } from "@/lib/icons";
 
-type Props = { name: IconName; class?: string };
+type Props = { name: IconName; class?: string; dataIcon?: string };
 
-const { name, class: className } = Astro.props;
+const { name, class: className, dataIcon } = Astro.props;
 
-// Injecting attributes into the source SVG's opening tag rather than
-// wrapping it in an extra element — one fewer node, and Tailwind sizing
-// utilities (h-4 w-4, etc.) still win over the source file's own
-// width/height attributes since CSS always overrides SVG presentation
-// attributes. aria-hidden is unconditional: every usage on this site is
-// decorative — the accessible label lives on the parent link/button or in
-// adjacent visible text — and it also suppresses simple-icons' embedded
-// <title> from being announced.
-const attrs = `aria-hidden="true"${className ? ` class="${className}"` : ""}`;
-const markup = icons[name].replace("<svg ", `<svg ${attrs} `);
+const markup = renderIcon(name, { class: className, dataIcon });
 ---
 
 <Fragment set:html={markup} />

@@ -34,7 +34,6 @@ export default defineConfig({
         // solely in type positions, so there is nothing to execute.
         "src/lib/types.ts",
         "src/lib/generated/**",
-        "src/lib/icons.ts",
         "src/test-utils/**",
       ],
       // A floor, not a target. At 100% the thresholds started writing the
