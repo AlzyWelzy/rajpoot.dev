@@ -23,7 +23,7 @@ function mockMatchMedia(initialMatches: boolean) {
 
 async function freshThemeModule() {
   vi.resetModules();
-  return import("./theme.svelte");
+  return import("./theme");
 }
 
 beforeEach(() => {
@@ -92,8 +92,8 @@ describe("theme store cross-tab sync", () => {
 
   it("ignores storage events for unrelated keys", async () => {
     mockMatchMedia(false);
-    const { themeState } = await freshThemeModule();
-    themeState.value = "light";
+    const { themeState, setTheme } = await freshThemeModule();
+    setTheme("light");
 
     window.dispatchEvent(
       new StorageEvent("storage", { key: "not-theme", newValue: "dark" }),

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { toastState, toast, dismissToast } from "./toast.svelte";
+import { toastState, toast, dismissToast, subscribeToasts } from "./toast";
 
 beforeEach(() => {
   toastState.items.splice(0, toastState.items.length);
@@ -57,5 +57,24 @@ describe("toast store", () => {
     vi.advanceTimersByTime(4000);
 
     expect(toastState.items).toHaveLength(0);
+  });
+
+  it("notifies subscribers on push and dismiss, and stops after unsubscribe", () => {
+    let calls = 0;
+    const unsubscribe = subscribeToasts(() => calls++);
+
+    toast.success("One");
+    expect(calls).toBe(1);
+
+    dismissToast(toastState.items[0]!.id);
+    expect(calls).toBe(2);
+
+    // Dismissing an absent id changes nothing, so it must not notify.
+    dismissToast(9999);
+    expect(calls).toBe(2);
+
+    unsubscribe();
+    toast.error("Two");
+    expect(calls).toBe(2);
   });
 });

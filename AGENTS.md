@@ -6,27 +6,26 @@ like mistakes until you know why.
 
 ## What this is
 
-A single-page portfolio site for Manvendra Rajpoot: Astro 7, Svelte 5 islands,
-Tailwind v4, deployed on Cloudflare Workers via `@astrojs/cloudflare` (native
+A single-page portfolio site for Manvendra Rajpoot: Astro 7, Tailwind v4,
+no UI framework at all, deployed on Cloudflare Workers via `@astrojs/cloudflare` (native
 adapter, real `workerd` runtime — including in `astro dev`, not a shim).
 There is no database, no CMS and no authentication — the only server-side
 behaviour is the contact form's Astro Action and six PDF endpoints.
 
-The site was rewritten from Next.js + React in place on this branch. React,
-`motion`, and `react-icons` are gone entirely: static content ships as
-zero-JS HTML, and only genuinely interactive pieces (nav, contact form, theme
-toggle, toasts) hydrate as Svelte islands.
+The site was rewritten from Next.js + React in place on this branch, then
+had Svelte removed too. React, `motion`, `react-icons` and Svelte are all
+gone: every page is static HTML, and the four interactive pieces (nav,
+contact form, theme toggle, toasts) are plain `<script>` blocks in `.astro`
+files. There is no hydration and no `client:*` directive anywhere.
 
-**Astro, not SvelteKit.** The site is ~95% static prose (About, Skills,
-Experience, Footer) with a handful of stateful widgets scattered through it.
-Astro's islands architecture ships zero JS by default and hydrates only the
-specific components marked `client:*`; SvelteKit hydrates at the page level
-(client-side routing, app-shaped) — the wrong grain here, since it would pay
-full-page hydration cost for a page that's mostly static markup. Svelte was
-picked for the islands themselves (not React) because it compiles to
-near-vanilla DOM updates with no virtual-DOM diffing — see the "Default to
-plain `.astro`" rule below for where the Astro/Svelte boundary actually
-falls.
+**No UI framework — and don't reintroduce one.** The site is ~95% static
+prose with four small stateful widgets. Svelte was used for those initially;
+removing it cut client JS from 28.2 KB to 7.4 KB gzip (-74%), because its
+runtime alone was 16.4 KB — more than twice the weight of all the site's own
+code combined. Nothing here re-renders lists or trees, so the thing a
+framework buys you was never being used. If a future feature genuinely needs
+declarative rendering, measure the runtime cost against that 7.4 KB baseline
+before adding it back.
 
 ## Commands
 
@@ -37,7 +36,7 @@ pnpm preview          # astro build && wrangler dev
 pnpm lint             # ESLint
 pnpm typecheck        # astro check
 pnpm format           # Prettier write (format:check to verify)
-pnpm test             # Vitest unit + Svelte component tests
+pnpm test             # Vitest unit + DOM (jsdom) tests
 pnpm test:coverage    # ...with thresholds enforced
 pnpm test:e2e         # Playwright, against a real wrangler dev build
 pnpm sync:meta        # regenerate content date + security.txt Expires
@@ -65,20 +64,19 @@ purpose: `roleline` is the full headline for the OG card, and `roleShort` is
 the condensed one for the `<title>`, which search engines truncate around 60
 characters.
 
-**Default to plain `.astro` components; reach for a `.svelte` island only
-when something needs to react to state changes.** A one-off click handler
-that fires an event and never re-renders (e.g. Intro.astro's "Get in touch"
-link jumping the nav's active pill) is a plain `<script>` in the `.astro`
-file, not a Svelte component. Islands exist for Header (active-pill
-measurement), Contact (form state), ThemeSwitch (icon swap), and Toast
-(the list re-renders) — nothing else needs one.
+**Everything is a plain `.astro` component with an optional `<script>`.**
+Interactive behaviour lives in Header (active-pill measurement), Contact
+(form submit + pending/error state), ThemeSwitch (icon swap) and Toast
+(builds/removes toast nodes). Each queries its own DOM by `id`, so the
+markup ships server-rendered and the script only wires behaviour onto it —
+the page is fully readable and navigable before any JS runs.
 
-**Cross-island state lives in `src/lib/stores/*.svelte.ts`, using Svelte 5
-runes (`$state`), not `svelte/store`.** Each store wraps its value in an
-object (`{ value: T }` or `{ items: T[] }`) rather than exporting a bare
-`$state` primitive, so every consumer — a Svelte island, or a plain
-`<script>` in an `.astro` file — reads/writes the same unambiguous property
-regardless of how the importing context handles ESM live bindings. A store
+**Shared state lives in `src/lib/stores/*.ts` as plain observables.** Each
+exports an object with a `value` (or `items`) accessor plus a `subscribe*`
+function returning an unsubscribe — a `Set` of callbacks is the entire
+mechanism. The accessor-object shape matters: ESM live bindings can't be
+written through from an importing module, so a bare exported `let` would
+silently fail to propagate. A store
 file's top-level side effects (the `active-section` store's `scrollend`
 listener, the `theme` store's `matchMedia`/`storage` listeners) run once, at
 first import — do not wrap them in a function expecting them to re-run per
@@ -105,9 +103,9 @@ under `astro dev`). LinkedIn isn't in either icon package (simple-icons
 dropped it at some point); its path in `icons.ts` is hand-authored, styled to
 match its `simple-icons` siblings.
 
-**Whitespace across an Astro/Svelte tag boundary is not HTML's whitespace
-model.** Plain HTML collapses `text\n<tag>` to `text <tag>`; Astro's and
-Svelte's compilers instead trim that newline-and-indentation away to
+**Whitespace across an Astro tag boundary is not HTML's whitespace
+model.** Plain HTML collapses `text\n<tag>` to `text <tag>`; Astro's
+compiler instead trims that newline-and-indentation away to
 _nothing_ when a tag starts a fresh line. This produced several real,
 silent-until-screenshotted bugs during the rewrite (`"specializing
 inAI automation"`, `"that arescalable"`, `"directly atmanvendra@…"`). The
@@ -145,8 +143,8 @@ don't trust that the source "looks like" it has a space.
   deliberately not a `robots.txt` `Disallow` — a blocked URL is never
   fetched, so the crawler never sees the noindex and can still list it.
 - **The CSP keeps `'unsafe-inline'` in `script-src`/`style-src`.** Astro's
-  per-island hydration bootstrap and Svelte's transition directives both use
-  inline scripts/styles whose contents change per build. Removing it needs
+  pre-hydration theme script and its per-component inline styles have
+  contents that change per build. Removing it needs
   per-request nonces, which would force dynamic rendering and give up the
   fully-static output. The protection comes from restricting _sources_
   instead — every unused sink is pinned to `'none'`.
@@ -188,12 +186,12 @@ found` — see `.github/workflows/ci.yml`'s upload/download steps.
   Run manually with `pnpm generate:images` after changing either source and
   commit the result — this mirrors `sync-build-meta.mjs`'s
   generated-but-committed outputs.
-- **Coverage thresholds (90%) exclude the Svelte islands and
-  `src/actions/index.ts`.** They're UI/wiring, not logic — a unit test that
-  mounts a component once and asserts nothing was the exact anti-pattern
-  this threshold used to encourage. Playwright's `e2e/contact.spec.ts` is
-  the real safety net for island hydration and Action wiring; see
-  `vitest.config.ts`'s `coverage.include` for the current scope.
+- **Coverage thresholds (90%) exclude the components' `<script>` blocks and
+  `src/actions/index.ts`.** They're UI/wiring, not logic, and a `<script>`
+  inside an `.astro` file can't be imported by Vitest anyway. Playwright is
+  the real safety net there — `e2e/portfolio.spec.ts` covers the theme
+  toggle and scroll-spy, `e2e/contact.spec.ts` the form and Action wiring;
+  see `vitest.config.ts`'s `coverage.include` for the current scope.
 
 ## Contact form
 
@@ -258,8 +256,8 @@ finer resolution than search engines treat the signal at.
 
 ## Version ceilings
 
-TypeScript is held at 6.x — `typescript-eslint` (and so `eslint-plugin-astro`/
-`-svelte`) caps its `typescript` peer dependency at `<6.1.0`. Encoded as an
+TypeScript is held at 6.x — `typescript-eslint` (and so `eslint-plugin-astro`)
+caps its `typescript` peer dependency at `<6.1.0`. Encoded as an
 `ignore` rule in `.github/dependabot.yml`; if you lift the ceiling, remove
 the matching rule. ESLint itself is _not_ held back on this stack —
 `eslint-plugin-astro` actually requires `>=10`, the opposite constraint from

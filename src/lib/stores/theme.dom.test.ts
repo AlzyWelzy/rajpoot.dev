@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { themeState, setTheme, toggleTheme } from "./theme.svelte";
+import { themeState, setTheme, toggleTheme, subscribeTheme } from "./theme";
 
 afterEach(() => {
   localStorage.clear();
@@ -34,6 +34,19 @@ describe("theme store", () => {
     expect(themeState.value).toBe("dark");
 
     toggleTheme();
+    expect(themeState.value).toBe("light");
+  });
+
+  it("notifies subscribers on change, and stops after unsubscribe", () => {
+    const seen: string[] = [];
+    const unsubscribe = subscribeTheme((value) => seen.push(value));
+
+    setTheme("dark");
+    expect(seen).toEqual(["dark"]);
+
+    unsubscribe();
+    setTheme("light");
+    expect(seen).toEqual(["dark"]);
     expect(themeState.value).toBe("light");
   });
 });

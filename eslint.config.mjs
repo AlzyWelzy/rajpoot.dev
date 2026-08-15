@@ -1,7 +1,6 @@
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import astro from "eslint-plugin-astro";
-import svelte from "eslint-plugin-svelte";
 
 export default tseslint.config(
   {
@@ -22,18 +21,9 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...astro.configs["flat/recommended"],
   ...astro.configs["flat/jsx-a11y-recommended"],
-  ...svelte.configs["flat/recommended"],
   {
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
-    },
-  },
-  {
-    files: ["**/*.svelte", "**/*.svelte.ts"],
-    languageOptions: {
-      parserOptions: {
-        parser: tseslint.parser,
-      },
     },
   },
   {

@@ -1,10 +1,10 @@
 ---
-import Header from "@/components/Header.svelte";
+import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import ThemeSwitch from "@/components/ThemeSwitch.svelte";
+import ThemeSwitch from "@/components/ThemeSwitch.astro";
 import ScrollToTop from "@/components/ScrollToTop.astro";
 import ReadingProgress from "@/components/ReadingProgress.astro";
-import Toast from "@/components/Toast.svelte";
+import Toast from "@/components/Toast.astro";
 import JsonLd from "@/components/JsonLd.astro";
 import { siteConfig } from "@/lib/seo";
 import { links } from "@/lib/data";
@@ -131,11 +131,11 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
       Skip to content
     </a>
     <ReadingProgress />
-    <Header client:load links={links} />
+    <Header links={links} />
     <slot />
     <Footer />
-    <Toast client:idle />
-    <ThemeSwitch client:load />
+    <Toast />
+    <ThemeSwitch />
     <ScrollToTop />
 
     {
@@ -156,7 +156,7 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
       import {
         activeSectionState,
         isNavigating,
-      } from "@/lib/stores/active-section.svelte";
+      } from "@/lib/stores/active-section";
       import type { SectionName } from "@/lib/types";
 
       const ROOT_MARGIN = "-25% 0px -55% 0px";

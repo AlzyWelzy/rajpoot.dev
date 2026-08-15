@@ -7,7 +7,7 @@ import Projects from "@/components/Projects.astro";
 import Skills from "@/components/Skills.astro";
 import Experience from "@/components/Experience.astro";
 import Testimonials from "@/components/Testimonials.astro";
-import Contact from "@/components/Contact.svelte";
+import Contact from "@/components/Contact.astro";
 import { siteConfig } from "@/lib/seo";
 
 // Testimonials are gated behind a build-time env flag until there's a
@@ -36,6 +36,6 @@ const title = `${siteConfig.name} — ${siteConfig.roleShort} | Portfolio`;
     <Skills />
     <Experience />
     {showTestimonials && <Testimonials />}
-    <Contact client:visible />
+    <Contact />
   </main>
 </BaseLayout>

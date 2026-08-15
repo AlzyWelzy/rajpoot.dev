@@ -16,22 +16,33 @@ function safeSet(key: string, value: string) {
   }
 }
 
-// Wrapped in an object rather than exporting a bare `$state` primitive —
-// every consumer (Svelte islands, or a plain <script> in an .astro file)
-// reads/writes `themeState.value`, which is unambiguous across that
-// boundary regardless of how the importing context handles live bindings.
-export const themeState = $state<{ value: Theme }>({
-  value: readInitialTheme(),
-});
+// Exported as an object with a `value` accessor rather than a bare `let`, so
+// every consumer — the toggle button, the cross-tab listener — reads and
+// writes the same property across the ESM boundary.
+let current: Theme = readInitialTheme();
+const subscribers = new Set<(value: Theme) => void>();
+
+export const themeState = {
+  get value(): Theme {
+    return current;
+  },
+};
+
+/** Fires on every change. Returns an unsubscribe function. */
+export function subscribeTheme(fn: (value: Theme) => void) {
+  subscribers.add(fn);
+  return () => subscribers.delete(fn);
+}
 
 // Applies the theme to the DOM without writing it back to storage. Used by
 // the cross-tab listener below, where localStorage is already the source of
 // the change and re-writing it would be a pointless round trip.
 function paintTheme(next: Theme) {
-  themeState.value = next;
+  current = next;
   const root = document.documentElement;
   root.classList.toggle("dark", next === "dark");
   root.style.colorScheme = next;
+  for (const fn of subscribers) fn(next);
 }
 
 export function setTheme(next: Theme) {
@@ -40,7 +51,7 @@ export function setTheme(next: Theme) {
 }
 
 export function toggleTheme() {
-  setTheme(themeState.value === "light" ? "dark" : "light");
+  setTheme(current === "light" ? "dark" : "light");
 }
 
 if (typeof window !== "undefined") {

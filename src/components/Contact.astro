@@ -1,0 +1,214 @@
+---
+import {
+  emailId,
+  EMAIL_MAX_LENGTH,
+  MESSAGE_MAX_LENGTH,
+  TURNSTILE_SITE_KEY,
+  TURNSTILE_ACTION,
+} from "@/lib/data";
+---
+
+<section
+  id="contact"
+  data-section-name="Contact"
+  tabindex="-1"
+  aria-label="Contact"
+  class="fade-reveal mb-20 sm:mb-28 w-[min(100%,38rem)] text-center outline-none scroll-mt-28"
+>
+  <h2 class="text-3xl font-medium capitalize mb-8 text-center">Contact me</h2>
+
+  <p class="text-gray-700 -mt-6 dark:text-white/80">
+    Have a role, a project, or just want to say hi? Drop me a line below, or
+    email me directly at <a class="underline" href={`mailto:${emailId}`}
+      >{emailId}</a
+    >.
+  </p>
+
+  <form id="contact-form" class="mt-10 flex flex-col dark:text-black">
+    <!-- Honeypot: hidden from real users; spam bots fill it and get silently
+         dropped server-side. A non-semantic name + ignore hints keep
+         browsers/password managers from autofilling it (which would wrongly
+         drop a legitimate message). -->
+    <input
+      type="text"
+      name="contact_reason_hp"
+      tabindex="-1"
+      autocomplete="off"
+      aria-hidden="true"
+      data-1p-ignore="true"
+      data-lpignore="true"
+      class="absolute left-[-9999px] h-0 w-0 overflow-hidden"
+    />
+    <label for="senderEmail" class="sr-only">Your email</label>
+    <input
+      id="senderEmail"
+      name="senderEmail"
+      type="email"
+      required
+      maxlength={EMAIL_MAX_LENGTH}
+      autocomplete="email"
+      placeholder="Your email"
+      class="h-14 px-4 rounded-lg borderBlack outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
+    />
+    <label for="message" class="sr-only">Your message</label>
+    <textarea
+      id="message"
+      name="message"
+      required
+      maxlength={MESSAGE_MAX_LENGTH}
+      placeholder="Your message"
+      class="h-52 my-3 resize-y rounded-lg borderBlack p-4 outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
+    ></textarea>
+    {
+      TURNSTILE_SITE_KEY && (
+        <div
+          class="cf-turnstile self-center"
+          data-sitekey={TURNSTILE_SITE_KEY}
+          data-action={TURNSTILE_ACTION}
+          data-appearance="interaction-only"
+        />
+      )
+    }
+
+    <button
+      type="submit"
+      aria-label="Send message"
+      class="group flex items-center justify-center gap-2 h-12 w-32 bg-gray-900 text-white rounded-full outline-none transition-all focus-ring hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
+    >
+      <span data-submit-idle class="flex items-center gap-2">
+        Send
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="h-3.5 w-3.5 opacity-70 transition-all group-hover:translate-x-1 group-hover:-translate-y-1"
+        >
+          <path d="m22 2-7 20-4-9-9-4Z"></path>
+          <path d="M22 2 11 13"></path>
+        </svg>
+      </span>
+      <!-- aria-busy + aria-label already announce the state to AT; the
+           visible "Sending" + spinner keep the button from looking
+           emptied out. -->
+      <span data-submit-pending hidden class="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          class="h-4 w-4 animate-spin rounded-full border-b-2 border-white"
+        ></span>
+        Sending
+      </span>
+    </button>
+
+    <p
+      id="contact-error"
+      role="alert"
+      hidden
+      class="mt-3 text-sm text-red-600 dark:text-red-400"
+    >
+    </p>
+  </form>
+</section>
+
+<script>
+  import { actions } from "astro:actions";
+  import { toast } from "@/lib/stores/toast";
+  import { TURNSTILE_SITE_KEY } from "@/lib/data";
+
+  declare global {
+    interface Window {
+      // Only the one call this component needs; the full Turnstile API
+      // surface is much larger.
+      turnstile?: { reset: (widgetIdOrContainer?: string) => void };
+    }
+  }
+
+  const form = document.getElementById(
+    "contact-form",
+  ) as HTMLFormElement | null;
+
+  if (form) {
+    if (TURNSTILE_SITE_KEY) {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    const email = form.querySelector<HTMLInputElement>("#senderEmail")!;
+    const message = form.querySelector<HTMLTextAreaElement>("#message")!;
+    const button = form.querySelector<HTMLButtonElement>(
+      'button[type="submit"]',
+    )!;
+    const idle = form.querySelector<HTMLElement>("[data-submit-idle]")!;
+    const busy = form.querySelector<HTMLElement>("[data-submit-pending]")!;
+    const errorEl = form.querySelector<HTMLElement>("#contact-error")!;
+
+    function setPending(pending: boolean) {
+      button.disabled = pending;
+      button.setAttribute("aria-busy", String(pending));
+      button.setAttribute(
+        "aria-label",
+        pending ? "Sending message…" : "Send message",
+      );
+      idle.hidden = pending;
+      busy.hidden = !pending;
+    }
+
+    function setError(text: string | null) {
+      if (text) {
+        errorEl.textContent = text;
+        errorEl.hidden = false;
+        for (const field of [email, message]) {
+          field.setAttribute("aria-invalid", "true");
+          field.setAttribute("aria-describedby", "contact-error");
+        }
+      } else {
+        errorEl.textContent = "";
+        errorEl.hidden = true;
+        for (const field of [email, message]) {
+          field.removeAttribute("aria-invalid");
+          field.removeAttribute("aria-describedby");
+        }
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setPending(true);
+      setError(null);
+
+      const { error } = await actions.submitContact(new FormData(form));
+
+      // Turnstile tokens are single-use — reset so the next attempt (retry
+      // after an error, or another message later) gets a fresh one. The
+      // section stays mounted after both outcomes, unlike a page navigation
+      // that would render a new widget for free.
+      window.turnstile?.reset();
+      setPending(false);
+
+      if (error) {
+        setError(error.message);
+        toast.error(error.message);
+        return;
+      }
+
+      toast.success("Email sent successfully!");
+      // Controlled-input parity: clear only on success, so a failed submit
+      // keeps what the user typed.
+      form.reset();
+    });
+
+    // Cmd/Ctrl+Enter submits; plain Enter stays a newline.
+    message.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+        event.preventDefault();
+        button.click();
+      }
+    });
+  }
+</script>

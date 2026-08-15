@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
-import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
@@ -14,7 +13,6 @@ export default defineConfig({
   // No server-side session state anywhere on this site — skip the adapter's
   // default KV session binding.
   session: false,
-  integrations: [svelte()],
   vite: {
     plugins: [tailwindcss()],
   },

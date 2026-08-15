@@ -1,9 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 export default defineConfig({
-  plugins: [svelte()],
   resolve: {
     alias: {
       // Mirror the tsconfig "@/*" path alias so tests can import like the app.
@@ -19,15 +17,15 @@ export default defineConfig({
       // ones), so the numbers match what CI computes and nothing hides at 0%.
       //
       // Deliberately scoped to logic-bearing modules only. The interactive
-      // Svelte islands (Header, Contact, Toast) and the Action's thin
-      // defineAction wrapper are UI/wiring, not logic — Playwright's
+      // components (Header, Contact, Toast) are now plain <script> blocks in
+      // .astro files — UI/wiring, not logic — so Playwright's
       // contact-form E2E test is the real safety net for those (a unit test
       // that mounts a component once and asserts nothing was the exact
       // anti-pattern this threshold used to encourage; see below).
       include: [
         "src/email/**/*.ts",
         "src/lib/**/*.ts",
-        "src/lib/stores/**/*.svelte.ts",
+        "src/lib/stores/**/*.ts",
       ],
       exclude: [
         "**/*.test.*",
@@ -65,12 +63,8 @@ export default defineConfig({
       },
       {
         extends: true,
-        // Without this, Svelte's package "exports" resolve to its
-        // server-rendering build even under jsdom, and @testing-library/
-        // svelte's `mount()` throws "not available on the server".
-        resolve: { conditions: ["browser"] },
         test: {
-          // Svelte stores/components that touch window/document need a DOM.
+          // Stores/DOM helpers that touch window/document need a DOM.
           name: "dom",
           environment: "jsdom",
           include: ["src/**/*.dom.test.ts"],

@@ -4,7 +4,8 @@ import {
   activeSectionState,
   beginNavigation,
   isNavigating,
-} from "./active-section.svelte";
+  subscribeActiveSection,
+} from "./active-section";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -37,5 +38,31 @@ describe("active-section store", () => {
     beginNavigation();
     window.dispatchEvent(new Event("scrollend"));
     expect(isNavigating()).toBe(false);
+  });
+
+  it("notifies subscribers on change, and stops after unsubscribe", () => {
+    const seen: string[] = [];
+    const unsubscribe = subscribeActiveSection((value) => seen.push(value));
+
+    activeSectionState.value = "About";
+    activeSectionState.value = "Projects";
+    expect(seen).toEqual(["About", "Projects"]);
+
+    unsubscribe();
+    activeSectionState.value = "Skills";
+    expect(seen).toEqual(["About", "Projects"]);
+    // The value still updates; only the notification stopped.
+    expect(activeSectionState.value).toBe("Skills");
+  });
+
+  it("does not notify when the value is unchanged", () => {
+    activeSectionState.value = "Contact";
+    const seen: string[] = [];
+    const unsubscribe = subscribeActiveSection((value) => seen.push(value));
+
+    activeSectionState.value = "Contact";
+
+    expect(seen).toEqual([]);
+    unsubscribe();
   });
 });
