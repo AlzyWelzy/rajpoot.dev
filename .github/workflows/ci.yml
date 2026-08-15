@@ -166,3 +166,52 @@ jobs:
 
       - name: Run Lighthouse CI (mobile)
         run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.mobile.json
+
+  # Deploying to rajpoot.me lives here, as a gated job, rather than in its own
+  # workflow. The obvious alternative — a separate workflow triggered by
+  # `workflow_run: [CI]` — cannot work on this repo: GitHub only fires
+  # `workflow_run` from the *default branch's* copy of the workflow file, and
+  # the Astro rewrite is deliberately not on `main`. A `needs:` edge inside
+  # the workflow that is already running on this branch is the only way to
+  # make green checks a precondition for shipping.
+  #
+  # THIS IS PRODUCTION. The rajpoot.me Custom Domain is bound to the
+  # rajpoot-astro-portfolio Worker. (The retired Next.js Worker,
+  # rajpoot-dev-portfolio, is still deployed but unbound, as a rollback.)
+  deploy:
+    needs: [build, verify, e2e, lighthouse]
+    # `push` only: a pull_request run must never deploy, and neither must a
+    # push to any other branch. Both conditions are required — `needs` alone
+    # would happily deploy a green PR.
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/rewrite/beyond-astro-cloudflare'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # sync-build-meta derives the content date from history; a depth-1
+          # clone would usually miss the last commit that touched content.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      # Deliberately a fresh build, not the `build` job's artifact: that one
+      # is baked with Cloudflare's always-pass Turnstile *testing* sitekey so
+      # the e2e suite can drive the form. Deploying it would leave the live
+      # contact form accepting anything.
+      - name: Build
+        env:
+          # Build-time only (Vite inlines PUBLIC_* into the static output) —
+          # none of these are sensitive. Runtime secrets (TURNSTILE_SECRET,
+          # RESEND_API_KEY, ...) live on the Worker itself via
+          # `wrangler secret put` and don't need re-setting on every deploy.
+          PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+        run: pnpm build
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy

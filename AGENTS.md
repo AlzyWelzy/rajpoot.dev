@@ -230,6 +230,13 @@ found` — see `.github/workflows/ci.yml`'s upload/download steps.
   requests starting at ~717ms for ~1.4 KB, and add only ~0.7 KB inline. This
   is a one-page site whose HTML is already `must-revalidate`, so the caching
   the split bought was largely theoretical.
+- **Lighthouse audits `/` and only `/`, and that is not an oversight.**
+  Adding the 404 route was tried and fails with `ERRORED_DOCUMENT_REQUEST`:
+  Lighthouse refuses to audit any document that returns a non-2xx status. No
+  other route is auditable either — the six PDF endpoints serve
+  `application/pdf`, and sitemap/robots/manifest are XML, plain text and
+  JSON. The 404 page is covered by axe in `e2e/a11y.spec.ts` instead, which
+  is where its WCAG failure was actually caught.
 - **The avatar is `<link rel="preload">`ed and the module script lives in
   `<head>`, both deliberately.** Inlining the stylesheet (above) has a
   side effect worth knowing about: it pushes everything after it ~59 KB

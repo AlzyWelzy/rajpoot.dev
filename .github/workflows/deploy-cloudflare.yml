@@ -8,13 +8,21 @@ name: Deploy to Cloudflare
 # *.workers.dev preview. (The retired Next.js Worker, rajpoot-dev-portfolio,
 # is still deployed but unbound, as a rollback option.)
 #
-# Deliberately independent of the main CI workflow's lint/test/e2e/lighthouse
-# checks, which run in parallel rather than gating this — so verify CI is
-# green before pushing anything you aren't prepared to serve live.
+# For rewrite/beyond-astro-cloudflare this workflow no longer runs at all —
+# see the trigger note below.
 
+# No automatic trigger. Auto-deploy for rewrite/beyond-astro-cloudflare now
+# lives in ci.yml's `deploy` job, gated behind build/verify/e2e/lighthouse.
+# This file is kept only as a manual escape hatch: to force a deploy without
+# CI (a rollback, or shipping while a flaky job is being fixed), temporarily
+# re-add a `push` trigger for your branch, or run `pnpm deploy` locally with
+# CLOUDFLARE_API_TOKEN set.
+#
+# `workflow_dispatch` is intentionally absent: GitHub only exposes it for
+# workflow files present on the default branch, and this one is not.
 on:
   push:
-    branches: [rewrite/astro-cloudflare, rewrite/beyond-astro-cloudflare]
+    branches: [rewrite/astro-cloudflare]
 
 permissions:
   contents: read

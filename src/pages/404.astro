@@ -9,8 +9,11 @@ import Button from "@/components/Button.astro";
     tabindex="-1"
     class="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center outline-none"
   >
+    <!-- gray-600, not gray-500: at 14px on the gray-100 body, gray-500
+         (#6a7282 on #f3f4f6) measures 4.39:1 and fails WCAG AA's 4.5:1.
+         Matches the paragraph below it. -->
     <p
-      class="text-sm font-semibold uppercase tracking-widest text-gray-500 dark:text-white/60"
+      class="text-sm font-semibold uppercase tracking-widest text-gray-600 dark:text-white/60"
     >
       404
     </p>

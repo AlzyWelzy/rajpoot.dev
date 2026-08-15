@@ -39,18 +39,31 @@ test.describe("visual regression", () => {
     "visual baselines are desktop-chromium only",
   );
 
-  for (const theme of ["light", "dark"] as const) {
-    test(`hero section (${theme})`, async ({ page }) => {
-      await openWithTheme(page, theme);
-      await expect(page.locator("#home")).toHaveScreenshot(`hero-${theme}.png`);
-    });
+  // Every section that renders icons, imagery or cards. `#projects` and
+  // `#contact` were added after an icon swap changed the project-card buttons
+  // and the submit button and no baseline covered either — the suite only
+  // watched the hero and the timeline.
+  // `scroll: false` for the hero on purpose: it is already in view at rest,
+  // and scrolling would move the fixed nav over it, changing the capture and
+  // invalidating a baseline that is otherwise unaffected by this change.
+  const SECTIONS = [
+    { id: "#home", name: "hero", scroll: false },
+    { id: "#experience", name: "experience", scroll: true },
+    { id: "#projects", name: "projects", scroll: true },
+    { id: "#contact", name: "contact", scroll: true },
+  ] as const;
 
-    test(`experience timeline (${theme})`, async ({ page }) => {
-      await openWithTheme(page, theme);
-      await page.locator("#experience").scrollIntoViewIfNeeded();
-      await expect(page.locator("#experience")).toHaveScreenshot(
-        `experience-${theme}.png`,
-      );
-    });
+  for (const theme of ["light", "dark"] as const) {
+    for (const section of SECTIONS) {
+      test(`${section.name} section (${theme})`, async ({ page }) => {
+        await openWithTheme(page, theme);
+        if (section.scroll) {
+          await page.locator(section.id).scrollIntoViewIfNeeded();
+        }
+        await expect(page.locator(section.id)).toHaveScreenshot(
+          `${section.name}-${theme}.png`,
+        );
+      });
+    }
   }
 });
