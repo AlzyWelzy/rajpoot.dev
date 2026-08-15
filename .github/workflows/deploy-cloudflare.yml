@@ -1,21 +1,20 @@
 name: Deploy to Cloudflare
 
-# Auto-deploys the Astro rewrite to its own Worker (rajpoot-astro-portfolio)
-# on every push to this branch. Deliberately a *different* Worker script
-# from the live rajpoot-dev-portfolio (Next.js) — nothing here is bound to
-# a real Custom Domain yet, so this is safe to auto-deploy on every push
-# while the rewrite is being verified. The rajpoot.me cutover (rebinding the
-# Custom Domain to this script) happens manually, once, after that
-# verification — not as part of this workflow.
+# Auto-deploys to the rajpoot-astro-portfolio Worker on every push to the
+# listed branches.
+#
+# THIS IS PRODUCTION. The rajpoot.me Custom Domain has been rebound to this
+# Worker, so a push here goes straight to the live site — it is no longer a
+# *.workers.dev preview. (The retired Next.js Worker, rajpoot-dev-portfolio,
+# is still deployed but unbound, as a rollback option.)
 #
 # Deliberately independent of the main CI workflow's lint/test/e2e/lighthouse
-# checks (those still run via ci.yml's pull_request trigger on the open PR)
-# so a push shows up on the *.workers.dev preview quickly rather than
-# waiting on the full suite.
+# checks, which run in parallel rather than gating this — so verify CI is
+# green before pushing anything you aren't prepared to serve live.
 
 on:
   push:
-    branches: [rewrite/astro-cloudflare]
+    branches: [rewrite/astro-cloudflare, rewrite/beyond-astro-cloudflare]
 
 permissions:
   contents: read
