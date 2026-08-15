@@ -242,6 +242,19 @@ found` — see `.github/workflows/ci.yml`'s upload/download steps.
   accepted price, so don't "optimise" it away by narrowing Tailwind's source
   scan either, which would break the section the moment the flag is turned
   on.
+- **CI's `deploy` job is the only thing that can publish the Worker, and
+  that is now enforced by there being nothing else.** Two stale branches,
+  `rewrite/astro-cloudflare` and `rewrite/deploy-to-cloudflare`, each carried
+  their own copy of a `deploy-cloudflare.yml` that auto-deployed on push with
+  no checks — the first straight over the live `rajpoot-astro-portfolio`
+  Worker behind rajpoot.me, the second over `rajpoot-dev-portfolio`, the
+  rollback. GitHub reads a workflow from the commit being pushed, so no edit
+  on this branch could disarm them; the branches had to be deleted, which was
+  safe because they held zero unique commits (`rewrite/astro-cloudflare` was
+  fully contained in this branch, and `rewrite/deploy-to-cloudflare` pointed
+  at the _same commit_ as `rewrite/betterment-of-everything`, which is kept).
+  Tips recorded in case of restore: `9f130a1` and `a2cb9de`. Do not add a
+  branch-triggered deploy workflow back.
 - **Lighthouse audits `/` and only `/`, and that is not an oversight.**
   Adding the 404 route was tried and fails with `ERRORED_DOCUMENT_REQUEST`:
   Lighthouse refuses to audit any document that returns a non-2xx status. No

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, rewrite/astro-cloudflare, rewrite/beyond-astro-cloudflare]
+    branches: [main, rewrite/beyond-astro-cloudflare]
   pull_request:
 
 # Minimal default token scope; only what the jobs actually need.
@@ -167,13 +167,22 @@ jobs:
       - name: Run Lighthouse CI (mobile)
         run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.mobile.json
 
-  # Deploying to rajpoot.me lives here, as a gated job, rather than in its own
-  # workflow. The obvious alternative — a separate workflow triggered by
-  # `workflow_run: [CI]` — cannot work on this repo: GitHub only fires
-  # `workflow_run` from the *default branch's* copy of the workflow file, and
-  # the Astro rewrite is deliberately not on `main`. A `needs:` edge inside
-  # the workflow that is already running on this branch is the only way to
-  # make green checks a precondition for shipping.
+  # Deploying to rajpoot.me lives here, as a gated job, and this is now the
+  # ONLY path that can publish the Worker from CI. The obvious alternative —
+  # a separate workflow triggered by `workflow_run: [CI]` — cannot work on
+  # this repo: GitHub only fires `workflow_run` from the *default branch's*
+  # copy of the workflow file, and the Astro rewrite is deliberately not on
+  # `main`. A `needs:` edge inside the workflow already running on this
+  # branch is the only way to make green checks a precondition for shipping.
+  #
+  # There used to be a standalone deploy-cloudflare.yml, and two stale
+  # branches (rewrite/astro-cloudflare, rewrite/deploy-to-cloudflare) carried
+  # their own copies of it that auto-deployed on push with no checks at all —
+  # the first straight over the live rajpoot.me Worker. A workflow file is
+  # read from the commit being pushed, so editing it here could never disarm
+  # them; the branches themselves had to go. Both were deleted after
+  # confirming they held zero unique commits. Do not recreate a
+  # branch-triggered deploy workflow.
   #
   # THIS IS PRODUCTION. The rajpoot.me Custom Domain is bound to the
   # rajpoot-astro-portfolio Worker. (The retired Next.js Worker,
