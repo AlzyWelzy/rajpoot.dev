@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { m } from "motion/react";
 import { track } from "@vercel/analytics";
 import toast from "react-hot-toast";
@@ -9,7 +9,21 @@ import SectionHeading from "./section-heading";
 import SubmitBtn from "./submit-btn";
 import { useSectionInView } from "@/lib/hooks";
 import { sendEmail } from "@/actions/sendEmail";
-import { emailId, EMAIL_MAX_LENGTH, MESSAGE_MAX_LENGTH } from "@/lib/data";
+import {
+  emailId,
+  EMAIL_MAX_LENGTH,
+  MESSAGE_MAX_LENGTH,
+  TURNSTILE_SITE_KEY,
+  TURNSTILE_ACTION,
+} from "@/lib/data";
+
+declare global {
+  interface Window {
+    // Only the one call this component needs; the full Turnstile API
+    // surface is much larger.
+    turnstile?: { reset: (widgetIdOrContainer?: string) => void };
+  }
+}
 
 type FormState = { error?: string; success?: boolean } | null;
 
@@ -36,6 +50,69 @@ export default function Contact() {
     null,
   );
 
+  // Turnstile tokens are single-use, and this section stays mounted after a
+  // submit (unlike a page navigation, which would render a fresh widget), so
+  // the widget has to be reset explicitly or a second message can never be
+  // sent. Runs after *every* attempt, success or failure.
+  useEffect(() => {
+    if (state) window.turnstile?.reset();
+  }, [state]);
+
+  // Turnstile is third-party and the most expensive thing this page loads, so
+  // it is fetched only once the form is near the viewport rather than on page
+  // load. `focusin` is a belt-and-braces fallback for anyone who reaches a
+  // field without the observer having fired (deep link, tab navigation).
+  const formRef = useRef<HTMLFormElement>(null);
+  const [turnstileWanted, setTurnstileWanted] = useState(false);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || turnstileWanted) return;
+    const form = formRef.current;
+    if (!form) return;
+
+    const want = () => setTurnstileWanted(true);
+    // Belt and braces for a deep link or tab navigation that reaches a field
+    // before the observer has fired.
+    form.addEventListener("focusin", want, { once: true });
+
+    if (typeof IntersectionObserver === "undefined") {
+      // No observer to be lazy with: load on the next tick rather than never.
+      // Deferred rather than called inline so this stays a state update from a
+      // callback, not one made directly during the effect.
+      const timer = setTimeout(want, 0);
+      return () => {
+        clearTimeout(timer);
+        form.removeEventListener("focusin", want);
+      };
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          observer.disconnect();
+          want();
+        }
+      },
+      { rootMargin: "800px" },
+    );
+    observer.observe(form);
+    return () => {
+      observer.disconnect();
+      form.removeEventListener("focusin", want);
+    };
+  }, [turnstileWanted]);
+
+  useEffect(() => {
+    if (!turnstileWanted) return;
+    const src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+    if (document.querySelector(`script[src="${src}"]`)) return;
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }, [turnstileWanted]);
+
   return (
     <m.section
       id="contact"
@@ -59,7 +136,11 @@ export default function Contact() {
         .
       </p>
 
-      <form className="mt-10 flex flex-col dark:text-black" action={formAction}>
+      <form
+        ref={formRef}
+        className="mt-10 flex flex-col dark:text-black"
+        action={formAction}
+      >
         {/* Honeypot: hidden from real users; spam bots fill it and get
             silently dropped server-side. A non-semantic name + ignore hints
             keep browsers/password managers from autofilling it (which would
@@ -117,6 +198,18 @@ export default function Contact() {
           aria-describedby={state?.error ? "contact-error" : undefined}
           className="h-52 my-3 resize-y rounded-lg borderBlack p-4 outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
         />
+        {TURNSTILE_SITE_KEY && (
+          <div
+            className="cf-turnstile self-center"
+            data-sitekey={TURNSTILE_SITE_KEY}
+            data-action={TURNSTILE_ACTION}
+            // interaction-only keeps the widget invisible unless Cloudflare
+            // decides a challenge is actually needed, so the form looks
+            // unchanged for the overwhelming majority of visitors.
+            data-appearance="interaction-only"
+          />
+        )}
+
         <SubmitBtn />
 
         {state?.error && (

@@ -14,10 +14,6 @@ vi.mock("resend", () => ({
 // The email template is a dependency-free string builder, so it is left
 // unmocked — the assertions below check the real rendered payload.
 
-// No Upstash env vars are set in the test environment, so `ratelimit` is null
-// and this path is skipped — but mock the modules so importing them is cheap.
-vi.mock("@upstash/ratelimit", () => ({ Ratelimit: vi.fn() }));
-vi.mock("@upstash/redis", () => ({ Redis: { fromEnv: vi.fn() } }));
 vi.mock("next/headers", () => ({
   headers: vi.fn(async () => new Headers()),
 }));
@@ -30,13 +26,41 @@ function form(fields: Record<string, string>): FormData {
   return fd;
 }
 
+/** A submission that clears validation and Turnstile, ready to send. */
+const validForm = (overrides: Record<string, string> = {}) =>
+  form({
+    senderEmail: "real@example.com",
+    message: "hello there",
+    "cf-turnstile-response": "test-token",
+    ...overrides,
+  });
+
 describe("sendEmail", () => {
   beforeEach(() => {
     sendMock.mockReset();
     sendMock.mockResolvedValue({ id: "email_123" });
+    vi.stubEnv("TURNSTILE_SECRET", "test-secret");
+    // Default: siteverify passes. "localhost" is always in the expected-
+    // hostname set (see actions/sendEmail.ts) regardless of siteConfig.url,
+    // so this doesn't depend on whatever the current default site domain is.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            success: true,
+            action: "contact",
+            hostname: "localhost",
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
   });
 
   afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
@@ -51,6 +75,8 @@ describe("sendEmail", () => {
 
     expect(result).toEqual({ data: { id: "skipped" } });
     expect(sendMock).not.toHaveBeenCalled();
+    // Never spends a siteverify round trip on a known bot.
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed sender email before sending", async () => {
@@ -72,9 +98,7 @@ describe("sendEmail", () => {
   });
 
   it("sends a valid message and returns the provider data", async () => {
-    const result = await sendEmail(
-      form({ senderEmail: "real@example.com", message: "hello there" }),
-    );
+    const result = await sendEmail(validForm());
 
     expect(sendMock).toHaveBeenCalledOnce();
     expect(sendMock.mock.calls[0]?.[0]).toMatchObject({
@@ -89,12 +113,7 @@ describe("sendEmail", () => {
   });
 
   it("escapes the visitor's input into the HTML part", async () => {
-    await sendEmail(
-      form({
-        senderEmail: "real@example.com",
-        message: "<img src=x onerror=alert(1)>",
-      }),
-    );
+    await sendEmail(validForm({ message: "<img src=x onerror=alert(1)>" }));
 
     const payload = sendMock.mock.calls[0]?.[0] as {
       html: string;
@@ -115,9 +134,7 @@ describe("sendEmail", () => {
       .mockImplementation(() => {});
     sendMock.mockRejectedValueOnce(new Error("Resend 401: bad api key"));
 
-    const result = await sendEmail(
-      form({ senderEmail: "real@example.com", message: "hello there" }),
-    );
+    const result = await sendEmail(validForm());
 
     expect(result).toEqual({
       error: "Couldn't send your message. Please try again later.",
@@ -140,11 +157,9 @@ describe("sendEmail", () => {
   it("returns an e2e marker without sending when E2E_TESTING=1", async () => {
     vi.stubEnv("E2E_TESTING", "1");
 
-    await expect(
-      sendEmail(form({ senderEmail: "real@example.com", message: "hello" })),
-    ).resolves.toEqual({ data: { id: "e2e-skipped" } });
+    await expect(sendEmail(validForm())).resolves.toEqual({
+      data: { id: "e2e-skipped" },
+    });
     expect(sendMock).not.toHaveBeenCalled();
-
-    vi.unstubAllEnvs();
   });
 });

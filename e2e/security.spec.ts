@@ -33,7 +33,9 @@ test.describe("security headers", () => {
       "form-action 'self'",
       "frame-ancestors 'none'",
       "object-src 'none'",
-      "frame-src 'none'",
+      // Open only for Turnstile's own challenge iframe — everything
+      // else still cannot be framed in.
+      "frame-src https://challenges.cloudflare.com",
       "worker-src 'none'",
       "media-src 'none'",
     ]) {
@@ -49,7 +51,10 @@ test.describe("security headers", () => {
     const externalOrigins = scriptSrc!
       .split(/\s+/)
       .filter((token) => token.startsWith("http"));
-    expect(externalOrigins).toEqual(["https://va.vercel-scripts.com"]);
+    expect(externalOrigins).toEqual([
+      "https://va.vercel-scripts.com",
+      "https://challenges.cloudflare.com",
+    ]);
   });
 
   test("upgrade-insecure-requests is suppressed for localhost only", async ({

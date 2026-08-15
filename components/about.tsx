@@ -55,6 +55,8 @@ export default function About() {
         I&apos;m open to{" "}
         <Link
           href="#contact"
+          // Same-page hash link — nothing to prefetch (see header.tsx).
+          prefetch={false}
           className="font-medium underline underline-offset-2 hover:text-gray-950 dark:hover:text-white"
         >
           backend and full-stack roles

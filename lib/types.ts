@@ -1,3 +1,4 @@
+import type { LogoName } from "./logos";
 import { links } from "./data";
 
 export type SectionName = (typeof links)[number]["name"];
@@ -23,8 +24,8 @@ export type ProjectType = {
   title: string;
   description: string;
   tags: readonly string[];
-  /** Path to a centered logo (public/) shown on the project card. */
-  logo?: string;
+  /** Key into `lib/logos.ts` for a centered logo on the project card. */
+  logo?: LogoName;
   liveUrl?: string;
   /** Label for the live link (defaults to "Live"); use "Company site" etc.
    *  when the URL is a marketing page rather than the app itself. */

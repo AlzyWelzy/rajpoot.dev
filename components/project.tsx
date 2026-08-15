@@ -5,6 +5,7 @@ import { track } from "@vercel/analytics";
 import { LuGithub, LuExternalLink, LuCode } from "react-icons/lu";
 
 import type { ProjectType } from "@/lib/types";
+import { logos } from "@/lib/logos";
 
 export default function Project({
   title,
@@ -34,7 +35,7 @@ export default function Project({
             {/* SVG logo — next/image doesn't optimize SVGs, so a plain img is correct here. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={logo}
+              src={logos[logo]}
               alt={`${title} logo`}
               width={120}
               height={120}
