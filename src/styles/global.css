@@ -96,18 +96,18 @@
    layered utilities without needing !important.
    --------------------------------------------------------------------------- */
 
-/* The reveal keyframes start at 0.4 rather than 0 opacity: axe-core and
-   Lighthouse evaluate contrast without scrolling, so a literal 0 makes every
-   below-the-fold element register as a serious zero-contrast violation. 0.4
-   keeps the reveal visible as an effect while never rendering real content
-   invisible. divider-rise stays at 0 — it's a decorative bar with no text. */
+/* Reveals animate transform only — never opacity — on anything containing
+   text. Contrast checkers (axe, Lighthouse) evaluate an element at whatever
+   opacity it currently has, so a partially-faded paragraph reports as a real
+   contrast failure: near-black text at 0.4 opacity computes to ~#93959b,
+   which fails 4.5:1. Fading text in is a genuine readability problem, not
+   just a checker quirk. The movement still reads as a reveal.
+   divider-rise is the one exception — a decorative bar with no text. */
 @keyframes chip-rise {
   from {
-    opacity: 0.4;
     transform: translateY(24px);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }
@@ -125,31 +125,29 @@
 
 @keyframes section-rise {
   from {
-    opacity: 0.4;
     transform: translateY(100px);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }
 
+/* Kept the class name (used by Contact and Testimonials) but it now rises
+   rather than fades, for the contrast reason above. */
 @keyframes fade-reveal {
   from {
-    opacity: 0.4;
+    transform: translateY(12px);
   }
   to {
-    opacity: 1;
+    transform: none;
   }
 }
 
 @keyframes card-rise {
   from {
-    opacity: 0.4;
     transform: translateY(24px) scale(0.98);
   }
   to {
-    opacity: 1;
     transform: none;
   }
 }
