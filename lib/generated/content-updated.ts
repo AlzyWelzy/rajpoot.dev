@@ -3,4 +3,4 @@
 // the sitemap's lastmod and JSON-LD's dateModified. It trails the commit that
 // regenerates it by one, which is well inside the resolution search engines
 // treat this signal at.
-export const contentUpdated = "2026-08-01" as const;
+export const contentUpdated = "2026-08-15" as const;

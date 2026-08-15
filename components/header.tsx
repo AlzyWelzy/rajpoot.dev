@@ -110,6 +110,9 @@ export default function Header() {
                   },
                 )}
                 href={link.hash}
+                // Same-page hash link: there is no route to prefetch, and
+                // without this Next refetches this page's own RSC payload.
+                prefetch={false}
                 aria-current={activeSection === link.name ? "page" : undefined}
                 onClick={() => {
                   setActiveSection(link.name);

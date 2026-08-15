@@ -29,6 +29,7 @@ import ReadingProgress from "./reading-progress";
 import MotionProvider from "./motion-provider";
 import Header from "./header";
 import Project from "./project";
+import { logos } from "@/lib/logos";
 
 afterEach(cleanup);
 
@@ -164,12 +165,14 @@ describe("Project card", () => {
         title="Logo'd"
         description="Has a logo."
         tags={["SDK"]}
-        logo="/example-logo.svg"
+        logo="cloudtechtiq"
       />,
     );
+    // `logo` is a key into lib/logos.ts now, not a path — the component
+    // resolves it to an inlined data URI so the card costs no extra request.
     expect(screen.getByAltText("Logo'd logo")).toHaveAttribute(
       "src",
-      "/example-logo.svg",
+      logos.cloudtechtiq,
     );
   });
 });

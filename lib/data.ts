@@ -54,7 +54,7 @@ export const projectsData: ProjectType[] = [
     description:
       "Architected the backend for a multi-tenant SaaS portal from the ground up — tenant-isolated data, MFA and role-based access control, AI-assisted support tooling, real-time notifications with email/SMS fallbacks, and background job processing, all delivered through automated CI/CD.",
     tags: ["Python", "Django", "DRF", "PostgreSQL", "Docker", "CI/CD"],
-    logo: "/cloudtechtiq-logo.svg",
+    logo: "cloudtechtiq",
     liveUrl: "https://console.cloudtechtiq.com/",
   },
   {
@@ -62,7 +62,7 @@ export const projectsData: ProjectType[] = [
     description:
       "Core backend contributor on Rosterly.io — designed and hardened authentication, third-party integrations, and API features that improved reliability and the day-to-day scheduling experience.",
     tags: ["Django", "Python", "PostgreSQL", "React", "Stripe"],
-    logo: "/rosterly-logo.svg",
+    logo: "rosterly",
     liveUrl: "https://rosterly.io/",
   },
   {
@@ -70,7 +70,7 @@ export const projectsData: ProjectType[] = [
     description:
       "Open-source Python SDK wrapping the Namecheap API behind a clean, fully typed interface for programmatic domain and DNS management. Published to PyPI as namecheap-wrapper.",
     tags: ["Python", "SDK", "REST API", "PyPI", "Open Source"],
-    logo: "/namecheap-sdk-logo.svg",
+    logo: "namecheap-sdk",
     liveUrl: "https://pypi.org/project/namecheap-wrapper/",
     githubUrl: "https://github.com/AlzyWelzy/namecheap-wrapper",
   },
