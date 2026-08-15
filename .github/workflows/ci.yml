@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, rewrite/astro-cloudflare]
+    branches: [main, rewrite/astro-cloudflare, rewrite/beyond-astro-cloudflare]
   pull_request:
 
 # Minimal default token scope; only what the jobs actually need.
