@@ -26,12 +26,14 @@ describe("logServerEvent", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    logServerEvent("contact.rate_limited", "warn", { identified: true });
+    logServerEvent("contact.turnstile_rejected", "warn", {
+      detail: "invalid-input-response",
+    });
 
     expect(error).not.toHaveBeenCalled();
     expect(JSON.parse(warn.mock.calls[0]?.[0] as string)).toMatchObject({
-      event: "contact.rate_limited",
-      identified: true,
+      event: "contact.turnstile_rejected",
+      detail: "invalid-input-response",
     });
   });
 

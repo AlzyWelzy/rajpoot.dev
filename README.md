@@ -74,15 +74,15 @@ The resume / cover-letter PDFs served at `/resume`, `/cover_letter` and `/experi
 
 Copy [`.env.example`](.env.example) to `.env.local` and fill in what you need (`cp .env.example .env.local`). In production, set these in your Vercel project settings.
 
-| Key                        | Purpose                                                                                                                                                                    |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `RESEND_API_KEY`           | Sending messages from the contact form via Resend                                                                                                                          |
-| `RESEND_FROM`              | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
-| `UPSTASH_REDIS_REST_URL`   | (Optional) Upstash Redis URL — enables IP rate limiting on the contact form                                                                                                |
-| `UPSTASH_REDIS_REST_TOKEN` | (Optional) Upstash Redis token — required alongside the URL for rate limiting                                                                                              |
-| `SHOW_TESTIMONIALS`        | (Optional, build-time) Set to `true` to render the testimonials section. Hidden by default until there are enough real endorsements.                                       |
+| Key                              | Purpose                                                                                                                                                                    |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`                 | Sending messages from the contact form via Resend                                                                                                                          |
+| `RESEND_FROM`                    | (Optional) Sender for contact emails, e.g. `Contact Form <contact@rajpoot.dev>`. Must be on a domain verified in Resend; falls back to the Resend sandbox sender if unset. |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile sitekey (public; inlined at build time) — the contact form's abuse gate                                                                               |
+| `TURNSTILE_SECRET`               | Turnstile secret for server-side siteverify. Without it every submission is rejected (fail closed)                                                                         |
+| `SHOW_TESTIMONIALS`              | (Optional, build-time) Set to `true` to render the testimonials section. Hidden by default until there are enough real endorsements.                                       |
 
-Without the Upstash vars, production falls back to a best-effort per-instance in-memory rate limit and logs a warning — configure Upstash for real protection.
+Turnstile replaced the previous Upstash IP rate limit: a proof-of-humanity check per submission stops scripted abuse without an external Redis dependency, and without penalising several genuine visitors behind one NAT'd address. `TURNSTILE_HOSTNAMES` (comma-separated) overrides the hostnames siteverify's response is checked against; it defaults to the site's own host plus localhost.
 
 ## Contributing
 

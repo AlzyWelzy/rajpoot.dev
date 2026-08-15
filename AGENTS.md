@@ -93,11 +93,12 @@ _visible_, never to hidden.
   a proxy hop to the region. On `bom1` that hop was measured in Speed Insights
   as TTFB p75 1.82s, with every Poor country far from Mumbai (Switzerland 4.13s,
   Nicaragua 4.1s, Germany 2.01s) while India scored Great. Second, the contact
-  server action and its Upstash round trip execute there.
-  `fra1` because the audience is EU/US recruiters. **If the Upstash database is
-  not in or near `eu-central-1`, move it** — a cross-region Redis call now sits
-  in the contact form's critical path. Switch to `iad1` if the traffic mix ever
-  turns US-heavy.
+  server action executes there.
+  `fra1` because the audience is EU/US recruiters. Switch to `iad1` if the
+  traffic mix ever turns US-heavy. (The old warning about co-locating an
+  Upstash database no longer applies — the contact form's only outbound call
+  is now Turnstile's siteverify, which Cloudflare serves from its own anycast
+  edge rather than a single region.)
 - **The PDFs carry `X-Robots-Tag: noindex` in two places.**
   `lib/serve-pdf.ts` sets it for `/resume` and friends; a `/:file(.*\.pdf)`
   rule in `next.config.mjs` covers the raw `public/` filenames, which bypass
@@ -125,9 +126,13 @@ _visible_, never to hidden.
 `actions/sendEmail.ts`. The order of operations matters and is deliberate:
 
 1. Honeypot check — return a **fake success** so bots learn nothing.
-2. Validation — cheap and synchronous, before spending a rate-limit token.
-3. Rate limit — Upstash when configured, per-instance in-memory fallback
-   otherwise.
+2. Validation — cheap and synchronous, before spending a siteverify round
+   trip.
+3. **Cloudflare Turnstile** — the sole abuse gate; there is deliberately no
+   numeric rate limit any more. siteverify must report success, and (except
+   for testing-key results, which report a fixed hostname and no action) the
+   expected action and an expected hostname. Any network error, timeout or
+   missing secret **fails closed**.
 4. `E2E_TESTING=1` short-circuit — validates fully, sends nothing.
 5. Render `email/contact-form-email.ts` and send both parts via Resend; on
    failure log a structured event and return a generic message. Provider error
@@ -154,14 +159,16 @@ the cause.
 
 Everything is optional; the site builds and runs without any of it.
 
-| Key                                 | Effect if unset                                             |
-| ----------------------------------- | ----------------------------------------------------------- |
-| `RESEND_API_KEY`                    | Form validates, then returns a friendly error               |
-| `RESEND_FROM`                       | Falls back to the Resend sandbox sender                     |
-| `UPSTASH_REDIS_REST_URL` / `_TOKEN` | Per-instance in-memory rate limit + a warning event         |
-| `SHOW_TESTIMONIALS`                 | Testimonials section hidden (default)                       |
-| `E2E_TESTING`                       | Set by Playwright at runtime; skips the actual send         |
-| `E2E_SKIP_BUILD`                    | Set by CI; reuse a `.next` restored from the build artifact |
+| Key                              | Effect if unset                                             |
+| -------------------------------- | ----------------------------------------------------------- |
+| `RESEND_API_KEY`                 | Form validates, then returns a friendly error               |
+| `RESEND_FROM`                    | Falls back to the Resend sandbox sender                     |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Widget not rendered; every submission then fails the gate   |
+| `TURNSTILE_SECRET`               | **Every submission rejected** — fails closed, by design     |
+| `TURNSTILE_HOSTNAMES`            | Defaults to the site's own host (bare + www) + localhost    |
+| `SHOW_TESTIMONIALS`              | Testimonials section hidden (default)                       |
+| `E2E_TESTING`                    | Set by Playwright at runtime; skips the actual send         |
+| `E2E_SKIP_BUILD`                 | Set by CI; reuse a `.next` restored from the build artifact |
 
 ## Generated files
 

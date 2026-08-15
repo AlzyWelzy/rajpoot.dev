@@ -2,14 +2,18 @@
 
 import { headers } from "next/headers";
 import { Resend } from "resend";
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
 
 import { validateString, isValidEmail, getErrorMessage } from "@/lib/utils";
 import type { SendEmailResult } from "@/lib/types";
 import { logServerEvent } from "@/lib/observability";
 import contactFormEmail from "@/email/contact-form-email";
-import { emailId, EMAIL_MAX_LENGTH, MESSAGE_MAX_LENGTH } from "@/lib/data";
+import {
+  emailId,
+  EMAIL_MAX_LENGTH,
+  MESSAGE_MAX_LENGTH,
+  TURNSTILE_ACTION,
+} from "@/lib/data";
+import { siteConfig } from "@/lib/seo";
 
 // Created lazily inside the action's try/catch: the Resend constructor throws
 // when RESEND_API_KEY is missing, and at module scope that would crash the
@@ -27,139 +31,109 @@ function getResend(): Resend {
 const fromAddress =
   process.env.RESEND_FROM || "Contact Form <onboarding@resend.dev>";
 
-const RATE_WINDOW = "10 m" as const;
-const RATE_WINDOW_MS = 10 * 60 * 1000;
-
-// Per-IP budget: generous for a human, tight for a script.
-const IDENTIFIED_LIMIT = 5;
-
-// Requests that arrive with no usable IP header all share one bucket, so
-// applying IDENTIFIED_LIMIT to it would let a single script burn five requests
-// and lock out *every other* header-less visitor. They get their own, much
-// wider window instead: still bounded, but not a five-request denial of
-// service against everyone. On Vercel `x-real-ip` is always present, so this
-// is a safety net for other hosts rather than a hot path.
-const ANONYMOUS_LIMIT = 50;
-const ANONYMOUS_KEY = "anonymous";
-
-// Upstash-backed sliding windows, active when both env vars are set. Created
-// lazily (not at module load) so the env is read when the action actually
-// runs, which also lets tests exercise this path.
-type Limiters = { identified: Ratelimit; anonymous: Ratelimit } | null;
-
-let upstashLimiters: Limiters | undefined;
-
-function getUpstashLimiters(): Limiters {
-  if (upstashLimiters === undefined) {
-    if (
-      process.env.UPSTASH_REDIS_REST_URL &&
-      process.env.UPSTASH_REDIS_REST_TOKEN
-    ) {
-      const redis = Redis.fromEnv();
-      upstashLimiters = {
-        identified: new Ratelimit({
-          redis,
-          limiter: Ratelimit.slidingWindow(IDENTIFIED_LIMIT, RATE_WINDOW),
-          prefix: "portfolio:contact",
-        }),
-        // Separate prefix so the two budgets can never draw down each other.
-        anonymous: new Ratelimit({
-          redis,
-          limiter: Ratelimit.slidingWindow(ANONYMOUS_LIMIT, RATE_WINDOW),
-          prefix: "portfolio:contact:anon",
-        }),
-      };
-    } else {
-      upstashLimiters = null;
-    }
+// Hostnames Turnstile's siteverify response must match. Defaults to this
+// site's own host (both bare and www-prefixed, since either could be live)
+// plus localhost/127.0.0.1 for local dev and E2E. Override with a
+// comma-separated TURNSTILE_HOSTNAMES if a deploy needs something specific —
+// Vercel preview deployments get a generated *.vercel.app hostname, so those
+// need either this override or the domain added to the widget.
+function getExpectedHostnames(): Set<string> {
+  if (process.env.TURNSTILE_HOSTNAMES) {
+    return new Set(
+      process.env.TURNSTILE_HOSTNAMES.split(",")
+        .map((h) => h.trim())
+        .filter(Boolean),
+    );
   }
-  return upstashLimiters;
+  const host = new URL(siteConfig.url).host;
+  const bare = host.replace(/^www\./, "");
+  return new Set([bare, `www.${bare}`, "localhost", "127.0.0.1"]);
 }
 
-// Best-effort fallback so production never runs with NO rate limit when the
-// Upstash env vars are missing: a per-instance sliding window. Serverless
-// instances don't share it, so it caps bursts rather than replacing Upstash —
-// the warn event below is the signal to fix the configuration.
-const fallbackHits = new Map<string, number[]>();
-let warnedNoRatelimit = false;
-
-function fallbackLimit(key: string, limit: number): boolean {
-  const now = Date.now();
-  // Cap the map so a scan across many IPs can't grow memory unboundedly.
-  if (fallbackHits.size > 1000) {
-    for (const [entry, hits] of fallbackHits) {
-      if (hits.every((t) => now - t >= RATE_WINDOW_MS)) {
-        fallbackHits.delete(entry);
-      }
-    }
-  }
-  const hits = (fallbackHits.get(key) ?? []).filter(
-    (t) => now - t < RATE_WINDOW_MS,
-  );
-  const allowed = hits.length < limit;
-  if (allowed) hits.push(now);
-  fallbackHits.set(key, hits);
-  return allowed;
-}
-
-type Client = {
-  key: string;
-  /** False when no trustworthy IP header was present. */
-  identified: boolean;
+type SiteverifyResponse = {
+  success: boolean;
+  action?: string;
+  hostname?: string;
+  "error-codes"?: string[];
+  // Set by Cloudflare when the request used a testing sitekey/secret pair.
+  // Testing-key responses always report a fixed hostname and no action,
+  // regardless of the real page — so those two checks only make sense for a
+  // real widget/token.
+  metadata?: { result_with_testing_key?: boolean };
 };
 
-async function client(): Promise<Client> {
+/**
+ * Client IP forwarded to siteverify so Turnstile can factor it into its risk
+ * decision. Not required for verification to succeed — just extra signal.
+ * `x-forwarded-for` is spoofable on its left side, so never trust the first
+ * hop; take the last entry, which the trusted proxy appended.
+ */
+async function connectingIp(): Promise<string | undefined> {
   const hdrs = await headers();
-  // Prefer the platform-trusted header. x-forwarded-for is client-spoofable
-  // on its left side, so never trust the first hop — fall back to the LAST
-  // entry (the one the trusted proxy appended) only if x-real-ip is absent.
-  const ip =
+  return (
+    hdrs.get("cf-connecting-ip")?.trim() ||
     hdrs.get("x-real-ip")?.trim() ||
-    hdrs.get("x-forwarded-for")?.split(",").pop()?.trim();
-
-  return ip
-    ? { key: ip, identified: true }
-    : { key: ANONYMOUS_KEY, identified: false };
+    hdrs.get("x-forwarded-for")?.split(",").pop()?.trim()
+  );
 }
 
-const TOO_MANY: SendEmailResult = {
-  error: "Too many messages. Please try again in a few minutes.",
-};
-
-/** True when the caller is over budget and should be turned away. */
-async function isRateLimited(): Promise<boolean> {
-  const limiters = getUpstashLimiters();
-  const { key, identified } = await client();
-  const limit = identified ? IDENTIFIED_LIMIT : ANONYMOUS_LIMIT;
-
-  if (limiters) {
-    const limiter = identified ? limiters.identified : limiters.anonymous;
-    const { success } = await limiter.limit(key);
-    if (!success)
-      logServerEvent("contact.rate_limited", "warn", { identified });
-    return !success;
+/** True when the Turnstile token is missing, invalid, or fails verification. */
+async function turnstileFailed(
+  token: FormDataEntryValue | null,
+): Promise<boolean> {
+  if (typeof token !== "string" || token.length === 0 || token.length > 2048) {
+    return true;
   }
 
-  // No Upstash configured. Outside production (and under E2E) there is nothing
-  // to protect and throttling would just make tests flaky.
-  if (
-    process.env.NODE_ENV !== "production" ||
-    process.env.E2E_TESTING === "1"
-  ) {
-    return false;
-  }
-
-  if (!warnedNoRatelimit) {
-    warnedNoRatelimit = true;
-    logServerEvent("contact.ratelimit_misconfigured", "warn", {
+  const secret = process.env.TURNSTILE_SECRET;
+  if (!secret) {
+    logServerEvent("contact.turnstile_misconfigured", "warn", {
       detail:
-        "UPSTASH_REDIS_REST_URL/TOKEN are not set — using the per-instance in-memory fallback. Configure Upstash for real protection.",
+        "TURNSTILE_SECRET is not set — every submission will fail verification.",
     });
+    return true;
   }
 
-  const allowed = fallbackLimit(key, limit);
-  if (!allowed) logServerEvent("contact.rate_limited", "warn", { identified });
-  return !allowed;
+  try {
+    const remoteip = await connectingIp();
+    const res = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        signal: AbortSignal.timeout(10_000),
+        body: new URLSearchParams({
+          secret,
+          response: token,
+          ...(remoteip ? { remoteip } : {}),
+        }),
+      },
+    );
+    if (!res.ok) throw new Error(`siteverify responded ${res.status}`);
+    const result = (await res.json()) as SiteverifyResponse;
+
+    const isTestingKey = result.metadata?.result_with_testing_key === true;
+    const rejected =
+      !result.success ||
+      (!isTestingKey &&
+        (result.action !== TURNSTILE_ACTION ||
+          !result.hostname ||
+          !getExpectedHostnames().has(result.hostname)));
+
+    if (rejected) {
+      logServerEvent("contact.turnstile_rejected", "warn", {
+        detail: (result["error-codes"] ?? []).join(",") || "no error code",
+      });
+      return true;
+    }
+    return false;
+  } catch (error: unknown) {
+    // Network error, timeout, or non-JSON body from siteverify. Fail closed.
+    logServerEvent("contact.turnstile_error", "error", {
+      reason: getErrorMessage(error),
+    });
+    return true;
+  }
 }
 
 export const sendEmail = async (
@@ -177,7 +151,7 @@ export const sendEmail = async (
   }
 
   // Validate first (cheap, synchronous) so malformed payloads don't spend a
-  // rate-limit token a legitimate user might need.
+  // siteverify round trip.
   if (
     !validateString(senderEmail, EMAIL_MAX_LENGTH) ||
     !isValidEmail(senderEmail)
@@ -188,12 +162,18 @@ export const sendEmail = async (
     return { error: "Invalid message" };
   }
 
-  if (await isRateLimited()) return TOO_MANY;
+  // Turnstile is the sole gate — there is deliberately no numeric rate limit
+  // any more. A proof-of-humanity check per submission is a better fit than
+  // an IP budget for a personal contact form: it stops scripted abuse without
+  // an external Redis dependency, and without penalising several genuine
+  // visitors who happen to share a NAT'd address.
+  if (await turnstileFailed(formData.get("cf-turnstile-response"))) {
+    return { error: "Verification failed. Please try again." };
+  }
 
   // E2E runs (E2E_TESTING=1, set by playwright.config.ts on `next start`) stop
-  // here: the whole client → server-action → validation path runs for real,
-  // but no email is sent and the fallback limit above is bypassed so repeated
-  // test submissions can't throttle each other.
+  // here: the whole client → server-action → validation → Turnstile path runs
+  // for real, but no email is sent.
   if (process.env.E2E_TESTING === "1") {
     return { data: { id: "e2e-skipped" } };
   }

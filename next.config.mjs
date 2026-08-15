@@ -124,6 +124,12 @@ const nextConfig = {
     // pinned to 'none' rather than inheriting default-src.
     //
     // style-src needs 'unsafe-inline' for motion's inline style attributes.
+    //
+    // challenges.cloudflare.com appears in script-src, connect-src and
+    // frame-src for Turnstile, which replaced Upstash as the contact form's
+    // abuse gate. Removing any of the three silently breaks the widget:
+    // the script won't load, it can't reach siteverify's sibling endpoints,
+    // or the challenge iframe is blocked.
     const csp = ({ upgradeInsecure }) =>
       [
         "default-src 'self'",
@@ -131,16 +137,18 @@ const nextConfig = {
         "form-action 'self'",
         // Nothing on this site is meant to be framed, anywhere.
         "frame-ancestors 'none'",
-        "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+        "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://challenges.cloudflare.com",
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data:",
         "font-src 'self' data:",
-        "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+        "connect-src 'self' https://vitals.vercel-insights.com https://va.vercel-scripts.com https://challenges.cloudflare.com",
         "manifest-src 'self'",
         // Unused sinks, explicitly closed: an injected payload can't reach for
         // a plugin, iframe, worker, or media element at all.
         "object-src 'none'",
-        "frame-src 'none'",
+        // Turnstile renders its challenge in an iframe from this origin;
+        // it is the only thing allowed to be framed here.
+        "frame-src https://challenges.cloudflare.com",
         "child-src 'none'",
         "worker-src 'none'",
         "media-src 'none'",

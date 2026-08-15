@@ -133,6 +133,16 @@ export const emailId = siteConfig.email;
 
 // Contact-form field limits, shared by the client inputs (maxLength) and the
 // server action's validation so the two can never drift apart.
+// Cloudflare Turnstile. The sitekey is public by design and must be inlined
+// at build time, hence NEXT_PUBLIC_. The matching TURNSTILE_SECRET is
+// server-only and lives in the deployment's env, never here.
+//
+// TURNSTILE_ACTION is echoed back by siteverify and checked server-side, so a
+// token minted for some other widget on some other page can't be replayed
+// against this form.
+export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+export const TURNSTILE_ACTION = "contact";
+
 export const EMAIL_MAX_LENGTH = 500;
 export const MESSAGE_MAX_LENGTH = 5000;
 
