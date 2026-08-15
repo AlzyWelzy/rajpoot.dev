@@ -114,9 +114,20 @@ import {
 </section>
 
 <script>
-  import { actions } from "astro:actions";
   import { toast } from "@/lib/stores/toast";
   import { TURNSTILE_SITE_KEY } from "@/lib/data";
+
+  // Posted to directly rather than through `astro:actions`' client helper.
+  // That helper bundles `devalue` to decode the success payload — which this
+  // form never reads, since it only branches on whether an error came back.
+  // Importing it cost 5.1 KB gzip (69% of the site's total JS) to deserialize
+  // a value we discard. Errors come back as plain JSON, so a bare fetch is
+  // enough. The endpoint is Astro's documented progressive-enhancement URL
+  // for an action (the same one `action={actions.submitContact}` emits).
+  // e2e/contact.spec.ts covers success, validation-error and honeypot paths,
+  // so a change to this contract fails CI rather than silently breaking.
+  const ACTION_URL = "/_actions/submitContact";
+  const FALLBACK_ERROR = "Couldn't send your message. Please try again later.";
 
   declare global {
     interface Window {
@@ -182,7 +193,30 @@ import {
       setPending(true);
       setError(null);
 
-      const { error } = await actions.submitContact(new FormData(form));
+      // Any non-2xx is a failure; the success body is deliberately not read.
+      // Defensive parse: if the error shape ever changes, show the fallback
+      // rather than throwing inside the submit handler.
+      let errorMessage: string | null = null;
+      try {
+        const response = await fetch(ACTION_URL, {
+          method: "POST",
+          body: new FormData(form),
+        });
+        if (!response.ok) {
+          errorMessage = FALLBACK_ERROR;
+          try {
+            const body = (await response.json()) as { message?: unknown };
+            if (typeof body.message === "string" && body.message) {
+              errorMessage = body.message;
+            }
+          } catch {
+            /* keep the fallback */
+          }
+        }
+      } catch {
+        // Network failure / offline.
+        errorMessage = FALLBACK_ERROR;
+      }
 
       // Turnstile tokens are single-use — reset so the next attempt (retry
       // after an error, or another message later) gets a fresh one. The
@@ -191,9 +225,9 @@ import {
       window.turnstile?.reset();
       setPending(false);
 
-      if (error) {
-        setError(error.message);
-        toast.error(error.message);
+      if (errorMessage) {
+        setError(errorMessage);
+        toast.error(errorMessage);
         return;
       }
 
