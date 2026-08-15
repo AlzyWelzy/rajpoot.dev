@@ -230,6 +230,17 @@ found` — see `.github/workflows/ci.yml`'s upload/download steps.
   requests starting at ~717ms for ~1.4 KB, and add only ~0.7 KB inline. This
   is a one-page site whose HTML is already `must-revalidate`, so the caching
   the split bought was largely theoretical.
+- **The avatar is `<link rel="preload">`ed and the module script lives in
+  `<head>`, both deliberately.** Inlining the stylesheet (above) has a
+  side effect worth knowing about: it pushes everything after it ~59 KB
+  deeper into the document, so the LCP `<img>` sat at byte ~64,000 and the
+  module script was the last 119 bytes of a 112 KB file. Neither could be
+  discovered until most of the page had arrived. The preload hint sits in
+  the first kilobyte and must stay ahead of the inlined `<style>`; the
+  script is safe in `<head>` because `type="module"` is deferred by default,
+  so execution order is unchanged. Measured on a 1.6 Mbps/150ms link
+  (medians of 5): the avatar starts at +190ms instead of +257ms, the script
+  at +191ms instead of +370ms, and `load` drops 561ms -> 416ms.
 - **Turnstile is not loaded until the contact form is within ~800px of the
   viewport** (`src/scripts/contact.ts`). It was the single most expensive
   thing on the page — ~1.1s of the window `load` event, for a widget most

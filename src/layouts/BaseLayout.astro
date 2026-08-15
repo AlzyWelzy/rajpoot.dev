@@ -44,6 +44,14 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- The avatar is the LCP element, and inlining the stylesheet pushed its
+         <img> to ~byte 64,000 of the document — the preload scanner cannot
+         reach it until most of the page has arrived. This hint sits in the
+         first kilobyte, so the fetch starts immediately. It must stay ahead
+         of the inlined <style>; moving it below buys nothing. -->
+    <link rel="preload" as="image" href="/profile.webp" fetchpriority="high" />
+
     <meta name="color-scheme" content="light dark" />
     <meta
       name="theme-color"
@@ -107,6 +115,14 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
       content="telephone=no,date=no,address=no,email=no"
     />
 
+    <!-- Deliberately in <head>, not at the end of <body>. A type="module"
+         script is deferred by default, so execution order is unchanged, but
+         at the end of a 112 KB document the browser could not discover it
+         until nearly all of that had arrived. -->
+    <script>
+      import "@/scripts/main";
+    </script>
+
     <script is:inline set:html={themeInitScript} />
     <JsonLd />
   </head>
@@ -151,9 +167,5 @@ const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
         />
       )
     }
-
-    <script>
-      import "@/scripts/main";
-    </script>
   </body>
 </html>
