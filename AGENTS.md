@@ -15,10 +15,10 @@ behaviour is the contact form's Astro Action and six PDF endpoints.
 The site was rewritten from Next.js + React in place on this branch, then
 had Svelte removed too. React, `motion`, `react-icons` and Svelte are all
 gone as dependencies (the icon markup react-icons produced is inlined as
-static strings — see below): every page is static HTML, and the four
-interactive pieces (nav,
-contact form, theme toggle, toasts) are plain `<script>` blocks in `.astro`
-files. There is no hydration and no `client:*` directive anywhere.
+static strings — see below): every page is static HTML, and the interactive
+pieces (nav, contact form, theme toggle, toasts, scroll-spy) are plain
+TypeScript modules in `src/scripts/`. There is no hydration and no
+`client:*` directive anywhere.
 
 **No UI framework — and don't reintroduce one.** The site is ~95% static
 prose with four small stateful widgets. Svelte was used for those initially;
@@ -66,12 +66,22 @@ purpose: `roleline` is the full headline for the OG card, and `roleShort` is
 the condensed one for the `<title>`, which search engines truncate around 60
 characters.
 
-**Everything is a plain `.astro` component with an optional `<script>`.**
-Interactive behaviour lives in Header (active-pill measurement), Contact
-(form submit + pending/error state), ThemeSwitch (icon swap) and Toast
-(builds/removes toast nodes). Each queries its own DOM by `id`, so the
-markup ships server-rendered and the script only wires behaviour onto it —
-the page is fully readable and navigable before any JS runs.
+**Components are markup only; all client behaviour lives in
+`src/scripts/`, behind one entry.** `BaseLayout.astro` has the site's single
+`<script>`, and it does nothing but `import "@/scripts/main"`, which
+statically imports header, theme-switch, toast, contact, intro and
+scroll-spy. Each module queries its own DOM by `id` and no-ops when the
+element is absent, so the markup ships server-rendered and the script only
+wires behaviour onto it — the page is fully readable and navigable before
+any JS runs.
+
+**Do not move a script back into its component.** Astro emits one entry
+chunk per `<script>`, so the previous arrangement cost seven requests and,
+worse, a three-wave waterfall: the shared `toast`/`active-section` store
+chunks could not be discovered until the component chunks importing them had
+arrived, starting ~760ms into the load. One entry with static imports is one
+chunk with nothing left to discover. Adding a `<script>` to a component
+silently reintroduces both problems.
 
 **Shared state lives in `src/lib/stores/*.ts` as plain observables.** Each
 exports an object with a `value` (or `items`) accessor plus a `subscribe*`
@@ -202,12 +212,33 @@ found` — see `.github/workflows/ci.yml`'s upload/download steps.
   Run manually with `pnpm generate:images` after changing either source and
   commit the result — this mirrors `sync-build-meta.mjs`'s
   generated-but-committed outputs.
-- **Coverage thresholds (90%) exclude the components' `<script>` blocks and
-  `src/actions/index.ts`.** They're UI/wiring, not logic, and a `<script>`
-  inside an `.astro` file can't be imported by Vitest anyway. Playwright is
-  the real safety net there — `e2e/portfolio.spec.ts` covers the theme
-  toggle and scroll-spy, `e2e/contact.spec.ts` the form and Action wiring;
-  see `vitest.config.ts`'s `coverage.include` for the current scope.
+- **Coverage thresholds (90%) exclude `src/scripts/**` and
+  `src/actions/index.ts`.** They're UI/wiring, not logic — every module in
+  `src/scripts/` is a top-level side effect against the real DOM, so a unit
+  test would only be asserting that `getElementById` works. Playwright is the
+  real safety net there — `e2e/portfolio.spec.ts` covers the theme toggle and
+  scroll-spy, `e2e/contact.spec.ts` the form and Action wiring; see
+  `vitest.config.ts`'s `coverage.include` for the current scope.
+- **The stylesheet is inlined into the document
+  (`build.inlineStylesheets: "always"`), and the three project logos are
+  `data:` URIs (`src/lib/logos.ts`).** Both look like the wrong call by the
+  usual rule of thumb — separate, immutably-cached files — and both were
+  measured. The stylesheet could not be discovered until the HTML had
+  parsed, so it began at ~380ms and blocked render for another ~150ms; folded
+  into the document it also compresses better, so the page went from 21,972
+  bytes across two requests to 19,445 across one. The logos cost three
+  requests starting at ~717ms for ~1.4 KB, and add only ~0.7 KB inline. This
+  is a one-page site whose HTML is already `must-revalidate`, so the caching
+  the split bought was largely theoretical.
+- **Turnstile is not loaded until the contact form is within ~800px of the
+  viewport** (`src/scripts/contact.ts`). It was the single most expensive
+  thing on the page — ~1.1s of the window `load` event, for a widget most
+  visitors never reach. An `IntersectionObserver` starts the fetch on
+  approach, a `focusin` listener covers deep links and tab navigation, and
+  browsers without `IntersectionObserver` load it immediately. Do not move
+  this back to page load to "be safe": scrolling to the form and typing a
+  message takes seconds, and `e2e/contact.spec.ts` proves a token is ready
+  in time.
 
 ## Contact form
 

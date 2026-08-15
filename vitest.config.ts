@@ -17,11 +17,12 @@ export default defineConfig({
       // ones), so the numbers match what CI computes and nothing hides at 0%.
       //
       // Deliberately scoped to logic-bearing modules only. The interactive
-      // components (Header, Contact, Toast) are now plain <script> blocks in
-      // .astro files — UI/wiring, not logic — so Playwright's
-      // contact-form E2E test is the real safety net for those (a unit test
-      // that mounts a component once and asserts nothing was the exact
-      // anti-pattern this threshold used to encourage; see below).
+      // behaviour (header, contact, toast, theme switch, scroll-spy) lives in
+      // src/scripts/ as top-level side effects against the real DOM — UI and
+      // wiring, not logic — so Playwright's E2E suite is the real safety net
+      // for those (a unit test that mounts a component once and asserts
+      // nothing was the exact anti-pattern this threshold used to encourage;
+      // see below). Note `include` below never covers src/scripts/.
       include: [
         "src/email/**/*.ts",
         "src/lib/**/*.ts",
