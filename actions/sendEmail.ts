@@ -195,7 +195,7 @@ export const sendEmail = async (
     const { html, text } = contactFormEmail({
       message,
       senderEmail,
-      senderName: senderName as string,
+      senderName,
     });
     const data = await getResend().emails.send({
       from: fromAddress,
@@ -215,7 +215,7 @@ export const sendEmail = async (
     try {
       const confirmation = visitorConfirmationEmail({
         message,
-        senderName: senderName as string,
+        senderName,
       });
 
       const resumeBuffer = await fs.readFile(
