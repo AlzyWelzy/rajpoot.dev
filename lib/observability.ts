@@ -13,6 +13,7 @@
  */
 export type ServerEvent =
   | "contact.send_failed"
+  | "contact.confirmation_failed"
   | "contact.honeypot_tripped"
   // Turnstile replaced the Upstash rate limiter as the contact form's abuse
   // gate, so contact.rate_limited / contact.ratelimit_misconfigured are gone.

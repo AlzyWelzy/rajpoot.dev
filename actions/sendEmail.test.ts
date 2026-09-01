@@ -11,7 +11,7 @@ vi.mock("resend", () => ({
   },
 }));
 
-// The email template is a dependency-free string builder, so it is left
+// The email templates are dependency-free string builders, so they are left
 // unmocked — the assertions below check the real rendered payload.
 
 vi.mock("next/headers", () => ({
@@ -97,19 +97,35 @@ describe("sendEmail", () => {
     expect(sendMock).not.toHaveBeenCalled();
   });
 
-  it("sends a valid message and returns the provider data", async () => {
+  it("sends notification and confirmation emails on a valid submission", async () => {
     const result = await sendEmail(validForm());
 
-    expect(sendMock).toHaveBeenCalledOnce();
-    expect(sendMock.mock.calls[0]?.[0]).toMatchObject({
-      replyTo: "real@example.com",
-      to: expect.any(String),
-      html: expect.stringContaining("hello there"),
-      // Both parts are sent: a transactional message with no text/plain
-      // alternative scores worse with spam filters.
-      text: expect.stringContaining("hello there"),
-    });
+    // Two emails: notification to owner, confirmation to visitor.
+    expect(sendMock).toHaveBeenCalledTimes(2);
     expect(result).toEqual({ data: { id: "email_123" } });
+  });
+
+  it("sends the notification to manvendra@rajpoot.dev with Reply-To = visitor", async () => {
+    await sendEmail(validForm());
+
+    const notification = sendMock.mock.calls[0]?.[0] as Record<string, string>;
+    expect(notification.to).toBe("manvendra@rajpoot.dev");
+    expect(notification.replyTo).toBe("real@example.com");
+    expect(notification.html).toContain("hello there");
+    // Both parts are sent: a transactional message with no text/plain
+    // alternative scores worse with spam filters.
+    expect(notification.text).toContain("hello there");
+  });
+
+  it("sends the confirmation to visitor with Reply-To = manvendra@rajpoot.dev", async () => {
+    await sendEmail(validForm());
+
+    const confirmation = sendMock.mock.calls[1]?.[0] as Record<string, string>;
+    expect(confirmation.to).toBe("real@example.com");
+    expect(confirmation.replyTo).toBe("manvendra@rajpoot.dev");
+    expect(confirmation.from).toContain("hello@rajpoot.dev");
+    expect(confirmation.html).toContain("Thanks for reaching out");
+    expect(confirmation.text).toContain("hello there");
   });
 
   it("escapes the visitor's input into the HTML part", async () => {
@@ -128,7 +144,7 @@ describe("sendEmail", () => {
     expect(payload.text).toContain("<img src=x onerror=alert(1)>");
   });
 
-  it("returns a generic error and logs a structured event when the provider throws", async () => {
+  it("returns a generic error and logs a structured event when the notification throws", async () => {
     const consoleError = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
@@ -152,6 +168,31 @@ describe("sendEmail", () => {
     // Never ship the visitor's message or address to a third-party log sink.
     expect(consoleError.mock.calls[0]?.[0]).not.toContain("real@example.com");
     expect(consoleError.mock.calls[0]?.[0]).not.toContain("hello there");
+    // Confirmation must not be attempted when the notification itself failed.
+    expect(sendMock).toHaveBeenCalledOnce();
+  });
+
+  it("still returns success when the confirmation email fails", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    // First call (notification) succeeds, second call (confirmation) throws.
+    sendMock
+      .mockResolvedValueOnce({ id: "email_123" })
+      .mockRejectedValueOnce(new Error("Resend rate limit"));
+
+    const result = await sendEmail(validForm());
+
+    // The visitor's message was delivered to the owner — that's success.
+    expect(result).toEqual({ data: { id: "email_123" } });
+    expect(sendMock).toHaveBeenCalledTimes(2);
+
+    // The confirmation failure is logged for alerting.
+    expect(consoleError).toHaveBeenCalledOnce();
+    const logged = JSON.parse(consoleError.mock.calls[0]?.[0] as string);
+    expect(logged.event).toBe("contact.confirmation_failed");
+    expect(logged.level).toBe("error");
+    expect(logged.reason).toContain("rate limit");
   });
 
   it("returns an e2e marker without sending when E2E_TESTING=1", async () => {
