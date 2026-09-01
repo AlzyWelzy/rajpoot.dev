@@ -15,7 +15,10 @@ describe("visitorConfirmationEmail", () => {
     expect(html).toContain("Thanks for reaching out");
 
     expect(text).toContain("Hello there");
-    expect(text).toContain("Thanks for reaching out");
+    expect(text).toContain("Your message:");
+    expect(text).toContain(
+      "If you need to add anything, feel free to reply directly to this email.",
+    );
     expect(text).toContain("Test User");
     // The plaintext alternative must stay free of markup, or clients that
     // prefer it will show tags to the reader.
