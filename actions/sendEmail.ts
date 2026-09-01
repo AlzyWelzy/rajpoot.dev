@@ -1,5 +1,7 @@
 "use server";
 
+import { promises as fs } from "fs";
+import path from "path";
 import { headers } from "next/headers";
 import { Resend } from "resend";
 
@@ -7,11 +9,14 @@ import { validateString, isValidEmail, getErrorMessage } from "@/lib/utils";
 import type { SendEmailResult } from "@/lib/types";
 import { logServerEvent } from "@/lib/observability";
 import contactFormEmail from "@/email/contact-form-email";
+import visitorConfirmationEmail from "@/email/visitor-confirmation-email";
 import {
   emailId,
+  NAME_MAX_LENGTH,
   EMAIL_MAX_LENGTH,
   MESSAGE_MAX_LENGTH,
   TURNSTILE_ACTION,
+  resumeName,
 } from "@/lib/data";
 import { siteConfig } from "@/lib/seo";
 
@@ -25,11 +30,15 @@ function getResend(): Resend {
   return resendClient;
 }
 
-// Sender shown on the delivered email. Set RESEND_FROM to an address on a
-// domain verified in Resend (e.g. "Contact Form <contact@rajpoot.dev>") for
-// reliable deliverability; falls back to the Resend sandbox sender otherwise.
-const fromAddress =
-  process.env.RESEND_FROM || "Contact Form <onboarding@resend.dev>";
+// Sender shown on the notification email to the site owner. Set RESEND_FROM to
+// an address on a domain verified in Resend for reliable deliverability; falls
+// back to the production sender so the form works without local configuration.
+const fromAddress = process.env.RESEND_FROM || "Website <hello@rajpoot.dev>";
+
+// Sender shown on the confirmation email to the visitor. The address is the
+// same Resend-verified sender, but with a personal display name so the reply
+// feels human. This is not a secret and does not need an env var.
+const confirmationFromAddress = "Manvendra <hello@rajpoot.dev>";
 
 // Hostnames Turnstile's siteverify response must match. Defaults to this
 // site's own host (both bare and www-prefixed, since either could be live)
@@ -139,6 +148,7 @@ async function turnstileFailed(
 export const sendEmail = async (
   formData: FormData,
 ): Promise<SendEmailResult> => {
+  const senderName = formData.get("senderName");
   const senderEmail = formData.get("senderEmail");
   const message = formData.get("message");
   const honeypot = formData.get("contact_reason_hp");
@@ -152,6 +162,9 @@ export const sendEmail = async (
 
   // Validate first (cheap, synchronous) so malformed payloads don't spend a
   // siteverify round trip.
+  if (!validateString(senderName, NAME_MAX_LENGTH)) {
+    return { error: "Invalid sender name" };
+  }
   if (
     !validateString(senderEmail, EMAIL_MAX_LENGTH) ||
     !isValidEmail(senderEmail)
@@ -179,7 +192,11 @@ export const sendEmail = async (
   }
 
   try {
-    const { html, text } = contactFormEmail({ message, senderEmail });
+    const { html, text } = contactFormEmail({
+      message,
+      senderEmail,
+      senderName,
+    });
     const data = await getResend().emails.send({
       from: fromAddress,
       to: emailId,
@@ -190,6 +207,41 @@ export const sendEmail = async (
       // mail without one scores worse with spam filters.
       text,
     });
+
+    // Confirmation to the visitor: fire-and-forget. If it fails, the visitor's
+    // message *was* delivered to the owner, so the user still sees success.
+    // hello@rajpoot.dev is a Resend-only sender with no mailbox; replyTo
+    // points replies to the real Zoho mailbox (manvendra@rajpoot.dev).
+    try {
+      const confirmation = visitorConfirmationEmail({
+        message,
+        senderName,
+      });
+
+      const resumeBuffer = await fs.readFile(
+        path.join(process.cwd(), "public", resumeName),
+      );
+
+      await getResend().emails.send({
+        from: confirmationFromAddress,
+        to: senderEmail,
+        subject: "Thanks for reaching out \u2014 Manvendra Rajpoot",
+        replyTo: emailId,
+        html: confirmation.html,
+        text: confirmation.text,
+        attachments: [
+          {
+            filename: resumeName,
+            content: resumeBuffer,
+          },
+        ],
+      });
+    } catch (confirmError: unknown) {
+      logServerEvent("contact.confirmation_failed", "error", {
+        reason: getErrorMessage(confirmError),
+      });
+    }
+
     return { data };
   } catch (error: unknown) {
     // Log the real cause server-side; return a generic message so raw SDK/infra
