@@ -6,7 +6,6 @@ describe("visitorConfirmationEmail", () => {
   it("renders both the HTML and plaintext parts", () => {
     const { html, text } = visitorConfirmationEmail({
       message: "Hello there",
-      senderEmail: "a@b.com",
       senderName: "Test User",
     });
 
@@ -20,6 +19,7 @@ describe("visitorConfirmationEmail", () => {
       "If you need to add anything, feel free to reply directly to this email.",
     );
     expect(text).toContain("Test User");
+    expect(text).toContain("As an experienced backend developer");
     // The plaintext alternative must stay free of markup, or clients that
     // prefer it will show tags to the reader.
     expect(text).not.toContain("<");
@@ -28,7 +28,6 @@ describe("visitorConfirmationEmail", () => {
   it("escapes HTML metacharacters in the message and the sender", () => {
     const { html } = visitorConfirmationEmail({
       message: "</p><script>alert('xss')</script>",
-      senderEmail: '"><b>a@b.com',
       senderName: '"><b>Test User',
     });
 
@@ -43,7 +42,6 @@ describe("visitorConfirmationEmail", () => {
     expect(
       visitorConfirmationEmail({
         message: "&lt;",
-        senderEmail: "a@b.com",
         senderName: "Test User",
       }).html,
     ).toContain("&amp;lt;");
@@ -52,7 +50,6 @@ describe("visitorConfirmationEmail", () => {
   it("preserves line breaks from a multi-line message", () => {
     const { html, text } = visitorConfirmationEmail({
       message: "line one\nline two",
-      senderEmail: "a@b.com",
       senderName: "Test User",
     });
 
@@ -63,7 +60,6 @@ describe("visitorConfirmationEmail", () => {
   it("includes the visitor's email in the greeting", () => {
     const { html, text } = visitorConfirmationEmail({
       message: "hello",
-      senderEmail: "visitor@example.com",
       senderName: "Test User",
     });
 

@@ -1,5 +1,7 @@
 "use server";
 
+import { promises as fs } from "fs";
+import path from "path";
 import { headers } from "next/headers";
 import { Resend } from "resend";
 
@@ -14,6 +16,7 @@ import {
   EMAIL_MAX_LENGTH,
   MESSAGE_MAX_LENGTH,
   TURNSTILE_ACTION,
+  resumeName,
 } from "@/lib/data";
 import { siteConfig } from "@/lib/seo";
 
@@ -212,9 +215,13 @@ export const sendEmail = async (
     try {
       const confirmation = visitorConfirmationEmail({
         message,
-        senderEmail,
         senderName: senderName as string,
       });
+
+      const resumeBuffer = await fs.readFile(
+        path.join(process.cwd(), "public", resumeName),
+      );
+
       await getResend().emails.send({
         from: confirmationFromAddress,
         to: senderEmail,
@@ -222,6 +229,12 @@ export const sendEmail = async (
         replyTo: emailId,
         html: confirmation.html,
         text: confirmation.text,
+        attachments: [
+          {
+            filename: resumeName,
+            content: resumeBuffer,
+          },
+        ],
       });
     } catch (confirmError: unknown) {
       logServerEvent("contact.confirmation_failed", "error", {

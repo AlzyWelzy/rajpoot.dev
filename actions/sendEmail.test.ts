@@ -142,12 +142,22 @@ describe("sendEmail", () => {
   it("sends the confirmation to visitor with Reply-To = manvendra@rajpoot.dev", async () => {
     await sendEmail(validForm());
 
-    const confirmation = sendMock.mock.calls[1]?.[0] as Record<string, string>;
+    const confirmation = sendMock.mock.calls[1]?.[0] as Record<string, unknown>;
     expect(confirmation.to).toBe("real@example.com");
     expect(confirmation.replyTo).toBe("manvendra@rajpoot.dev");
     expect(confirmation.from).toContain("hello@rajpoot.dev");
     expect(confirmation.html).toContain("Thanks for reaching out");
     expect(confirmation.text).toContain("hello there");
+
+    // Verify the resume attachment is present
+    expect(confirmation.attachments).toBeDefined();
+    expect(confirmation.attachments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          filename: "Manvendra_Rajpoot_Resume.pdf",
+        }),
+      ]),
+    );
   });
 
   it("escapes the visitor's input into the HTML part", async () => {

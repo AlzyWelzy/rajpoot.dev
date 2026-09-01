@@ -15,7 +15,6 @@
 
 export type VisitorConfirmationEmailProps = {
   message: string;
-  senderEmail: string;
   senderName: string;
 };
 
@@ -71,7 +70,6 @@ const styles = {
 
 export default function visitorConfirmationEmail({
   message,
-  senderEmail,
   senderName,
 }: VisitorConfirmationEmailProps): VisitorConfirmationEmailContent {
   const heading = "Thanks for reaching out!";
@@ -94,7 +92,11 @@ export default function visitorConfirmationEmail({
       <div style="${styles.card}">
         <h2 style="${styles.heading}">${escapeHtml(heading)}</h2>
         <p style="${styles.text}">Hi${senderName ? " " + escapeHtml(senderName) : ""},</p>
-        <p style="${styles.text}">Thank you for reaching out. I&#39;ve received your message and will get back to you as soon as I can.</p>
+        <p style="${styles.text}">Thank you for reaching out. I appreciate you taking the time to get in touch.</p>
+        <p style="${styles.text}">As an experienced backend developer, I specialize in designing and scaling robust, secure, and highly performant backend systems. I have architected multi-tenant SaaS platforms, built AI-powered automation tools, and implemented complex API integrations from the ground up using Python, Django, Node.js, and PostgreSQL.</p>
+        <p style="${styles.text}">My focus is always on delivering reliable, maintainable code that directly solves business needs&mdash;whether that means implementing multi-factor authentication, optimizing database performance, or setting up seamless CI/CD pipelines.</p>
+        <p style="${styles.text}">I have attached my resume to this email so you can get a more comprehensive look at my background, technical skills, and the impact I&#39;ve driven in my previous roles.</p>
+        <p style="${styles.text}">I will review your message shortly and get back to you as soon as I can. I look forward to the possibility of collaborating with you.</p>
         
         <div style="${styles.quoteBlock}">
           <p style="${styles.muted}">Your message:</p>
@@ -117,7 +119,15 @@ export default function visitorConfirmationEmail({
     "",
     `Hi ${senderName},`,
     "",
-    "Thank you for reaching out. I've received your message and will get back to you as soon as I can.",
+    "Thank you for reaching out. I appreciate you taking the time to get in touch.",
+    "",
+    "As an experienced backend developer, I specialize in designing and scaling robust, secure, and highly performant backend systems. I have architected multi-tenant SaaS platforms, built AI-powered automation tools, and implemented complex API integrations from the ground up using Python, Django, Node.js, and PostgreSQL.",
+    "",
+    "My focus is always on delivering reliable, maintainable code that directly solves business needs—whether that means implementing multi-factor authentication, optimizing database performance, or setting up seamless CI/CD pipelines.",
+    "",
+    "I have attached my resume to this email so you can get a more comprehensive look at my background, technical skills, and the impact I've driven in my previous roles.",
+    "",
+    "I will review your message shortly and get back to you as soon as I can. I look forward to the possibility of collaborating with you.",
     "",
     "---",
     "Your message:",
