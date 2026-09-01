@@ -7,6 +7,7 @@ describe("contactFormEmail", () => {
     const { html, text } = contactFormEmail({
       message: "Hello there",
       senderEmail: "a@b.com",
+      senderName: "Test User",
     });
 
     expect(html).toContain("<!DOCTYPE html>");
@@ -24,6 +25,7 @@ describe("contactFormEmail", () => {
     const { html } = contactFormEmail({
       message: "</p><script>alert('xss')</script>",
       senderEmail: '"><b>a@b.com',
+      senderName: '"><b>Test User',
     });
 
     expect(html).not.toContain("<script>");
@@ -35,7 +37,11 @@ describe("contactFormEmail", () => {
     // Ampersands are escaped first, so an escape sequence can't be smuggled in
     // by submitting its literal text.
     expect(
-      contactFormEmail({ message: "&lt;", senderEmail: "a@b.com" }).html,
+      contactFormEmail({
+        message: "&lt;",
+        senderEmail: "a@b.com",
+        senderName: "Test User",
+      }).html,
     ).toContain("&amp;lt;");
   });
 
@@ -43,6 +49,7 @@ describe("contactFormEmail", () => {
     const { html, text } = contactFormEmail({
       message: "line one\nline two",
       senderEmail: "a@b.com",
+      senderName: "Test User",
     });
 
     expect(html).toContain("line one<br />line two");

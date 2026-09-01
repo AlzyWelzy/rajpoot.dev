@@ -18,6 +18,7 @@
 export type ContactFormEmailProps = {
   message: string;
   senderEmail: string;
+  senderName: string;
 };
 
 export type ContactFormEmailContent = {
@@ -63,6 +64,7 @@ const styles = {
 export default function contactFormEmail({
   message,
   senderEmail,
+  senderName,
 }: ContactFormEmailProps): ContactFormEmailContent {
   const heading = "You received the following message from the contact form";
 
@@ -82,6 +84,7 @@ export default function contactFormEmail({
         <h1 style="${styles.heading}">${escapeHtml(heading)}</h1>
         <p style="${styles.text}">${escapeParagraph(message)}</p>
         <hr style="${styles.hr}" />
+        <p style="${styles.muted}">The sender&#39;s name is: ${escapeHtml(senderName)}</p>
         <p style="${styles.muted}">The sender&#39;s email is: ${escapeHtml(senderEmail)}</p>
       </div>
     </div>
@@ -94,6 +97,7 @@ export default function contactFormEmail({
     message,
     "",
     "---",
+    `The sender's name is: ${senderName}`,
     `The sender's email is: ${senderEmail}`,
   ].join("\n");
 

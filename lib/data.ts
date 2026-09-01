@@ -143,6 +143,7 @@ export const emailId = siteConfig.email;
 export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 export const TURNSTILE_ACTION = "contact";
 
+export const NAME_MAX_LENGTH = 100;
 export const EMAIL_MAX_LENGTH = 500;
 export const MESSAGE_MAX_LENGTH = 5000;
 

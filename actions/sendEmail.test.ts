@@ -29,6 +29,7 @@ function form(fields: Record<string, string>): FormData {
 /** A submission that clears validation and Turnstile, ready to send. */
 const validForm = (overrides: Record<string, string> = {}) =>
   form({
+    senderName: "Test User",
     senderEmail: "real@example.com",
     message: "hello there",
     "cf-turnstile-response": "test-token",
@@ -67,6 +68,7 @@ describe("sendEmail", () => {
   it("silently drops honeypot-filled submissions without sending", async () => {
     const result = await sendEmail(
       form({
+        senderName: "Test User",
         senderEmail: "real@example.com",
         message: "hello there",
         contact_reason_hp: "i am a bot",
@@ -81,7 +83,11 @@ describe("sendEmail", () => {
 
   it("rejects a malformed sender email before sending", async () => {
     const result = await sendEmail(
-      form({ senderEmail: "not-an-email", message: "hello there" }),
+      form({
+        senderName: "Test User",
+        senderEmail: "not-an-email",
+        message: "hello there",
+      }),
     );
 
     expect(result).toEqual({ error: "Invalid sender email" });
@@ -90,7 +96,11 @@ describe("sendEmail", () => {
 
   it("rejects an empty message", async () => {
     const result = await sendEmail(
-      form({ senderEmail: "real@example.com", message: "" }),
+      form({
+        senderName: "Test User",
+        senderEmail: "real@example.com",
+        message: "",
+      }),
     );
 
     expect(result).toEqual({ error: "Invalid message" });
@@ -166,6 +176,7 @@ describe("sendEmail", () => {
     expect(logged.level).toBe("error");
     expect(logged.reason).toContain("401");
     // Never ship the visitor's message or address to a third-party log sink.
+    expect(consoleError.mock.calls[0]?.[0]).not.toContain("Test User");
     expect(consoleError.mock.calls[0]?.[0]).not.toContain("real@example.com");
     expect(consoleError.mock.calls[0]?.[0]).not.toContain("hello there");
     // Confirmation must not be attempted when the notification itself failed.

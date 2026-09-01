@@ -16,6 +16,7 @@
 export type VisitorConfirmationEmailProps = {
   message: string;
   senderEmail: string;
+  senderName: string;
 };
 
 export type VisitorConfirmationEmailContent = {
@@ -61,6 +62,7 @@ const styles = {
 export default function visitorConfirmationEmail({
   message,
   senderEmail,
+  senderName,
 }: VisitorConfirmationEmailProps): VisitorConfirmationEmailContent {
   const heading = "Thanks for reaching out!";
 
@@ -78,7 +80,7 @@ export default function visitorConfirmationEmail({
     <div style="${styles.container}">
       <div style="${styles.card}">
         <h1 style="${styles.heading}">${escapeHtml(heading)}</h1>
-        <p style="${styles.text}">Hi${senderEmail ? " " + escapeHtml(senderEmail) : ""},</p>
+        <p style="${styles.text}">Hi${senderName ? " " + escapeHtml(senderName) : ""},</p>
         <p style="${styles.text}">Thank you for getting in touch. I&#39;ve received your message and will get back to you as soon as possible.</p>
         <hr style="${styles.hr}" />
         <p style="${styles.muted}">Here&#39;s a copy of what you sent:</p>
@@ -93,7 +95,7 @@ export default function visitorConfirmationEmail({
   const text = [
     heading,
     "",
-    `Hi ${senderEmail},`,
+    `Hi ${senderName},`,
     "",
     "Thank you for getting in touch. I've received your message and will get back to you as soon as possible.",
     "",

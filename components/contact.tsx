@@ -11,6 +11,7 @@ import { useSectionInView } from "@/lib/hooks";
 import { sendEmail } from "@/actions/sendEmail";
 import {
   emailId,
+  NAME_MAX_LENGTH,
   EMAIL_MAX_LENGTH,
   MESSAGE_MAX_LENGTH,
   TURNSTILE_SITE_KEY,
@@ -31,6 +32,7 @@ export default function Contact() {
   const { ref } = useSectionInView("Contact");
   // Controlled so a failed submit keeps what the user typed (React 19 resets
   // uncontrolled form actions), and we clear them only on success.
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
@@ -43,6 +45,7 @@ export default function Contact() {
       }
       toast.success("Email sent successfully!");
       track("contact_submit");
+      setName("");
       setEmail("");
       setMessage("");
       return { success: true };
@@ -155,23 +158,46 @@ export default function Contact() {
           data-lpignore="true"
           className="absolute left-[-9999px] h-0 w-0 overflow-hidden"
         />
-        <label htmlFor="senderEmail" className="sr-only">
-          Your email
-        </label>
-        <input
-          id="senderEmail"
-          name="senderEmail"
-          type="email"
-          required
-          maxLength={EMAIL_MAX_LENGTH}
-          autoComplete="email"
-          placeholder="Your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          aria-invalid={state?.error ? true : undefined}
-          aria-describedby={state?.error ? "contact-error" : undefined}
-          className="h-14 px-4 rounded-lg borderBlack outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
-        />
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
+            <label htmlFor="senderName" className="sr-only">
+              Your name
+            </label>
+            <input
+              id="senderName"
+              name="senderName"
+              type="text"
+              required
+              maxLength={NAME_MAX_LENGTH}
+              autoComplete="name"
+              placeholder="Your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              aria-invalid={state?.error ? true : undefined}
+              aria-describedby={state?.error ? "contact-error" : undefined}
+              className="h-14 w-full px-4 rounded-lg borderBlack outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="senderEmail" className="sr-only">
+              Your email
+            </label>
+            <input
+              id="senderEmail"
+              name="senderEmail"
+              type="email"
+              required
+              maxLength={EMAIL_MAX_LENGTH}
+              autoComplete="email"
+              placeholder="Your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={state?.error ? true : undefined}
+              aria-describedby={state?.error ? "contact-error" : undefined}
+              className="h-14 w-full px-4 rounded-lg borderBlack outline-none transition-all focus-ring dark:bg-white/80 dark:focus:bg-white"
+            />
+          </div>
+        </div>
         <label htmlFor="message" className="sr-only">
           Your message
         </label>

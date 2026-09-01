@@ -10,6 +10,7 @@ import contactFormEmail from "@/email/contact-form-email";
 import visitorConfirmationEmail from "@/email/visitor-confirmation-email";
 import {
   emailId,
+  NAME_MAX_LENGTH,
   EMAIL_MAX_LENGTH,
   MESSAGE_MAX_LENGTH,
   TURNSTILE_ACTION,
@@ -144,6 +145,7 @@ async function turnstileFailed(
 export const sendEmail = async (
   formData: FormData,
 ): Promise<SendEmailResult> => {
+  const senderName = formData.get("senderName");
   const senderEmail = formData.get("senderEmail");
   const message = formData.get("message");
   const honeypot = formData.get("contact_reason_hp");
@@ -157,6 +159,9 @@ export const sendEmail = async (
 
   // Validate first (cheap, synchronous) so malformed payloads don't spend a
   // siteverify round trip.
+  if (!validateString(senderName, NAME_MAX_LENGTH)) {
+    return { error: "Invalid sender name" };
+  }
   if (
     !validateString(senderEmail, EMAIL_MAX_LENGTH) ||
     !isValidEmail(senderEmail)
@@ -184,7 +189,11 @@ export const sendEmail = async (
   }
 
   try {
-    const { html, text } = contactFormEmail({ message, senderEmail });
+    const { html, text } = contactFormEmail({
+      message,
+      senderEmail,
+      senderName: senderName as string,
+    });
     const data = await getResend().emails.send({
       from: fromAddress,
       to: emailId,
@@ -201,7 +210,11 @@ export const sendEmail = async (
     // hello@rajpoot.dev is a Resend-only sender with no mailbox; replyTo
     // points replies to the real Zoho mailbox (manvendra@rajpoot.dev).
     try {
-      const confirmation = visitorConfirmationEmail({ message, senderEmail });
+      const confirmation = visitorConfirmationEmail({
+        message,
+        senderEmail,
+        senderName: senderName as string,
+      });
       await getResend().emails.send({
         from: confirmationFromAddress,
         to: senderEmail,

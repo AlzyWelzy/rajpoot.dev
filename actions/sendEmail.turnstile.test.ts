@@ -34,6 +34,7 @@ function form(fields: Record<string, string>): FormData {
 
 const validForm = (overrides: Record<string, string> = {}) =>
   form({
+    senderName: "Test User",
     senderEmail: "real@example.com",
     message: "hello there",
     "cf-turnstile-response": "test-token",
@@ -103,7 +104,11 @@ describe("sendEmail Turnstile verification", () => {
     const sendEmail = await freshSendEmail();
 
     const result = await sendEmail(
-      form({ senderEmail: "real@example.com", message: "hello there" }),
+      form({
+        senderName: "Test User",
+        senderEmail: "real@example.com",
+        message: "hello there",
+      }),
     );
 
     expect(result).toEqual({ error: "Verification failed. Please try again." });
@@ -230,6 +235,7 @@ describe("sendEmail Turnstile verification", () => {
 
     const result = await sendEmail(
       form({
+        senderName: "Test User",
         senderEmail: "real@example.com",
         message: "hello there",
         contact_reason_hp: "i am a bot",

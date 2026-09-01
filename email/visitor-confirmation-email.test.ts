@@ -7,6 +7,7 @@ describe("visitorConfirmationEmail", () => {
     const { html, text } = visitorConfirmationEmail({
       message: "Hello there",
       senderEmail: "a@b.com",
+      senderName: "Test User",
     });
 
     expect(html).toContain("<!DOCTYPE html>");
@@ -15,7 +16,7 @@ describe("visitorConfirmationEmail", () => {
 
     expect(text).toContain("Hello there");
     expect(text).toContain("Thanks for reaching out");
-    expect(text).toContain("a@b.com");
+    expect(text).toContain("Test User");
     // The plaintext alternative must stay free of markup, or clients that
     // prefer it will show tags to the reader.
     expect(text).not.toContain("<");
@@ -25,6 +26,7 @@ describe("visitorConfirmationEmail", () => {
     const { html } = visitorConfirmationEmail({
       message: "</p><script>alert('xss')</script>",
       senderEmail: '"><b>a@b.com',
+      senderName: '"><b>Test User',
     });
 
     expect(html).not.toContain("<script>");
@@ -32,12 +34,15 @@ describe("visitorConfirmationEmail", () => {
     // Single quotes too — an unescaped one breaks out of a single-quoted
     // attribute value just as a double quote breaks out of a double-quoted one.
     expect(html).toContain("alert(&#39;xss&#39;)");
-    expect(html).toContain("&quot;&gt;&lt;b&gt;a@b.com");
+    expect(html).toContain("&quot;&gt;&lt;b&gt;Test User");
     // Ampersands are escaped first, so an escape sequence can't be smuggled in
     // by submitting its literal text.
     expect(
-      visitorConfirmationEmail({ message: "&lt;", senderEmail: "a@b.com" })
-        .html,
+      visitorConfirmationEmail({
+        message: "&lt;",
+        senderEmail: "a@b.com",
+        senderName: "Test User",
+      }).html,
     ).toContain("&amp;lt;");
   });
 
@@ -45,6 +50,7 @@ describe("visitorConfirmationEmail", () => {
     const { html, text } = visitorConfirmationEmail({
       message: "line one\nline two",
       senderEmail: "a@b.com",
+      senderName: "Test User",
     });
 
     expect(html).toContain("line one<br />line two");
@@ -55,9 +61,10 @@ describe("visitorConfirmationEmail", () => {
     const { html, text } = visitorConfirmationEmail({
       message: "hello",
       senderEmail: "visitor@example.com",
+      senderName: "Test User",
     });
 
-    expect(html).toContain("visitor@example.com");
-    expect(text).toContain("Hi visitor@example.com");
+    expect(html).toContain("Test User");
+    expect(text).toContain("Hi Test User");
   });
 });
