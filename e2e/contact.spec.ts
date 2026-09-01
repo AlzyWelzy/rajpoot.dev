@@ -21,12 +21,14 @@ test.describe("contact form", () => {
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/#contact");
+    const name = page.getByPlaceholder("Your name");
     const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
     // WebKit drops fill() on this controlled type="email" input (the value never
     // reaches React state), so type it key-by-key and confirm it landed before
     // submitting — otherwise the empty email fails validation and no toast shows.
+    await name.fill("Test User");
     await email.click();
     await email.pressSequentially("visitor@example.com");
     await expect(email).toHaveValue("visitor@example.com");
@@ -40,6 +42,7 @@ test.describe("contact form", () => {
     await expect(page.getByText("Email sent successfully!")).toBeVisible({
       timeout: 15_000,
     });
+    await expect(name).toHaveValue("");
     await expect(email).toHaveValue("");
     await expect(message).toHaveValue("");
   });
@@ -47,10 +50,12 @@ test.describe("contact form", () => {
   test("Cmd/Ctrl+Enter submits from the message field", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/#contact");
+    const name = page.getByPlaceholder("Your name");
     const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
     // See the note above: type the email key-by-key so WebKit registers it.
+    await name.fill("Test User");
     await email.click();
     await email.pressSequentially("visitor@example.com");
     await expect(email).toHaveValue("visitor@example.com");
@@ -69,9 +74,11 @@ test.describe("contact form", () => {
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/#contact");
+    const name = page.getByPlaceholder("Your name");
     const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
+    await name.fill("Spam Bot");
     await email.click();
     await email.pressSequentially("bot@example.com");
     await expect(email).toHaveValue("bot@example.com");
