@@ -42,6 +42,9 @@ beforeEach(() => {
 afterEach(cleanup);
 
 function fillAndSubmit() {
+  fireEvent.change(screen.getByLabelText("Your name"), {
+    target: { value: "Test User" },
+  });
   fireEvent.change(screen.getByLabelText("Your email"), {
     target: { value: "someone@example.com" },
   });
@@ -61,6 +64,7 @@ describe("Contact form submission", () => {
     fillAndSubmit();
 
     await waitFor(() => expect(toastMock.success).toHaveBeenCalled());
+    expect(screen.getByLabelText("Your name")).toHaveValue("");
     expect(screen.getByLabelText("Your email")).toHaveValue("");
     expect(screen.getByLabelText("Your message")).toHaveValue("");
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
@@ -76,6 +80,7 @@ describe("Contact form submission", () => {
       expect(toastMock.error).toHaveBeenCalledWith("Invalid sender email"),
     );
     // A failed submit must not wipe what the user typed.
+    expect(screen.getByLabelText("Your name")).toHaveValue("Test User");
     expect(screen.getByLabelText("Your email")).toHaveValue(
       "someone@example.com",
     );
@@ -90,7 +95,7 @@ describe("Contact form submission", () => {
     fillAndSubmit();
 
     await waitFor(() => expect(screen.getByRole("alert")).toBeInTheDocument());
-    for (const label of ["Your email", "Your message"]) {
+    for (const label of ["Your name", "Your email", "Your message"]) {
       expect(screen.getByLabelText(label)).toHaveAttribute(
         "aria-invalid",
         "true",

@@ -81,6 +81,18 @@ describe("sendEmail", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("rejects a missing sender name", async () => {
+    const result = await sendEmail(
+      form({
+        senderName: "",
+        senderEmail: "real@example.com",
+        message: "hello there",
+      }),
+    );
+
+    expect(result).toEqual({ error: "Invalid sender name" });
+  });
+
   it("rejects a malformed sender email before sending", async () => {
     const result = await sendEmail(
       form({
