@@ -25,10 +25,13 @@ test.describe("contact form", () => {
     const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
-    // WebKit drops fill() on this controlled type="email" input (the value never
-    // reaches React state), so type it key-by-key and confirm it landed before
-    // submitting — otherwise the empty email fails validation and no toast shows.
-    await name.fill("Test User");
+    // WebKit drops fill() on controlled React inputs (the value never reaches
+    // React state), so type every field key-by-key and confirm it landed before
+    // submitting — otherwise the empty value fails required validation and no
+    // toast shows.
+    await name.click();
+    await name.pressSequentially("Test User");
+    await expect(name).toHaveValue("Test User");
     await email.click();
     await email.pressSequentially("visitor@example.com");
     await expect(email).toHaveValue("visitor@example.com");
@@ -54,8 +57,10 @@ test.describe("contact form", () => {
     const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
-    // See the note above: type the email key-by-key so WebKit registers it.
-    await name.fill("Test User");
+    // See the note above: type every field key-by-key so WebKit registers it.
+    await name.click();
+    await name.pressSequentially("Test User");
+    await expect(name).toHaveValue("Test User");
     await email.click();
     await email.pressSequentially("visitor@example.com");
     await expect(email).toHaveValue("visitor@example.com");
@@ -78,7 +83,9 @@ test.describe("contact form", () => {
     const email = page.getByPlaceholder("Your email");
     const message = page.getByPlaceholder("Your message");
 
-    await name.fill("Spam Bot");
+    await name.click();
+    await name.pressSequentially("Spam Bot");
+    await expect(name).toHaveValue("Spam Bot");
     await email.click();
     await email.pressSequentially("bot@example.com");
     await expect(email).toHaveValue("bot@example.com");
