@@ -155,6 +155,51 @@ literals into a shared constant and the normalization stops applying, breaking
 `components/contact.tsx` with an error that points at the caller rather than
 the cause.
 
+## Agent-facing surfaces: WebMCP and llms.txt
+
+**The contact form is a WebMCP tool** (`send_contact_message`), declared with
+`toolname` / `tooldescription` / `tooltitle` on the `<form>` and
+`toolparamdescription` on each field; Chrome synthesizes the JSON Schema from
+the controls. The strings live in `contactTool` in `lib/data.ts`, derived from
+the field-limit constants, because the synthesized schema drops `maxLength`.
+Browsers without WebMCP ignore all of it. Each of these looks optional and
+isn't:
+
+- **No `toolautosubmit`.** It sends a message to a real person, so Chrome fills
+  the form and waits for the visitor to press Send.
+- **The honeypot is `readOnly`.** Chrome leaves disabled and read-only controls
+  out of the schema. Without it, agents are offered an undescribed
+  `contact_reason_hp` string, and anything they put in it is silently dropped
+  as spam. `readOnly` rather than `disabled` because a disabled field isn't
+  submitted at all.
+- **`onSubmit` takes over agent submissions.** The browser expects
+  `event.respondWith(result)`, and only accepts it after `preventDefault()`,
+  during dispatch. React's form-action listener runs after `onSubmit` and
+  skips a prevented event, so for `agentInvoked` submits the component
+  prevents default, responds, and starts the action in a transition itself.
+  Without that, React prevents the event and never responds, and Chrome tells
+  the agent the call failed when the message was actually sent — which invites
+  a retry and a duplicate email.
+- **The attributes are server-rendered.** Adding them after hydration looks
+  cleaner, but Chrome logs a schema issue for each intermediate state
+  (`toolname` without `tooldescription`), and Lighthouse fails on it. A call
+  made before hydration is cancelled by Chrome, which tells the agent to
+  retry; it doesn't half-complete.
+
+The Lighthouse WebMCP audits are **not applicable unless the browser has
+WebMCP**: launch Chrome with `--enable-features=WebMCPTesting` or turn on the
+WebMCP flag in `chrome://flags`. Lighthouse 13.4.x also reports form
+coverage as not applicable even when every form is annotated; 13.5.0 reports
+it as a pass. `e2e/webmcp.spec.ts` drives the tool through the real
+`document.modelContext` API on Chromium.
+
+**`/llms.txt` is generated** by `lib/llms-txt.ts` from `lib/seo.ts` and
+`lib/data.ts`, and served by `app/llms.txt/route.ts` as a static route. Don't
+replace it with a file in `public/` — that restates identity outside
+`lib/seo.ts` and drifts. Every link must be absolute Markdown (`[text](url)`);
+Lighthouse fails the file otherwise. It carries `X-Robots-Tag: noindex` for
+the same reason the PDFs do.
+
 ## Environment
 
 Everything is optional; the site builds and runs without any of it.

@@ -17,6 +17,18 @@ test.describe("well-known routes", () => {
     expect(body).toContain("Contact: mailto:manvendra@rajpoot.dev");
     expect(body).toContain("Expires:");
   });
+
+  test("/llms.txt is served as noindexed Markdown text", async ({
+    request,
+  }) => {
+    const res = await request.get("/llms.txt");
+    expect(res.status()).toBe(200);
+    expect(res.headers()["content-type"]).toBe("text/plain; charset=utf-8");
+    expect(res.headers()["x-robots-tag"]).toBe("noindex");
+    const body = await res.text();
+    expect(body).toMatch(/^# Manvendra Rajpoot\n/);
+    expect(body).toContain("[Résumé (PDF)](https://www.rajpoot.dev/resume)");
+  });
 });
 
 test.describe("document routes", () => {

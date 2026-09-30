@@ -29,8 +29,12 @@ vi.mock("react-dom", async (importOriginal) => {
   return { ...actual, useFormStatus: useFormStatusMock };
 });
 
+import { renderToString } from "react-dom/server";
+
 import Contact from "./contact";
 import SubmitBtn from "./submit-btn";
+import { contactTool } from "@/lib/data";
+import { siteConfig } from "@/lib/seo";
 
 beforeEach(() => {
   sendEmailMock.mockReset();
@@ -41,7 +45,7 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-function fillAndSubmit() {
+function fillFields() {
   fireEvent.change(screen.getByLabelText("Your name"), {
     target: { value: "Test User" },
   });
@@ -51,6 +55,10 @@ function fillAndSubmit() {
   fireEvent.change(screen.getByLabelText("Your message"), {
     target: { value: "Hi there!" },
   });
+}
+
+function fillAndSubmit() {
+  fillFields();
   fireEvent.submit(
     screen.getByRole("button", { name: /send message/i }).closest("form")!,
   );
@@ -116,6 +124,127 @@ describe("Contact form submission", () => {
     expect(honeypot).toHaveAttribute("aria-hidden", "true");
     expect(honeypot).toHaveAttribute("tabindex", "-1");
     expect(honeypot).toHaveAttribute("autocomplete", "off");
+    // Read-only keeps it out of the WebMCP tool schema, so an agent is never
+    // offered the trap — while it is still submitted with the form.
+    expect(honeypot.readOnly).toBe(true);
+    expect(honeypot.disabled).toBe(false);
+  });
+});
+
+/**
+ * Dispatches a submit shaped like Chrome's WebMCP agent submission, including
+ * its precondition that respondWith() is only accepted once default has been
+ * prevented. Returns a getter for the promise the page responded with.
+ */
+function agentSubmit(form: HTMLFormElement) {
+  const event = new Event("submit", { bubbles: true, cancelable: true });
+  let response: Promise<unknown> | undefined;
+  Object.defineProperties(event, {
+    agentInvoked: { value: true },
+    respondWith: {
+      value: (promise: Promise<unknown>) => {
+        if (!event.defaultPrevented) {
+          throw new DOMException(
+            "To call respondWith, you must first call preventDefault.",
+            "InvalidStateError",
+          );
+        }
+        response = promise;
+      },
+    },
+  });
+  fireEvent(form, event);
+  return () => response;
+}
+
+describe("Contact form as a WebMCP tool", () => {
+  function form() {
+    return screen
+      .getByRole("button", { name: /send message/i })
+      .closest("form")!;
+  }
+
+  it("is annotated as a described tool, with every agent-fillable field described", () => {
+    render(<Contact />);
+    const el = form();
+
+    expect(el).toHaveAttribute("toolname", contactTool.name);
+    expect(el.getAttribute("tooldescription")).toContain(siteConfig.name);
+    // Human confirmation is deliberate: this sends a message to a person.
+    expect(el).not.toHaveAttribute("toolautosubmit");
+
+    // Mirrors the schema Chrome builds: named, editable, non-hidden controls.
+    const params = Array.from(
+      el.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+        "input[name]:not([type=hidden]), textarea[name]",
+      ),
+    ).filter((c) => !c.readOnly && !c.disabled);
+
+    expect(params.map((c) => c.name)).toEqual([
+      "senderName",
+      "senderEmail",
+      "message",
+    ]);
+    for (const control of params) {
+      expect(control.getAttribute("toolparamdescription")).toBe(
+        contactTool.params[control.name as keyof typeof contactTool.params],
+      );
+    }
+  });
+
+  it("ships its annotations in the server HTML, so the parser applies them together", () => {
+    // Added client-side one at a time, each intermediate state (a name with
+    // no description) is reported by Chrome as a schema issue.
+    const html = renderToString(<Contact />);
+    expect(html).toContain(`toolname="${contactTool.name}"`);
+    expect(html).toContain("tooldescription=");
+  });
+
+  it("answers an agent submission with the result, sending exactly once", async () => {
+    sendEmailMock.mockResolvedValue({ data: { id: "email_1" } });
+    render(<Contact />);
+    fillFields();
+
+    const response = agentSubmit(form());
+
+    await expect(response()).resolves.toEqual({ sent: true });
+    // React's own form-action path must not fire a second send.
+    expect(sendEmailMock).toHaveBeenCalledTimes(1);
+    const sent = sendEmailMock.mock.calls[0]![0] as FormData;
+    expect(sent.get("senderEmail")).toBe("someone@example.com");
+    // The visitor sees the same outcome as a manual submit.
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalled());
+    expect(screen.getByLabelText("Your message")).toHaveValue("");
+  });
+
+  it("reports a failed send to the agent instead of claiming success", async () => {
+    sendEmailMock.mockResolvedValue({
+      error: "Verification failed. Please try again.",
+    });
+    render(<Contact />);
+    fillFields();
+
+    const response = agentSubmit(form());
+
+    await expect(response()).resolves.toEqual({
+      sent: false,
+      error: "Verification failed. Please try again.",
+    });
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Verification failed",
+    );
+  });
+
+  it("leaves human submissions on React's normal action path", async () => {
+    sendEmailMock.mockResolvedValue({ data: { id: "email_1" } });
+    render(<Contact />);
+    fillFields();
+
+    const event = new Event("submit", { bubbles: true, cancelable: true });
+    fireEvent(form(), event);
+
+    await waitFor(() => expect(sendEmailMock).toHaveBeenCalledTimes(1));
+    expect(event.defaultPrevented).toBe(true);
   });
 });
 

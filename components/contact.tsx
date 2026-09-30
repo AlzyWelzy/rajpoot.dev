@@ -1,6 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { m } from "motion/react";
 import { track } from "@vercel/analytics";
 import toast from "react-hot-toast";
@@ -8,8 +15,11 @@ import toast from "react-hot-toast";
 import SectionHeading from "./section-heading";
 import SubmitBtn from "./submit-btn";
 import { useSectionInView } from "@/lib/hooks";
+import { isAgentSubmit } from "@/lib/webmcp";
+import type { SendEmailResult } from "@/lib/types";
 import { sendEmail } from "@/actions/sendEmail";
 import {
+  contactTool,
   emailId,
   NAME_MAX_LENGTH,
   EMAIL_MAX_LENGTH,
@@ -28,6 +38,18 @@ declare global {
 
 type FormState = { error?: string; success?: boolean } | null;
 
+/** What the WebMCP tool reports back to the agent. */
+type ContactToolResult = { sent: true } | { sent: false; error: string };
+
+/**
+ * Pending agent invocations, keyed by the exact FormData the action receives,
+ * so each result settles the invocation that produced it and nothing else.
+ */
+const agentInvocations = new WeakMap<
+  FormData,
+  PromiseWithResolvers<ContactToolResult>
+>();
+
 export default function Contact() {
   const { ref } = useSectionInView("Contact");
   // Controlled so a failed submit keeps what the user typed (React 19 resets
@@ -38,13 +60,28 @@ export default function Contact() {
 
   const [state, formAction] = useActionState<FormState, FormData>(
     async (_prev, formData) => {
-      const { error } = await sendEmail(formData);
+      const agent = agentInvocations.get(formData);
+      agentInvocations.delete(formData);
+
+      let result: SendEmailResult;
+      try {
+        result = await sendEmail(formData);
+      } catch (err) {
+        // Settle the agent's call before this reaches the error boundary, or
+        // the tool invocation would hang with no result.
+        agent?.reject(err);
+        throw err;
+      }
+
+      const { error } = result;
       if (error) {
         toast.error(error);
+        agent?.resolve({ sent: false, error });
         return { error };
       }
       toast.success("Email sent successfully!");
       track("contact_submit");
+      agent?.resolve({ sent: true });
       setName("");
       setEmail("");
       setMessage("");
@@ -52,6 +89,29 @@ export default function Contact() {
     },
     null,
   );
+
+  // An agent submission (WebMCP) has to be answered with the tool's result
+  // via event.respondWith(), and the browser only accepts that once default
+  // has been prevented, during dispatch. React's own form-action handling
+  // can't cover it: it runs *after* onSubmit and skips the action entirely if
+  // the event is already prevented. Without this, React would prevent the
+  // event itself and never respond, and the browser would report the call to
+  // the agent as failed although the message was sent — inviting a retry and
+  // a duplicate email. So for agents, this handler takes over the submission
+  // and schedules the action itself. React still shows the pending form
+  // status, because a transition was started during the prevented submit.
+  // Human submissions return early and take React's normal path untouched.
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const event = e.nativeEvent;
+    if (!isAgentSubmit(event)) return;
+
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const invocation = Promise.withResolvers<ContactToolResult>();
+    agentInvocations.set(formData, invocation);
+    event.respondWith(invocation.promise);
+    startTransition(() => formAction(formData));
+  };
 
   // Turnstile tokens are single-use, and this section stays mounted after a
   // submit (unlike a page navigation, which would render a fresh widget), so
@@ -143,14 +203,41 @@ export default function Contact() {
         ref={formRef}
         className="mt-10 flex flex-col dark:text-black"
         action={formAction}
+        onSubmit={handleSubmit}
+        // WebMCP: registers this form as an agent-callable tool. There is
+        // deliberately no `toolautosubmit` — this sends a message to a real
+        // person, so the browser pauses after the agent fills the fields and
+        // the visitor presses Send (which also keeps Turnstile's check a human
+        // one). Each field sets toolparamdescription explicitly: Chrome would
+        // fall back to the sr-only label ("Your name"), but that tells an
+        // agent nothing about limits or intent.
+        //
+        // Server-rendered on purpose, not added after hydration. Chrome logs
+        // a schema issue for every intermediate state when the attributes
+        // arrive one at a time on a live form — which is exactly what a
+        // client-side render does — and Lighthouse fails the page on it. The
+        // parser applies them together. A call an agent makes before
+        // hydration is cancelled by Chrome ("tool definition was updated")
+        // rather than half-completed, so the agent is told to retry.
+        toolname={contactTool.name}
+        tooltitle={contactTool.title}
+        tooldescription={contactTool.description}
       >
         {/* Honeypot: hidden from real users; spam bots fill it and get
             silently dropped server-side. A non-semantic name + ignore hints
             keep browsers/password managers from autofilling it (which would
-            wrongly drop a legitimate message). */}
+            wrongly drop a legitimate message).
+
+            readOnly keeps it out of the WebMCP tool schema — Chrome skips
+            disabled and read-only controls when building it. Without that, an
+            agent would be offered an undescribed "contact_reason_hp" string,
+            could fill it in good faith, and have the message silently
+            dropped. Unlike `disabled`, a read-only field is still submitted,
+            and scripts that set .value directly still trip it. */}
         <input
           type="text"
           name="contact_reason_hp"
+          readOnly
           tabIndex={-1}
           autoComplete="off"
           aria-hidden="true"
@@ -166,6 +253,7 @@ export default function Contact() {
             <input
               id="senderName"
               name="senderName"
+              toolparamdescription={contactTool.params.senderName}
               type="text"
               required
               maxLength={NAME_MAX_LENGTH}
@@ -185,6 +273,7 @@ export default function Contact() {
             <input
               id="senderEmail"
               name="senderEmail"
+              toolparamdescription={contactTool.params.senderEmail}
               type="email"
               required
               maxLength={EMAIL_MAX_LENGTH}
@@ -204,6 +293,7 @@ export default function Contact() {
         <textarea
           id="message"
           name="message"
+          toolparamdescription={contactTool.params.message}
           required
           maxLength={MESSAGE_MAX_LENGTH}
           placeholder="Your message"

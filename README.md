@@ -22,6 +22,8 @@ Live at **[rajpoot.dev](https://www.rajpoot.dev)**.
 - Full `Metadata` + `Viewport` objects (OG, Twitter, canonical, robots, theme color)
 - JSON‑LD structured data (`Person`, `WebSite`, `ProfilePage`)
 - Dynamic `app/sitemap.ts` and `app/robots.ts`
+- `/llms.txt` for language models, generated from the same site data
+- The contact form is exposed to in-browser AI agents as a [WebMCP](https://github.com/webmachinelearning/webmcp) tool
 - Web App Manifest via `app/manifest.ts`
 - Dynamic Open Graph image (1200×630)
 - Preconfigured security headers (CSP, HSTS, COOP/CORP, referrer policy, permissions policy, etc.)

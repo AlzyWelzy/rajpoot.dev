@@ -147,6 +147,22 @@ export const NAME_MAX_LENGTH = 100;
 export const EMAIL_MAX_LENGTH = 500;
 export const MESSAGE_MAX_LENGTH = 5000;
 
+// The contact form's WebMCP tool definition (see lib/webmcp.ts). The browser
+// builds the tool's input schema from the form controls, but it carries over
+// neither `maxLength` nor the fields' purpose, so the limits and intent are
+// restated in prose here — derived from the constants above so they can't
+// drift from what the server action enforces.
+export const contactTool = {
+  name: "send_contact_message",
+  title: `Contact ${siteConfig.shortName}`,
+  description: `Send a message to ${siteConfig.name}, ${siteConfig.jobTitle}, through the contact form on ${new URL(siteConfig.url).host}. Use it for job opportunities, project enquiries or questions about their work; replies arrive by email. The visitor reviews the filled-in form and presses Send themselves.`,
+  params: {
+    senderName: `Full name of the person sending the message (max ${NAME_MAX_LENGTH} characters).`,
+    senderEmail: `Email address replies should go to (max ${EMAIL_MAX_LENGTH} characters). It also receives a confirmation email with the résumé attached.`,
+    message: `The message itself, in plain text (max ${MESSAGE_MAX_LENGTH} characters). Include enough context to reply to, such as the role, company or project.`,
+  },
+} as const;
+
 export const documentsName = {
   cover_letter: "Manvendra_Rajpoot_Cover_Letter.pdf",
   resume: "Manvendra_Rajpoot_Resume.pdf",

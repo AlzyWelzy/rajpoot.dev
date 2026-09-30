@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import robots from "./robots";
 import sitemap from "./sitemap";
 import manifest from "./manifest";
+import { GET as getLlmsTxt } from "./llms.txt/route";
 import { siteConfig } from "@/lib/seo";
+import { llmsTxt } from "@/lib/llms-txt";
 
 describe("robots.txt", () => {
   it("allows everything and points at the sitemap", () => {
@@ -37,5 +39,15 @@ describe("web app manifest", () => {
     expect(
       result.icons?.some((i) => String(i.purpose).includes("maskable")),
     ).toBe(true);
+  });
+});
+
+describe("llms.txt route", () => {
+  it("serves the rendered file as noindexed UTF-8 text", async () => {
+    const res = getLlmsTxt();
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toBe("text/plain; charset=utf-8");
+    expect(res.headers.get("X-Robots-Tag")).toBe("noindex");
+    expect(await res.text()).toBe(llmsTxt());
   });
 });
