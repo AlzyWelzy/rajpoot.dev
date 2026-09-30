@@ -186,6 +186,17 @@ isn't:
   made before hydration is cancelled by Chrome, which tells the agent to
   retry; it doesn't half-complete.
 
+**Real visitors only get WebMCP through the origin trial.** Chrome ships
+WebMCP behind the `WebMCP` origin trial (Chrome 149–156). One trial feature
+gates both the imperative API and declarative forms. `next.config.mjs` sends
+`WEBMCP_ORIGIN_TRIAL_TOKEN` as an `Origin-Trial` header on every route. It
+has to be a header, not a `<meta>` tag injected later, because Chrome
+registers the form's tool while parsing the HTML. Tokens are bound to
+`https://www.rajpoot.dev` and expire. When one lapses nothing breaks, the
+tool just disappears for everyone without the flag. So renew it in Vercel
+before it expires, and remove the whole mechanism once WebMCP ships
+unflagged.
+
 The Lighthouse WebMCP audits are **not applicable unless the browser has
 WebMCP**: launch Chrome with `--enable-features=WebMCPTesting` or turn on the
 WebMCP flag in `chrome://flags`. Lighthouse 13.4.x also reports form
@@ -212,6 +223,7 @@ Everything is optional; the site builds and runs without any of it.
 | `TURNSTILE_SECRET`               | **Every submission rejected** — fails closed, by design     |
 | `TURNSTILE_HOSTNAMES`            | Defaults to the site's own host (bare + www) + localhost    |
 | `SHOW_TESTIMONIALS`              | Testimonials section hidden (default)                       |
+| `WEBMCP_ORIGIN_TRIAL_TOKEN`      | No `Origin-Trial` header; WebMCP only where flag-enabled    |
 | `E2E_TESTING`                    | Set by Playwright at runtime; skips the actual send         |
 | `E2E_SKIP_BUILD`                 | Set by CI; reuse a `.next` restored from the build artifact |
 
