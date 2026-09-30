@@ -22,10 +22,14 @@ type ModelContext = {
 type WithModelContext = Document & { modelContext: ModelContext };
 type AgentWindow = Window & { __toolResult?: { ok: string } | { err: string } };
 
+// Decided from browserName alone, before any browser launches: the flag below
+// is Chromium's, and WebKit on Linux refuses to start with it at all.
+test.skip(({ browserName }) => browserName !== "chromium", "Chromium-only");
 test.use({ launchOptions: { args: ["--enable-features=WebMCPTesting"] } });
 
 test.beforeEach(async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== "chromium", "WebMCP is Chromium-only");
+  // mobile-chrome is Chromium too; one desktop project is coverage enough.
+  test.skip(testInfo.project.name !== "chromium", "desktop Chromium only");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#contact");
   test.skip(

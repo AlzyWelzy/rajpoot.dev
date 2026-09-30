@@ -23,6 +23,20 @@ test.describe("accessibility", () => {
       );
       await page.reload();
       await page.waitForLoadState("networkidle");
+      // Reduced motion doesn't cover the header: motion's reducedMotion="user"
+      // drops transform animations but keeps opacity ones, so the nav items
+      // still fade in on a stagger. Scanned mid-fade, the last links are
+      // measured at their blended colour and fail color-contrast
+      // intermittently. Wait for the entrance to finish.
+      await expect
+        .poll(() =>
+          page.evaluate(() =>
+            [...document.querySelectorAll("nav, nav li")].every(
+              (el) => getComputedStyle(el).opacity === "1",
+            ),
+          ),
+        )
+        .toBe(true);
 
       const results = await new AxeBuilder({ page }).analyze();
       const serious = results.violations.filter((v) =>
