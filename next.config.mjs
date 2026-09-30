@@ -165,6 +165,8 @@ const nextConfig = {
     // forbids; `next start` and Vercel run production React, which never evals.
     const isProd = process.env.NODE_ENV === "production";
 
+    const originTrialToken = process.env.WEBMCP_ORIGIN_TRIAL_TOKEN?.trim();
+
     const securityHeaders = ({ upgradeInsecure }) => [
       ...(isProd
         ? [{ key: "Content-Security-Policy", value: csp({ upgradeInsecure }) }]
@@ -212,6 +214,24 @@ const nextConfig = {
         source: "/:file(.*\\.pdf)",
         headers: [{ key: "X-Robots-Tag", value: "noindex" }],
       },
+      // WebMCP is still a Chrome origin trial, so without this token ordinary
+      // visitors' Chrome never exposes the contact form as a tool — only
+      // browsers with the flag switched on do. Sent as a header rather than a
+      // <meta> because Chrome registers the form's tool while parsing the
+      // HTML, and the header is guaranteed to be in effect before that.
+      //
+      // The token is public by design and bound to the registered origin
+      // (https://www.rajpoot.dev), so it does nothing on localhost or preview
+      // URLs. Read at build time like the rest of this function; renewing it
+      // means updating the env var and redeploying. See AGENTS.md.
+      ...(originTrialToken
+        ? [
+            {
+              source: "/:path*",
+              headers: [{ key: "Origin-Trial", value: originTrialToken }],
+            },
+          ]
+        : []),
     ];
   },
 };
