@@ -1,3 +1,39 @@
+import { checkOriginTrialToken } from "./lib/origin-trial-token.mjs";
+
+// The canonical origin, for validating the origin-trial token below. It must
+// equal siteConfig.url in lib/seo.ts, which this file can't import (it's
+// TypeScript); lib/origin-trial-token.test.ts fails if the two drift.
+const SITE_URL = "https://www.rajpoot.dev";
+
+/**
+ * The WebMCP origin-trial token(s) to serve, validated. Unset is fine — the
+ * feature just stays flag-only. Set but unusable fails the build: Chrome
+ * rejects a bad token without any visible error, so this is the only point
+ * where the mistake can be made loud. Several tokens (e.g. across a renewal)
+ * may be given comma- or space-separated.
+ */
+function webMcpOriginTrialTokens() {
+  const tokens = (process.env.WEBMCP_ORIGIN_TRIAL_TOKEN ?? "")
+    .split(/[\s,]+/)
+    .filter(Boolean);
+  for (const token of tokens) {
+    const { errors, warnings } = checkOriginTrialToken(token, {
+      feature: "WebMCP",
+      siteUrl: SITE_URL,
+    });
+    const which = `WEBMCP_ORIGIN_TRIAL_TOKEN (${token.slice(0, 12)}…)`;
+    for (const warning of warnings) console.warn(`⚠ ${which}: ${warning}.`);
+    if (errors.length) {
+      throw new Error(
+        `${which} would be rejected by Chrome on ${SITE_URL}:\n` +
+          errors.map((e) => `  - ${e}`).join("\n") +
+          "\nFix or unset it in the deployment's environment variables. See AGENTS.md.",
+      );
+    }
+  }
+  return tokens;
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -165,7 +201,7 @@ const nextConfig = {
     // forbids; `next start` and Vercel run production React, which never evals.
     const isProd = process.env.NODE_ENV === "production";
 
-    const originTrialToken = process.env.WEBMCP_ORIGIN_TRIAL_TOKEN?.trim();
+    const originTrialTokens = webMcpOriginTrialTokens();
 
     const securityHeaders = ({ upgradeInsecure }) => [
       ...(isProd
@@ -224,11 +260,13 @@ const nextConfig = {
       // (https://www.rajpoot.dev), so it does nothing on localhost or preview
       // URLs. Read at build time like the rest of this function; renewing it
       // means updating the env var and redeploying. See AGENTS.md.
-      ...(originTrialToken
+      ...(originTrialTokens.length
         ? [
             {
               source: "/:path*",
-              headers: [{ key: "Origin-Trial", value: originTrialToken }],
+              headers: [
+                { key: "Origin-Trial", value: originTrialTokens.join(", ") },
+              ],
             },
           ]
         : []),
