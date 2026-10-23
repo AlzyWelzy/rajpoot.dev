@@ -17,7 +17,11 @@ type RegisteredTool = {
 };
 type ModelContext = {
   getTools(): Promise<RegisteredTool[]>;
-  executeTool(tool: RegisteredTool, args: string): Promise<string>;
+  // Chrome 15x takes the arguments as an object (it took a JSON string before).
+  executeTool(
+    tool: RegisteredTool,
+    args: Record<string, unknown>,
+  ): Promise<string | Record<string, unknown>>;
 };
 type WithModelContext = Document & { modelContext: ModelContext };
 type AgentWindow = Window & { __toolResult?: { ok: string } | { err: string } };
@@ -56,8 +60,12 @@ async function invokeContactTool(page: Page, args: Record<string, string>) {
     const [tool] = await modelContext.getTools();
     const win = window as AgentWindow;
     delete win.__toolResult;
-    modelContext.executeTool(tool!, JSON.stringify(args)).then(
-      (ok) => (win.__toolResult = { ok }),
+    modelContext.executeTool(tool!, args).then(
+      // The result may come back as a JSON string or an object; normalize.
+      (ok) =>
+        (win.__toolResult = {
+          ok: typeof ok === "string" ? ok : JSON.stringify(ok),
+        }),
       (err: unknown) => (win.__toolResult = { err: String(err) }),
     );
   }, args);
