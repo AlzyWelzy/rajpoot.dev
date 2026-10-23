@@ -105,7 +105,7 @@ export default function Intro() {
         </Link>
 
         <a
-          aria-label="Download Manvendra Rajpoot's resume (PDF)"
+          aria-label="Download CV: Manvendra Rajpoot's resume (PDF)"
           className="group bg-white px-7 py-3 flex items-center gap-2 rounded-full outline-none focus-ring hover:scale-110 active:scale-105 transition cursor-pointer borderBlack dark:bg-white/10"
           href="/resume"
           target="_blank"
