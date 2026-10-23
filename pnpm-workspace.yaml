@@ -8,6 +8,10 @@
 # is pinned directly too: postcss's own nanoid dependency varies by patch
 # version (8.5.25 pins a vulnerable 3.3.16, 8.5.26 a patched 3.3.18), so
 # floating on postcss alone isn't reliable — see GHSA-2v37-7h3g-55p8.
+# brace-expansion, js-yaml and vite are dev-only: pulled in through eslint 9
+# (held at 9.x, see AGENTS.md) and vitest, and forced to patched versions so the
+# full `pnpm audit` is clean too. braces (via eslint-config-next) has no patched
+# release yet; it runs only at lint time.
 # allowBuilds: native postinstall scripts pnpm 11 requires explicit approval for.
 allowBuilds:
   esbuild: true
@@ -19,3 +23,6 @@ overrides:
   sharp: ^0.35.3
   postcss: ^8.5.23
   nanoid: ^3.3.17
+  brace-expansion@1: ^1.1.20
+  js-yaml@4: ^4.3.2
+  vite@8: ^8.1.6
