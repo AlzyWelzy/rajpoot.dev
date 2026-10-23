@@ -191,10 +191,20 @@ WebMCP behind the `WebMCP` origin trial (Chrome 149–156). One trial feature
 gates both the imperative API and declarative forms. `next.config.mjs` sends
 `WEBMCP_ORIGIN_TRIAL_TOKEN` as an `Origin-Trial` header on every route. It
 has to be a header, not a `<meta>` tag injected later, because Chrome
-registers the form's tool while parsing the HTML. Tokens are bound to
-`https://www.rajpoot.dev` and expire. When one lapses nothing breaks, the
-tool just disappears for everyone without the flag. So renew it in Vercel
-before it expires, and remove the whole mechanism once WebMCP ships
+registers the form's tool while parsing the HTML.
+
+**A bad token fails the build, on purpose.** Chrome rejects an unusable
+token without any visible error: the header is served and the feature
+silently never turns on. The only place that shows why is DevTools →
+Application → Frames. `lib/origin-trial-token.mjs` decodes each token at
+build time and throws with the reason if Chrome would reject it on
+`https://www.rajpoot.dev`. It also warns 30 days before expiry. That already
+happened once: the first token was registered with **third-party matching**,
+and Chrome validates those only against the origin of a script that injects
+them, so a token served in the site's own header is `WrongOrigin` on every
+load. Register tokens with _match all subdomains_ on (an apex-origin token
+needs it to cover `www`) and third-party matching off. Unset is fine; the
+feature just stays flag-only. Remove the mechanism once WebMCP ships
 unflagged.
 
 The Lighthouse WebMCP audits are **not applicable unless the browser has
@@ -215,17 +225,17 @@ the same reason the PDFs do.
 
 Everything is optional; the site builds and runs without any of it.
 
-| Key                              | Effect if unset                                             |
-| -------------------------------- | ----------------------------------------------------------- |
-| `RESEND_API_KEY`                 | Form validates, then returns a friendly error               |
-| `RESEND_FROM`                    | Falls back to the Resend sandbox sender                     |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Widget not rendered; every submission then fails the gate   |
-| `TURNSTILE_SECRET`               | **Every submission rejected** — fails closed, by design     |
-| `TURNSTILE_HOSTNAMES`            | Defaults to the site's own host (bare + www) + localhost    |
-| `SHOW_TESTIMONIALS`              | Testimonials section hidden (default)                       |
-| `WEBMCP_ORIGIN_TRIAL_TOKEN`      | No `Origin-Trial` header; WebMCP only where flag-enabled    |
-| `E2E_TESTING`                    | Set by Playwright at runtime; skips the actual send         |
-| `E2E_SKIP_BUILD`                 | Set by CI; reuse a `.next` restored from the build artifact |
+| Key                              | Effect if unset                                                                               |
+| -------------------------------- | --------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`                 | Form validates, then returns a friendly error                                                 |
+| `RESEND_FROM`                    | Falls back to the Resend sandbox sender                                                       |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Widget not rendered; every submission then fails the gate                                     |
+| `TURNSTILE_SECRET`               | **Every submission rejected** — fails closed, by design                                       |
+| `TURNSTILE_HOSTNAMES`            | Defaults to the site's own host (bare + www) + localhost                                      |
+| `SHOW_TESTIMONIALS`              | Testimonials section hidden (default)                                                         |
+| `WEBMCP_ORIGIN_TRIAL_TOKEN`      | No `Origin-Trial` header; WebMCP only where flag-enabled. **Set but invalid fails the build** |
+| `E2E_TESTING`                    | Set by Playwright at runtime; skips the actual send                                           |
+| `E2E_SKIP_BUILD`                 | Set by CI; reuse a `.next` restored from the build artifact                                   |
 
 ## Generated files
 
