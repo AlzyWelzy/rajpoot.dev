@@ -1,0 +1,152 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — RESUME (Python Developer)
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Resume_Python_Developer.tex
+%  Same preamble and header as Manvendra_Rajpoot_Resume.tex.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{0.99}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+% ---------- section style: bold + full-width rule ----------
+\titleformat{\section}
+  {\bfseries\large}{}{0pt}
+  {}
+  [\vspace{-6pt}{\color{rulecolor}\rule{\textwidth}{0.4pt}}]
+\titlespacing*{\section}{0pt}{3pt}{2.4pt}
+
+% ---------- tight bullets ----------
+\setlist[itemize]{label=\textbullet, leftmargin=0.2in,
+                  itemsep=4.507pt, parsep=0pt, topsep=1.8pt,
+                  before=\RaggedRight}
+
+% ---------- reusable macros ----------
+% \entry{Role}{Company}{Dates} : three-column bold row
+\newcommand{\entry}[3]{%
+  \vspace{4.5pt}\noindent\textbf{#1}\hfill\textbf{#2}\hfill{\color{subtlegray}#3}\par\vspace{2pt}}
+
+%==============================================================
+\begin{document}
+
+% ---------- header ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://www.rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://www.rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{1pt}
+
+% ---------- experience ----------
+\section{Experience}
+
+\entry{Python Developer}{CloudTechTiq}{Nov 2024 -- Present}
+\begin{itemize}
+  \item Architected a multi-tenant hosting and billing/ERP SaaS on \textbf{Django
+        REST Framework} spanning 25+ apps and 230+ ViewSets under a unified
+        \texttt{/api/} namespace.
+  \item Designed a dual-gateway payment system (\textbf{Razorpay} +
+        \textbf{Stripe}) with HMAC-SHA256 webhook idempotency to prevent duplicate
+        charges, coordinating payment, invoicing, provisioning, and double-entry
+        ledger reconciliation, plus Indian GST e-invoicing (EINV-2.1) through the
+        NIC gateway with IRN generation and signed QR codes.
+  \item Extracted billing into a standalone \textbf{FastAPI} microservice
+        (billing-ms) as the platform's single billing authority: double-entry
+        ledger, multi-invoice payment allocation and refunds, proforma
+        \texttt{->} final invoice posting, and multi-entity issuance that
+        resolves legal entity, currency and GST/VAT from the billing address.
+  \item Built an OAuth2/OpenID authorization server and \textbf{FastAPI}
+        gateway to \textbf{Apache CloudStack} for VMs, volumes, networks and
+        templates, with webhook-first state sync, a polling fallback, and live
+        job progress streamed to clients over \textbf{SSE}.
+  \item Secured the platform with RS512 \textbf{JWT} auth (kid-keyed JWKS,
+        refresh-token rotation over HTTPOnly cookies), a 2FA flow over email OTP
+        and RFC-6238 TOTP, and a 43-permission department-scoped RBAC.
+  \item Shipped real-time notifications over a \textbf{Django Channels} 4 + Redis
+        WebSocket server with JWT-authenticated async consumers, backed by a
+        24-task \textbf{Celery} system (late-ack, worker-lost requeue).
+  \item Built a service-provisioning engine that tracks each order through its
+        lifecycle across seven service types, automating bare-metal setup over an
+        HPE iLO Redfish wrapper and Celery-driven IP allocation.
+  \item Built and open-sourced a type-safe Namecheap SSL/domain SDK
+        (\textbf{httpx}, \textbf{Pydantic v2}, mypy-strict), published to PyPI ---
+        \href{https://github.com/alzywelzy/namecheap-wrapper}{github.com/alzywelzy/namecheap-wrapper}.
+  \item Published open-source \textbf{Python} services: Shortly, a URL
+        shortener (FastAPI, PostgreSQL, Redis read-through cache, Docker
+        Compose, systemd) and fastapi-genesis, a feature-sliced FastAPI starter
+        on async SQLAlchemy 2, Alembic, uv, ruff and ty.
+  \item Planned service migrations and cutovers with written runbooks (a check
+        and a rollback per step), architecture decision records, and a test-parity
+        gate so every existing test is ported or explicitly dropped before release.
+  \item Designed scheduled and queued background work with leases,
+        heartbeats, retries and dead-letter queues so failed jobs surface
+        instead of disappearing.
+  \item Eliminated N+1 queries via Prefetch/OuterRef/Exists across a dual
+        async/sync database layer (asyncpg + psycopg) on SQLAlchemy 2.0 with
+        connection pooling and keyset cursor pagination.
+\end{itemize}
+
+% ---------- education ----------
+\section{Education}
+\entry{Bachelor of Computer Applications (BCA)}{Bundelkhand University}{Jul 2021 -- Jun 2024}
+\begin{itemize}
+  \item Built an AI-powered news summarizer in Python as a final-year academic
+        project, using the OpenAI API to condense full-length articles into short,
+        readable digests.
+\end{itemize}
+
+% ---------- skills ----------
+\section{Technical Skills}
+\begin{itemize}
+  \item \textbf{Languages:} Python, TypeScript, JavaScript, SQL, Bash
+  \item \textbf{Backend:} Django, Django REST Framework, FastAPI, Hono, Celery, SQLAlchemy, Drizzle, Pydantic, Zod, WebSockets, SSE
+  \item \textbf{Data:} PostgreSQL, Redis, MySQL, MongoDB, Cloudflare D1/R2, RabbitMQ, Alembic
+  \item \textbf{DevOps \& Cloud:} Docker, Docker Compose, Docker Swarm, Kubernetes, GitHub Actions, GHCR, NGINX, Gunicorn, Linux/systemd, AWS (EC2, S3, RDS, Lambda), GCP, Azure, Cloudflare (Workers, Pages, DNS), Apache CloudStack
+  \item \textbf{Security \& Payments:} OAuth2/OpenID, JWT/JWKS, WebAuthn/passkeys, 2FA/TOTP, RBAC, HMAC, Stripe, Razorpay
+  \item \textbf{Observability \& Testing:} OpenTelemetry, Prometheus, Grafana, Loki, Tempo; pytest, Vitest, Playwright, CI/CD
+  \item \textbf{AI \& Tooling:} OpenAI API, LangChain; uv, Poetry, ruff, mypy, Biome, ESLint
+\end{itemize}
+
+\end{document}

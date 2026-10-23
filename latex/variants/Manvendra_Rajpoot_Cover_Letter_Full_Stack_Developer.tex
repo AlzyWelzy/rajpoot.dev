@@ -1,0 +1,120 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — COVER LETTER (Full-Stack Developer)
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Cover_Letter_Full_Stack_Developer.tex
+%  Same preamble and header as Manvendra_Rajpoot_Resume.tex.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.4366}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+\setlength{\parskip}{11pt}
+
+% only ONE role variable — edit if the title differs, otherwise leave it
+\newcommand{\RoleTitle}{Full-Stack Developer}
+
+\begin{document}
+
+% ---------- header ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://www.rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://www.rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{2pt}
+{\color{rulecolor}\rule{\textwidth}{0.4pt}}
+
+\vspace{18pt}
+
+Dear Hiring Manager,
+
+I am writing to apply for the \RoleTitle{} role on your team. I build products end to
+end: the database schema, the API, the payment and authentication flows, the React
+interface and the pipeline that ships it. I am most useful where a feature crosses every
+layer and someone needs to own all of it.
+
+At CloudTechTiq I architected a multi-tenant hosting and billing/ERP platform on Django
+REST Framework, more than 25 apps and 230 ViewSets behind one API. I designed its
+dual-gateway payment system across Razorpay and Stripe with HMAC-SHA256 webhook
+idempotency, wired through invoicing, provisioning and double-entry ledger reconciliation,
+and GST e-invoicing against the NIC gateway. I built an OAuth2/OpenID FastAPI gateway to
+Apache CloudStack that streams job progress over Server-Sent Events, and secured the
+platform with RS512 JWT and JWKS, two-factor sign-in and department-scoped RBAC, with
+real-time notifications over Django Channels and Celery for background work.
+
+On the same platform I built the customer and admin console in React 18, Redux Toolkit
+and Vite across 35+ feature modules, including an in-browser VM terminal on xterm.js,
+Razorpay checkout and Microsoft sign-in through MSAL. I also built Workforce, an HR
+platform with a FastAPI backend and a React 19 TypeScript frontend, connected to the
+console by SSO token exchange, and I shipped all of it through multi-stage Docker images
+and GitHub Actions publishing to GHCR.
+
+Along the way I have built offline-first React 19 patterns with TanStack Query and
+an IndexedDB outbox that replays writes on reconnect, typed TypeScript API layers with
+Zod and Pydantic contracts and OpenAPI specs, and fast static web surfaces in Next.js and
+Astro with a strict Content Security Policy and Lighthouse CI budgets. I plan migrations
+with written runbooks that carry a check and a rollback for every step, and gate releases
+on a test-parity check so nothing silently loses coverage. My portfolio,
+\href{https://www.rajpoot.dev}{rajpoot.dev}, is Next.js 16 with Playwright across
+browsers and a coverage gate in CI.
+
+Working across the stack has taught me to design the contract first, to treat
+payments and authentication as the parts that cannot fail, and to write the decisions down
+so the team can move quickly without re-arguing them. I am
+equally comfortable in a Django serializer, a Hono route, a React component or a GitHub
+Actions workflow, and I enjoy the moments where a bug crosses all of them and someone has
+to follow it from the browser down to the database and back.
+
+I would welcome the chance to discuss how this experience fits your team, and I am
+happy to walk through any of the systems above in technical detail. Thank you for your
+time and consideration.
+
+\vspace{\stretch{1}}
+
+Sincerely,\\[6pt]
+Manvendra Rajpoot
+
+\end{document}

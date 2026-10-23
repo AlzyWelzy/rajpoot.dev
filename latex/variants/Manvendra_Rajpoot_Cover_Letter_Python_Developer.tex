@@ -1,0 +1,120 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — COVER LETTER (Python Developer)
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Cover_Letter_Python_Developer.tex
+%  Same preamble and header as Manvendra_Rajpoot_Resume.tex.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.484}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+\setlength{\parskip}{11pt}
+
+% only ONE role variable — edit if the title differs, otherwise leave it
+\newcommand{\RoleTitle}{Python Developer}
+
+\begin{document}
+
+% ---------- header ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://www.rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://www.rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{2pt}
+{\color{rulecolor}\rule{\textwidth}{0.4pt}}
+
+\vspace{18pt}
+
+Dear Hiring Manager,
+
+I am writing to apply for the \RoleTitle{} role on your team. Python is the language
+I have shipped the most production code in, across Django, Django REST Framework and
+FastAPI, async SQLAlchemy, Celery and Pydantic, and I care about writing it typed, tested
+and easy for the next person to change.
+
+At CloudTechTiq I architected a multi-tenant hosting and billing/ERP platform on Django
+REST Framework spanning more than 25 apps and 230 ViewSets. I designed its dual-gateway
+payment system across Razorpay and Stripe with HMAC-SHA256 webhook idempotency, wired
+through invoicing, provisioning and double-entry ledger reconciliation, and Indian GST
+e-invoicing against the NIC gateway with IRN generation and signed QR codes. I then
+extracted billing into a FastAPI microservice that is the single billing authority for the
+platform, with a double-entry ledger, multi-invoice payment allocation and refunds, and
+multi-entity issuance that resolves entity, currency and tax from the billing address.
+
+I built an OAuth2/OpenID authorization server and FastAPI gateway to Apache CloudStack
+on async SQLAlchemy 2, asyncpg and Alembic, with webhook-first state sync, a polling
+fallback and job progress streamed over Server-Sent Events. Across the platform I
+implemented RS512 JWT with JWKS and refresh rotation, TOTP two-factor sign-in, a
+43-permission RBAC, Django Channels WebSockets, and a 24-task Celery system with
+late acknowledgement and worker-lost requeue. I eliminated N+1 queries with
+Prefetch, OuterRef and Exists, added keyset pagination, and instrumented everything with
+OpenTelemetry. I also open-sourced a type-safe Namecheap SDK on httpx and Pydantic v2,
+mypy-strict and published to PyPI.
+
+I also maintain open-source Python services: Shortly, a FastAPI URL shortener with a
+Redis read-through cache and Docker Compose and systemd deployment, and fastapi-genesis,
+a feature-sliced FastAPI starter on async SQLAlchemy 2, Alembic, uv, ruff and ty. I plan
+migrations with written runbooks that carry a check and a rollback for every step, gate
+releases on a test-parity check so every existing pytest is ported or deliberately
+dropped, and design scheduled and queued work with leases, retries and dead-letter
+queues so a failed job is visible rather than lost.
+
+I like Python codebases where routers stay thin, logic lives in services, settings
+come from one place and tests run without a database, and I bring that discipline to every
+team I join. I review for clarity as much as correctness, and I prefer small, typed,
+well-tested changes that are easy to reason about months later.
+
+I would welcome the chance to discuss how this experience fits your team, and I am
+happy to walk through any of the systems above in technical detail. Thank you for your
+time and consideration.
+
+\vspace{\stretch{1}}
+
+Sincerely,\\[6pt]
+Manvendra Rajpoot
+
+\end{document}

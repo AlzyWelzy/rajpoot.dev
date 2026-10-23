@@ -1,0 +1,117 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — COVER LETTER (Software Engineer)
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Cover_Letter_Software_Engineer.tex
+%  Same preamble and header as Manvendra_Rajpoot_Resume.tex.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.5888}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+\setlength{\parskip}{11pt}
+
+% only ONE role variable — edit if the title differs, otherwise leave it
+\newcommand{\RoleTitle}{Software Engineer}
+
+\begin{document}
+
+% ---------- header ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://www.rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://www.rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{2pt}
+{\color{rulecolor}\rule{\textwidth}{0.4pt}}
+
+\vspace{18pt}
+
+Dear Hiring Manager,
+
+I am writing to apply for the \RoleTitle{} role on your team. I work across the whole
+system: Python and TypeScript services, React interfaces, containerised infrastructure
+and the observability that ties them together. I am at my best owning a problem from
+design to production rather than one layer of it.
+
+At CloudTechTiq I architected a multi-tenant hosting and billing/ERP platform on Django
+REST Framework, more than 25 apps and 230 ViewSets, and designed its Razorpay and Stripe
+payment system with HMAC-SHA256 webhook idempotency, double-entry ledger reconciliation and
+GST e-invoicing. I extracted billing into a dedicated FastAPI microservice and built an
+OAuth2/OpenID gateway to Apache CloudStack that streams job progress over Server-Sent
+Events. I secured the platform with RS512 JWT and JWKS, two-factor sign-in and a
+43-permission RBAC, and built real-time notifications over Django Channels and Celery.
+
+Beyond the services, I built the React and Redux Toolkit console customers and staff
+use every day, and I own the Docker Compose topology of 35 services that runs the whole
+platform locally, with GitHub Actions pipelines publishing images to GHCR. I set up
+OpenTelemetry tracing into Prometheus, Grafana, Loki and Tempo so any failure traces back
+to a single request, and removed N+1 queries across the data layer.
+
+I have also built typed TypeScript API layers with Zod and Pydantic contracts and
+OpenAPI specs, offline-first React 19 patterns with an IndexedDB outbox, and run edge and
+cloud infrastructure on Cloudflare and GCP, moving deployments from a single-node Docker
+Swarm VM to serverless as the trade-offs between cost, limits and operability changed.
+Each migration had a written cutover plan with a check and a rollback for every step,
+and releases were gated on a test-parity check proving every existing test was ported
+or deliberately dropped.
+
+Whichever layer the problem lives in, I bring the same habits: design the contract
+first, make the risky paths correct and observable, and write the decisions down. I
+read code more than I write it, I review carefully, and I am comfortable being the person
+who is paged for a system and knows why it was built the way it was. I am looking for a
+team where that kind of end-to-end ownership is valued, and where I can keep growing
+across backend, frontend and platform work.
+
+I would welcome the chance to discuss how this experience fits your team, and I am
+happy to walk through any of the systems above in technical detail. Thank you for your
+time and consideration.
+
+\vspace{\stretch{1}}
+
+Sincerely,\\[6pt]
+Manvendra Rajpoot
+
+\end{document}

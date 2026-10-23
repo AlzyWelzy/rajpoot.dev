@@ -1,0 +1,125 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — COVER LETTER (Backend Developer)
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Cover_Letter_Backend_Developer.tex
+%  Same preamble and header as Manvendra_Rajpoot_Resume.tex.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.3503}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+\setlength{\parskip}{11pt}
+
+% only ONE role variable — edit if the title differs, otherwise leave it
+\newcommand{\RoleTitle}{Backend Developer}
+
+\begin{document}
+
+% ---------- header ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://www.rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://www.rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{2pt}
+{\color{rulecolor}\rule{\textwidth}{0.4pt}}
+
+\vspace{18pt}
+
+Dear Hiring Manager,
+
+I am writing to apply for the \RoleTitle{} role on your team. I build and own backend
+systems where correctness is not optional: platforms that move money, provision
+infrastructure, enforce access, and stay observable under load. I have taken these
+systems from architecture to production, both at CloudTechTiq and on my own product,
+and that is the work I want to keep doing at a larger scale.
+
+At CloudTechTiq I architected a multi-tenant hosting and billing/ERP platform on
+Django REST Framework spanning more than 25 apps and 230 ViewSets under one unified API.
+The part I am most confident about is the money path. I designed a dual-gateway payment
+system across Razorpay and Stripe with HMAC-SHA256 webhook idempotency to stop duplicate
+charges, wired through invoicing, provisioning and double-entry ledger reconciliation,
+plus Indian GST e-invoicing against the NIC gateway with IRN generation and signed QR
+codes. As the platform grew I extracted billing into its own FastAPI microservice, the
+single billing authority for every product: a double-entry ledger, payments allocated
+across multiple invoices with refunds, proforma-to-final invoice posting, and
+multi-entity issuance that resolves the legal entity, currency and GST/VAT from the
+customer's billing address.
+
+I also built the service that sits between customers and the cloud: an OAuth2/OpenID
+authorization server and FastAPI gateway to Apache CloudStack for virtual machines,
+volumes, networks and templates. It syncs state webhook-first with a polling fallback
+and streams job progress to the browser over Server-Sent Events. Around it I shipped RS512
+JWT authentication with kid-keyed JWKS and refresh-token rotation, two-factor sign-in over
+email OTP and TOTP, a 43-permission department-scoped RBAC, real-time notifications over
+Django Channels and Redis, and a Celery system with late acknowledgement and worker-lost
+requeue. I removed N+1 queries across an async and sync database layer, and set up
+OpenTelemetry tracing into Prometheus, Grafana, Loki and Tempo so any failure traces back
+to a single request.
+
+I have also learned to treat change itself as engineering work. I plan migrations
+and cutovers with written runbooks that carry a check and a rollback for every step,
+record architecture decisions so they are argued on evidence rather than memory, and gate
+releases on a test-parity check so every existing test is ported or deliberately
+dropped. I have hardened sign-in with passkeys (WebAuthn), TOTP, recovery codes and device
+trust, and designed scheduled and queued work with leases, heartbeats, retries and
+dead-letter queues so a failed job surfaces instead of disappearing. I also publish
+open-source Python work, including a typed Namecheap SDK on PyPI.
+
+Across all of this the throughline is ownership: I take complex,
+correctness-critical backend systems and make them reliable, observable and
+maintainable, and I document the decisions so the next engineer does not have to guess.
+
+I would welcome the chance to discuss how this experience fits your team, and I am
+happy to walk through any of the systems above in technical detail. Thank you for your
+time and consideration.
+
+\vspace{\stretch{1}}
+
+Sincerely,\\[6pt]
+Manvendra Rajpoot
+
+\end{document}

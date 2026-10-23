@@ -1,0 +1,121 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — COVER LETTER (DevOps Engineer)
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Cover_Letter_DevOps_Engineer.tex
+%  Same preamble and header as Manvendra_Rajpoot_Resume.tex.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.4366}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+\setlength{\parskip}{11pt}
+
+% only ONE role variable — edit if the title differs, otherwise leave it
+\newcommand{\RoleTitle}{DevOps Engineer}
+
+\begin{document}
+
+% ---------- header ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://www.rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://www.rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{2pt}
+{\color{rulecolor}\rule{\textwidth}{0.4pt}}
+
+\vspace{18pt}
+
+Dear Hiring Manager,
+
+I am writing to apply for the \RoleTitle{} role on your team. I come to infrastructure
+as an engineer who also writes the services running on it, so I care about how a platform
+is built, shipped, observed and recovered as much as how it is coded. I work daily with
+Docker and containerised deployments, CI/CD, Linux and Kubernetes concepts, and I would
+like to make platform work my main focus.
+
+At CloudTechTiq I own the Docker Compose topology for our cloud console: 35 services
+covering the Django portal, the CloudStack and billing FastAPI microservices, Celery
+workers and Beat, PostgreSQL, Redis, RabbitMQ, MinIO, NGINX and the observability stack.
+I wrapped it in one idempotent \texttt{make dev} that checks out submodules, rebuilds
+images only when a Dockerfile or lockfile changed, waits until every application answers,
+applies pending migrations and prints a health report, so a warm start takes about four
+seconds. I built GitHub Actions pipelines that run pytest, build multi-stage images and
+publish them to GHCR for dev, staging and production, with a separate migrations workflow
+and container health checks behind Gunicorn and NGINX.
+
+I built the observability platform from the ground up: OpenTelemetry instrumentation
+of FastAPI, SQLAlchemy, Redis, Celery and httpx, routed through an OTel Collector and
+Grafana Alloy into Prometheus, Loki and Tempo, so a failure anywhere traces back to a
+single request. I made environments reproducible with database seed snapshots and
+code-defined reference data, and automated bare-metal provisioning over HPE iLO Redfish
+with Celery-driven IP allocation. Behind it I designed the services themselves, including
+the Razorpay and Stripe payment flow and an OAuth2 gateway to Apache CloudStack.
+
+I have also run edge and cloud infrastructure end to end: Cloudflare DNS, Pages and
+Workers, mail authentication with SPF, DKIM and DMARC at \texttt{p=reject}, uptime
+monitoring, and written decision records and runbooks. I have taken deployments from a
+GCP VM running a single-node Docker Swarm behind a cloudflared tunnel with automatic
+image roll-outs, through managed platforms, to serverless, weighing cost, limits and
+operability at each step. Every migration had a written cutover plan with a check and a
+rollback per step, and background work runs with leases, heartbeats, retries and
+dead-letter queues so failures surface instead of disappearing.
+
+I treat infrastructure as something to be explained as well as run: every change has a
+check, a rollback and a written reason, which is what lets a small team operate it safely. I am
+keen to deepen my work with Kubernetes and infrastructure as code in a team that runs
+platforms at a larger scale.
+
+I would welcome the chance to discuss how this experience fits your team, and I am
+happy to walk through any of the systems above in technical detail. Thank you for your
+time and consideration.
+
+\vspace{\stretch{1}}
+
+Sincerely,\\[6pt]
+Manvendra Rajpoot
+
+\end{document}

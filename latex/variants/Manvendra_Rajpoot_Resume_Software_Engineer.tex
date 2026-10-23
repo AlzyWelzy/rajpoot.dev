@@ -1,0 +1,155 @@
+%==============================================================
+%  MANVENDRA RAJPOOT — RESUME (Software Engineer)
+%
+%  COMPILER: XeLaTeX (required for the Carlito/Calibri font).
+%    - Overleaf: Menu (top-left) -> Compiler -> XeLaTeX
+%    - Local:    xelatex Manvendra_Rajpoot_Resume_Software_Engineer.tex
+%  Same preamble and header as Manvendra_Rajpoot_Resume.tex.
+%==============================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------- layout ----------
+\usepackage[margin=0.5in]{geometry}
+
+% ---------- font: Carlito (Calibri clone) via XeLaTeX ----------
+\usepackage{iftex}
+\ifPDFTeX
+  % FALLBACK ONLY (pdflatex cannot load Carlito) — use XeLaTeX!
+  \usepackage[T1]{fontenc}
+  \usepackage{helvet}
+  \renewcommand{\familydefault}{\sfdefault}
+\else
+  \usepackage{fontspec}
+  \setmainfont{Carlito}
+\fi
+
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\definecolor{subtlegray}{HTML}{555555}
+\definecolor{rulecolor}{HTML}{999999}
+\usepackage[colorlinks=true,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{0.99}\selectfont
+
+% no hyphenation + ragged right: even word spacing, whole tech terms
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\usepackage[document]{ragged2e}
+\setlength{\RaggedRightParindent}{0pt}
+\emergencystretch=3em
+
+% ---------- section style: bold + full-width rule ----------
+\titleformat{\section}
+  {\bfseries\large}{}{0pt}
+  {}
+  [\vspace{-6pt}{\color{rulecolor}\rule{\textwidth}{0.4pt}}]
+\titlespacing*{\section}{0pt}{3pt}{2.4pt}
+
+% ---------- tight bullets ----------
+\setlist[itemize]{label=\textbullet, leftmargin=0.2in,
+                  itemsep=2.903pt, parsep=0pt, topsep=1.8pt,
+                  before=\RaggedRight}
+
+% ---------- reusable macros ----------
+% \entry{Role}{Company}{Dates} : three-column bold row
+\newcommand{\entry}[3]{%
+  \vspace{4.5pt}\noindent\textbf{#1}\hfill\textbf{#2}\hfill{\color{subtlegray}#3}\par\vspace{2pt}}
+
+%==============================================================
+\begin{document}
+
+% ---------- header ----------
+\noindent
+\begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}c@{\extracolsep{\fill}}r@{}}
+  \begin{tabular}[c]{@{}l@{}}\small
+    \href{mailto:manvendra@rajpoot.dev}{manvendra@rajpoot.dev}\\[1pt]
+    \small +91 94522 77560
+  \end{tabular} &
+  \begin{tabular}[c]{@{}c@{}}
+    {\fontsize{24}{26}\selectfont\bfseries Manvendra Rajpoot}\\[4pt]
+    {\color{subtlegray}\href{https://www.rajpoot.dev}{rajpoot.dev}}
+  \end{tabular} &
+  \begin{tabular}[c]{@{}r@{}}\small
+    \href{https://github.com/alzywelzy}{github.com/alzywelzy}\\[1pt]
+    \small \href{https://www.rajpoot.dev/linkedin}{linkedin.com/in/alzywelzy}
+  \end{tabular}
+\end{tabular*}
+\vspace{1pt}
+
+% ---------- experience ----------
+\section{Experience}
+
+\entry{Software Engineer}{CloudTechTiq}{Nov 2024 -- Present}
+\begin{itemize}
+  \item Architected a multi-tenant hosting and billing/ERP SaaS on \textbf{Django
+        REST Framework} spanning 25+ apps and 230+ ViewSets under a unified
+        \texttt{/api/} namespace.
+  \item Designed a dual-gateway payment system (\textbf{Razorpay} +
+        \textbf{Stripe}) with HMAC-SHA256 webhook idempotency to prevent duplicate
+        charges, coordinating payment, invoicing, provisioning, and double-entry
+        ledger reconciliation, plus Indian GST e-invoicing (EINV-2.1) through the
+        NIC gateway with IRN generation and signed QR codes.
+  \item Extracted billing into a standalone \textbf{FastAPI} microservice
+        (billing-ms) as the platform's single billing authority: double-entry
+        ledger, multi-invoice payment allocation and refunds, proforma
+        \texttt{->} final invoice posting, and multi-entity issuance that
+        resolves legal entity, currency and GST/VAT from the billing address.
+  \item Built an OAuth2/OpenID authorization server and \textbf{FastAPI}
+        gateway to \textbf{Apache CloudStack} for VMs, volumes, networks and
+        templates, with webhook-first state sync, a polling fallback, and live
+        job progress streamed to clients over \textbf{SSE}.
+  \item Built the customer and admin console in \textbf{React} 18 +
+        \textbf{Redux Toolkit} and Vite across 35+ feature modules (billing,
+        orders, CloudStack, tickets, roles, tax and payment settings), with
+        react-hook-form validation and ApexCharts dashboards.
+  \item Secured the platform with RS512 \textbf{JWT} auth (kid-keyed JWKS,
+        refresh-token rotation over HTTPOnly cookies), a 2FA flow over email OTP
+        and RFC-6238 TOTP, and a 43-permission department-scoped RBAC.
+  \item Owned the \textbf{Docker Compose} topology for the whole console: 35
+        services across the Django portal, CloudStack and billing microservices,
+        Celery workers/Beat, PostgreSQL, Redis, \textbf{RabbitMQ}, MinIO, NGINX
+        and the observability stack, with a single idempotent \texttt{make dev}
+        that rebuilds only on changed build inputs (\textasciitilde4\,s warm start).
+  \item Set up end-to-end observability with \textbf{OpenTelemetry} tracing and a
+        Prometheus/Grafana/Loki/Tempo stack, so failures across services could be
+        traced to a single request.
+  \item Built typed \textbf{TypeScript} API layers with schema-validated
+        contracts (\textbf{Zod}/Pydantic), OpenAPI specs and module-boundary
+        checks, keeping frontend and backend in lockstep.
+  \item Built offline-first \textbf{React} 19 + TypeScript PWA
+        patterns with TanStack Query and an IndexedDB outbox that replays writes
+        on reconnect, tested with Vitest and \textbf{Playwright} end-to-end suites.
+  \item Ran edge and cloud infrastructure: Cloudflare DNS/Pages/Workers,
+        SPF/DKIM/DMARC mail, uptime monitoring, and deployments evolving from a
+        \textbf{GCP} VM on single-node \textbf{Docker Swarm} with auto-rolling
+        image updates to serverless, weighing cost, limits and operability.
+  \item Planned service migrations and cutovers with written runbooks (a check
+        and a rollback per step), architecture decision records, and a test-parity
+        gate so every existing test is ported or explicitly dropped before release.
+\end{itemize}
+
+% ---------- education ----------
+\section{Education}
+\entry{Bachelor of Computer Applications (BCA)}{Bundelkhand University}{Jul 2021 -- Jun 2024}
+\begin{itemize}
+  \item Built an AI-powered news summarizer in Python as a final-year academic
+        project, using the OpenAI API to condense full-length articles into short,
+        readable digests.
+\end{itemize}
+
+% ---------- skills ----------
+\section{Technical Skills}
+\begin{itemize}
+  \item \textbf{Languages:} Python, TypeScript, JavaScript, SQL, Bash
+  \item \textbf{Backend:} Django, Django REST Framework, FastAPI, Hono, Celery, SQLAlchemy, Drizzle, Pydantic, Zod, WebSockets, SSE
+  \item \textbf{Frontend:} React, Next.js, Redux Toolkit, TanStack Query, Vite, Astro, Tailwind CSS, Radix/shadcn, PWA/IndexedDB
+  \item \textbf{Data:} PostgreSQL, Redis, MySQL, MongoDB, Cloudflare D1/R2, RabbitMQ, Alembic
+  \item \textbf{DevOps \& Cloud:} Docker, Docker Compose, Docker Swarm, Kubernetes, GitHub Actions, GHCR, NGINX, Gunicorn, Linux/systemd, AWS (EC2, S3, RDS, Lambda), GCP, Azure, Cloudflare (Workers, Pages, DNS), Apache CloudStack
+  \item \textbf{Security \& Payments:} OAuth2/OpenID, JWT/JWKS, WebAuthn/passkeys, 2FA/TOTP, RBAC, HMAC, Stripe, Razorpay
+  \item \textbf{Observability \& Testing:} OpenTelemetry, Prometheus, Grafana, Loki, Tempo; pytest, Vitest, Playwright, CI/CD
+\end{itemize}
+
+\end{document}
