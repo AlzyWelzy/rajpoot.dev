@@ -1,4 +1,4 @@
-# pnpm 10/11 configuration (committed — read by CI, local, and Vercel via
+# pnpm 12 configuration (committed — read by CI, local, and Vercel via
 # corepack + the packageManager field). pnpm no longer reads the `pnpm` field
 # in package.json, so overrides must live here or `--frozen-lockfile` fails
 # against the lockfile's recorded overrides.
@@ -11,7 +11,7 @@
 # brace-expansion and vite are dev-only: pulled in through eslint-config-next's
 # plugins and vitest, and forced to patched versions so the full `pnpm audit`
 # is clean too.
-# allowBuilds: native postinstall scripts pnpm 11 requires explicit approval for.
+# allowBuilds: native postinstall scripts pnpm 11+ requires explicit approval for.
 allowBuilds:
   esbuild: true
   sharp: true
