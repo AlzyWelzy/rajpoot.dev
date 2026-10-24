@@ -250,9 +250,15 @@ finer resolution than search engines treat the signal at.
 
 ## Version ceilings
 
-TypeScript is held at 6.x and ESLint at 9.x — TS 7 and ESLint 10 both break the
-Next toolchain. Both are encoded as `ignore` rules in `.github/dependabot.yml`;
-if you lift a ceiling, remove the matching rule.
+TypeScript is held at 6.x: on TS 7, `pnpm lint` fails at load because
+typescript-eslint (pulled in by eslint-config-next) refuses to run on it —
+typecheck, tests and build all pass. Lift it once typescript-eslint's peer range
+includes 7. The ceiling is an `ignore` rule in `.github/dependabot.yml`; remove
+it when you lift the ceiling.
+
+ESLint 10 works. eslint-plugin-react, -jsx-a11y and -import don't list it in
+their peer ranges yet, so pnpm warns about unmet peers; their rules were checked
+to still fire. If a plugin update breaks lint, CI's lint step catches it.
 
 ## Before you call it done
 
